@@ -1,6 +1,9 @@
 # 如何使用
 
+## 最低需求
+
 首先確定電腦有安裝至少python 3.9.0
+
 安裝 tweepy
 
 去推特申請開發者帳號 並建立 API key, API secret, Access Token, Access Secret
@@ -13,7 +16,7 @@ access_token = '換成你自己的'
 access_secret = '換成你自己的'
 ```
 
-執行
+## 執行
 
 ```
 $> python3 twitterCrawler.py
