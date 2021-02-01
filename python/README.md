@@ -25,3 +25,6 @@ $> python3 twitterCrawler.py
 ## twitterCrawler.py
 
 簡易的Twitter crawler, 使用Twitter Search API
+
+## twitterTimeline.py
+簡易的Twitter timeline 爬蟲, 使用Twitter user_timeline
