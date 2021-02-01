@@ -21,3 +21,7 @@ access_secret = '換成你自己的'
 ```
 $> python3 twitterCrawler.py
 ```
+
+## twitterCrawler.py
+
+簡易的Twitter crawler, 使用Twitter Search API
