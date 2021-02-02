@@ -28,7 +28,7 @@ kiara_weapon_role = {
     'mentionable' : False
     }
 kiara_shild_role = {
-    'name' : '🛡復甦（劍）',
+    'name' : '🛡落燼（盾）',
     'permissions' : discord.Permissions(permissions=0),
     'colour' : discord.Colour(0xFF8800),
     'hoist' : False,
@@ -120,7 +120,7 @@ ame_syringe_role = {
     'mentionable' : False
 }
 ame_book_role = {
-    'name' : '📒強這之證(兒時回憶錄)',
+    'name' : '📒強者之證(兒時回憶錄)',
     'permissions' : discord.Permissions(permissions=0),
     'colour' : discord.Colour(0xFFFF77),
     'hoist' : False,
@@ -175,13 +175,39 @@ ina_part_list = (ina_AO_role, ina_toko_role, ina_tentacle_role, ian_winds_role, 
 gura_trident_role = {
     'name' : '🔱亞特蘭蒂斯王器（三叉戟）',
     'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0xFFB7DD),
+    'colour' : discord.Colour(0x067EBA),
     'hoist' : False,
     'mentionable' : False
 }
-
-#TODO:finish lin: 17
-
+gura_hat_role = {
+    'name' : '🧢鯊鯊帽',
+    'permissions' : discord.Permissions(permissions=0),
+    'colour' : discord.Colour(0x067EBA),
+    'hoist' : False,
+    'mentionable' : False
+}
+gura_cloth_role = {
+    'name' : '👚鯊鯊裝',
+    'permissions' : discord.Permissions(permissions=0),
+    'colour' : discord.Colour(0x067EBA),
+    'hoist' : False,
+    'mentionable' : False
+}
+gura_bloop_role = {
+    'name' : '🥫BLOOP',
+    'permissions' : discord.Permissions(permissions=0),
+    'colour' : discord.Colour(0x067EBA),
+    'hoist' : False,
+    'mentionable' : False
+}
+gura_tail_role = {
+    'name' : '🦈鯊尾',
+    'permissions' : discord.Permissions(permissions=0),
+    'colour' : discord.Colour(0x067EBA),
+    'hoist' : False,
+    'mentionable' : False
+}
+gura_part_list = (gura_trident_role, gura_hat_role, gura_cloth_role, gura_bloop_role, gura_tail_role)
 
 class Special_role(commands.Cog):
     def __init__(self, client):
@@ -205,6 +231,7 @@ class Special_role(commands.Cog):
     async def special_collect_group(self, ctx:commands.Command, *attr):
         #TODO:print special collect eqiment state
         pass
+    
     @special_collect_group.command(name = 'init_role')
     async def special_collect_init(self, ctx:commands.Command, *argv):
         #TODO:check role on guild and auto create on guild
