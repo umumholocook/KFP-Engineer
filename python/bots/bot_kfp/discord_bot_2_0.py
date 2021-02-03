@@ -4,7 +4,7 @@ from discord.ext.commands import errors as disErros
 import asyncio, os
 import sys, traceback, json
 
-TOKEN = 'ODA2MzgxODE4ODQwMzUwNzMw.YBonlw.1Razl5F24ZFZ7xDyApiJtTLnxxw'
+TOKEN = ''
 intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix = '!',intents = intents)
