@@ -240,7 +240,7 @@ class RoleSelectSpecial(commands.Cog):
         part_list = en_roles[role_type]
         part_index = randrange(5)
         part = part_list[part_index]
-        print("received part " + part)
+        #TODO: add parts to user
         pass
 
     @commands.group(name = 'special', invoke_without_command = True)
