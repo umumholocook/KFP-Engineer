@@ -7,5 +7,5 @@
 //TBD
 
 ## 檔案與用途
-special_collect.py
+role_collect_special.py
 根據用戶發言隨機決定是否要給用戶特殊身份組
