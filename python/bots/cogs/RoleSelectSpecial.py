@@ -235,12 +235,12 @@ class RoleSelectSpecial(commands.Cog):
 
     @commands.Cog.listener('on_message')
     async def special_collect_on_message(self, message:Message):
-        # if shouldGetRole():
-        role_type = randrange(5)
-        part_list = en_roles[role_type]
-        part_index = randrange(5)
-        part = part_list[part_index]
-        #TODO: add parts to user
+        if shouldGetRole():
+            role_type = randrange(5)
+            part_list = en_roles[role_type]
+            part_index = randrange(5)
+            part = part_list[part_index]
+            #TODO: add parts to user
         pass
 
     @commands.group(name = 'special', invoke_without_command = True)
