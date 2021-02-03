@@ -215,13 +215,18 @@ gura_tail_role = {
 gura_part_list = (gura_trident_role, gura_hat_role, gura_cloth_role, gura_bloop_role, gura_tail_role)
 en_roles = (kiara_part_list, calli_part_list, ame_part_list, ina_part_list, gura_part_list)
 
-class Special_role(commands.Cog):
+class RoleSelectSpecial(commands.Cog):
     def __init__(self, client):
         self.bot = client
 
     def check_complete(self,member:Member):
         #TODO:check is user collect complete
         pass
+
+    def shouldGetRole():
+        seed(time.time())
+        n = randrange(999)
+        return n == 42 # 「生命、宇宙以及任何事情的終極答案」 --《銀河便車指南》
     
     @commands.Cog.listener('on_role_delete')
     async def special_collect_on_role_delete(self, message:Message):
@@ -230,13 +235,12 @@ class Special_role(commands.Cog):
 
     @commands.Cog.listener('on_message')
     async def special_collect_on_message(self, message:Message):
-        seed(time.time())
-        n = randrange(999) # 1/1000 chance
-        if n == 42: # 「生命、宇宙以及任何事情的終極答案」 --《銀河便車指南》
-            role_type = randrange(5)
-            part_list = en_roles[role_type]
-            part_index = randrange(5)
-            part = part_list[part_index]
+        # if shouldGetRole():
+        role_type = randrange(5)
+        part_list = en_roles[role_type]
+        part_index = randrange(5)
+        part = part_list[part_index]
+        print("received part " + part)
         pass
 
     @commands.group(name = 'special', invoke_without_command = True)
@@ -262,4 +266,4 @@ class Special_role(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(Special_role(client))
+    client.add_cog(RoleSelectSpecial(client))

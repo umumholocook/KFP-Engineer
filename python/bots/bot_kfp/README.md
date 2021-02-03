@@ -4,12 +4,6 @@
 
 ## 如何使用
 
-### role_collect_special.py
-
-根據用戶發言隨機決定是否要給用戶特殊身份組
-
-### KFP-bot
-
 需要以下packages:
 discord.py
 asyncio
@@ -21,3 +15,12 @@ image
 PRESENCE INTENT
 SERVER MEMBERS INTENT
 ```
+
+## 如何增加新功能？
+
+在 cogs/ 檔案夾底下添加新的功能即可
+
+### role_collect_special.py
+
+根據用戶發言隨機決定是否要給用戶特殊身份組
+
