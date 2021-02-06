@@ -24,7 +24,7 @@ class RoleSelectSpecial(commands.Cog):
         #TODO:check is user collect complete
         pass
 
-    def shouldGetRole():
+    def shouldGetRole(self):
         seed(time.time())
         n = randrange(999)
         return n == 42 # 「生命、宇宙以及任何事情的終極答案」 --《銀河便車指南》
