@@ -7,6 +7,7 @@ from discord import Guild, Member, Message, Reaction, Role
 from PIL import Image, ImageDraw, ImageFont ,ImageEnhance
 import io
 
+
 class profile_base():
     def __init__(self, icon_jpg:bytes, display_name:str, user_neme:str, rank_num:int, rank_:int, coin_num:int, xp_num:int, banner_jpg:bytes):
         self.display_name = display_name
@@ -33,7 +34,7 @@ class profile_base():
         self.image.paste(re_bk, (0,0))
         re_bk.close()
     def set_base_model(self):
-        image_base = Image.open("card_base.png")
+        image_base = Image.open(r"./resource/image/card_base.png")
         if image_base.mode != 'RGBA':
             image_base_rgba=image_base.convert('RGBA')
             image_base.close()
@@ -48,8 +49,9 @@ class profile_base():
         self.image.paste(image_icon.resize((142,142)), (60, 70))
         image_icon.close()
     def set_member_text(self):
-        member_name_font = ImageFont.truetype(font=r'./ttf/NotoSansCJKtc-Regular.otf', size=46,encoding='utf-8')
-        user_name_font = ImageFont.truetype(font=r'./ttf/NotoSansCJKtc-Regular.otf', size=27,encoding='utf-8')
+        
+        member_name_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=46,encoding='utf-8')
+        user_name_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=27,encoding='utf-8')
         draw = ImageDraw.Draw(self.image)
         draw.text((250,110), self.display_name, font=member_name_font)
         draw.text((250+draw.textsize(self.display_name, font=member_name_font)[0]+20, 110+24), '('+self.user_name+')', font=user_name_font, fill='#ADADAD')
@@ -58,19 +60,19 @@ class profile_base():
         draw = ImageDraw.Draw(self.image)
         level_1_text = '等級'
         level_1_size =  26
-        level_1_font = ImageFont.truetype(font=r'./ttf/NotoSansCJKtc-Regular.otf', size=level_1_size,encoding='utf-8')
+        level_1_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=level_1_size,encoding='utf-8')
 
         level_2_text = str(self.rank_)
         level_2_size = 48
-        level_2_font = ImageFont.truetype(font=r'./ttf/NotoSansCJKtc-Regular.otf', size=level_2_size,encoding='utf-8')
+        level_2_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=level_2_size,encoding='utf-8')
 
         rank_1_text = '排名'
         rank_1_size = 26
-        rank_1_font = ImageFont.truetype(font=r'./ttf/NotoSansCJKtc-Regular.otf', size=rank_1_size,encoding='utf-8')
+        rank_1_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=rank_1_size,encoding='utf-8')
 
         rank_2_text = '#'+str(self.rank_num)
         rank_2_size = 48
-        rank_2_font = ImageFont.truetype(font=r'./ttf/NotoSansCJKtc-Regular.otf', size=rank_2_size,encoding='utf-8')
+        rank_2_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=rank_2_size,encoding='utf-8')
 
         x_base = 934 - 60
         x_base -= draw.textsize(level_2_text, font=level_2_font)[0]
@@ -85,7 +87,7 @@ class profile_base():
     def set_xp_progress_and_coin_num(self):
         draw = ImageDraw.Draw(self.image)
         common_size = 27
-        common_font = ImageFont.truetype(font=r'./ttf/NotoSansCJKtc-Regular.otf', size=common_size, encoding='utf-8')
+        common_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=common_size, encoding='utf-8')
         
         text_list_1 = ('硬幣:', str(self.coin_num))
         text_list_fill_1 = ('#E1E100', '#F9F900')[::-1]
@@ -120,7 +122,7 @@ class profile(commands.Cog):
 
     @commands.Cog.listener('on_guild_role_delete')
     async def profile_on_guild_role_delete(self, role:Role):
-        role_dict = load_json_file(str(role.guild.id)+'rank_role.json')
+        role_dict = load_json_file(r"./resource/"+str(role.guild.id)+'rank_role.json')
         if role_dict != False:
             for tem in role_dict:
                 if not tem.startswith('per'):
@@ -128,19 +130,19 @@ class profile(commands.Cog):
                         new_role = await role.guild.create_role(role)
                         role_dict[tem]['id'] = new_role.id
                         role_dict[tem]['name'] = new_role.name
-            with open(str(role.guild.id)+'rank_role.json', mode="w", encoding='utf-8') as fp:
+            with open(r"./resource/image/"+str(role.guild.id)+'rank_role.json', mode="w", encoding='utf-8') as fp:
                 json.dump(role_dict, fp)
                 fp.close()
 
     @commands.Cog.listener('on_guild_role_update')
     async def profile_on_guild_role_update(self, before:Role, after:Role):
         if before.id != after.id:
-            role_dict = load_json_file(str(before.guild.id)+'rank_role.json')
+            role_dict = load_json_file(r"./resource/"+str(before.guild.id)+'rank_role.json')
             if role_dict != False:
                 for tem in role_dict:
                     if not tem.startswith('per') and role_dict[tem]['id'] == before.id:
                         role_dict[tem]['id'] = after.id
-                with open(str(before.guild.id)+'rank_role.json', "w", encoding='utf-8') as fp:
+                with open(r"./resource/"+str(before.guild.id)+'rank_role.json', "w", encoding='utf-8') as fp:
                     json.dump(role_dict, fp)
                     fp.close
                     
@@ -161,7 +163,7 @@ class profile(commands.Cog):
                 else:
                     await message.channel.send('<@!{}> 等級 提升到 {} 啦!'.format(message.author.id, database_API.get_member_row(message.guild.id, message.author.id)[database_API.member_index.rank]))
 
-                role_dict=load_json_file(str(message.guild.id)+'rank_role.json')
+                role_dict=load_json_file(r"./resource/"+str(message.guild.id)+'rank_role.json')
                 if rank%20 == 0:
                     if role_dict != False:
                         for i in range(100, 19, -20):
@@ -214,7 +216,7 @@ class profile(commands.Cog):
 
     @commands.group(name = 'profile', invoke_without_command = True)
     async def profile_profile_group(self, ctx, *attr):
-        tem_dict = load_json_file(str(ctx.guild.id)+'rank_role.json')
+        tem_dict = load_json_file(r"./resource/"+str(ctx.guild.id)+'rank_role.json')
         if tem_dict!=False:
             if tem_dict['per_channel'] != ctx.channel.id and tem_dict['per_channel'] != 0:
                 await ctx.channel.send("請至<#{}>輸入指令".format(tem_dict['per_channel']))
@@ -227,29 +229,29 @@ class profile(commands.Cog):
         banner_url = ctx.guild.banner_url
         banner_jpg_data = None
         if ctx.author.id == 326752816238428164 or ctx.author.id == 222677011917832202 or ctx.author.id == 428456132625956865:
-            with open('shina_only.jpg', "rb") as fp:
+            with open('./resource/image/shina_only.jpg', "rb") as fp:
                 banner_jpg_data = fp.read()
                 fp.close()
         elif banner_url._url != None:
             banner_jpg_data = await banner_url.read()
         else:
-            with open("banner_None.png", "rb") as fp:
+            with open("./resource/image/banner_None.png", "rb") as fp:
                 banner_jpg_data = fp.read()
                 fp.close()
         member_row =  database_API.get_member_row(ctx.guild.id, ctx.author.id)
         rank_num = database_API.sort_rank_num(ctx.guild.id,member_row[database_API.member_index.xp])
         profile = profile_base(icon_jpg_data, ctx.author.display_name, str(ctx.author), rank_num, member_row[database_API.member_index.rank], member_row[database_API.member_index.normal_coin], member_row[database_API.member_index.xp], banner_jpg_data)
 
-        fp = open(str(ctx.author.name)+'.png','wb')
+        fp = open(r"./resource/"+str(ctx.author.name)+'.png','wb')
         profile.image.save(fp,format='PNG')
         fp.close()
         profile.image.close()
-        fp = open(str(ctx.author.name)+'.png','rb')
-        dfp = discord.File(fp,"profile.png")
+        fp = open(r"./resource/"+str(ctx.author.name)+'.png','rb')
+        dfp = discord.File(fp,r"./resource/"+"profile.png")
         await ctx.channel.send(file=dfp)
         dfp.close()
         fp.close()
-        os.remove(str(ctx.author.name)+'.png')
+        os.remove(r"./resource/"+str(ctx.author.name)+'.png')
 
 
     @profile_profile_group.command(name = 'set_rankup_channel')
@@ -269,12 +271,12 @@ class profile(commands.Cog):
     async def profile_group_init_role_command(self, ctx:discord.ext.commands, *argv):
         f_msg = await ctx.channel.send("初始化等級位階身分組....")
         default_dict = {}
-        if not os.path.exists(str(ctx.guild.id)+'rank_role.json'):
-            with open("default_rank_roles.json", "r", encoding='utf-8') as fp:
+        if not os.path.exists(r"./resource/"+str(ctx.guild.id)+'rank_role.json'):
+            with open("./resource/default_rank_roles.json", "r", encoding='utf-8') as fp:
                 default_dict = json.load(fp)
         else:
             await ctx.channel.send("發現原有資料，使用舊資料同步...")
-            with open(str(ctx.guild.id)+'rank_role.json', "r", encoding='utf-8') as fp:
+            with open(r"./resource/"+str(ctx.guild.id)+'rank_role.json', "r", encoding='utf-8') as fp:
                 default_dict = json.load(fp)
         target_guild = ctx.guild
         for tem in default_dict:
@@ -331,14 +333,14 @@ class profile(commands.Cog):
             await ctx.channel.send("偵測到預設身分組{}".format(target_guild.get_role(770218792440823820).name))
             default_dict['permissions'].append(770218792440823820)
         await ctx.channel.send("設定權限身分組完成。")
-        with open(str(target_guild.id)+'rank_role.json', 'w', encoding='utf-8') as fp:
+        with open(r"./resource/"+str(target_guild.id)+'rank_role.json', 'w', encoding='utf-8') as fp:
             json.dump(default_dict, fp)
             fp.close()
         await ctx.channel.send("初始化身分組完成。")
 
     @profile_profile_group.command(name= 'bind_commad_channel')
     async def profile_group_bind_commad_channel(self, ctx:discord.ext.commands, *argv):
-        tem_dict = load_json_file(str(ctx.guild.id)+'rank_role.json')
+        tem_dict = load_json_file(r"./resource/"+str(ctx.guild.id)+'rank_role.json')
         if tem_dict == False:
             await ctx.channel.send("請先初始化，輸入`!profile init_role`")
             return
@@ -354,7 +356,7 @@ class profile(commands.Cog):
                             channel_id= int(channel_id)
                             if ctx.guild.get_channel(channel_id) != None:
                                 tem_dict['per_channel'] = channel_id
-                                with open(str(ctx.guild.id)+'rank_role.json', "w", encoding='utf-8') as fp:
+                                with open(r"./resource/"+str(ctx.guild.id)+'rank_role.json', "w", encoding='utf-8') as fp:
                                     json.dump(tem_dict, fp)
                                     fp.close()
                                 await ctx.channel.send("設定<#{}>為profile 指令輸入頻道".format(channel_id))
@@ -375,7 +377,7 @@ class profile(commands.Cog):
                     channel_id= int(channel_id)
                     if ctx.guild.get_channel(channel_id) != None:
                         tem_dict['per_channel'] = channel_id
-                        with open(str(ctx.guild.id)+'rank_role.json', "w", encoding='utf-8') as fp:
+                        with open(r"./resource/"+str(ctx.guild.id)+'rank_role.json', "w", encoding='utf-8') as fp:
                             json.dump(tem_dict, fp)
                             fp.close()
                         await ctx.channel.send("設定<#{}>為profile 指令輸入頻道".format(channel_id))

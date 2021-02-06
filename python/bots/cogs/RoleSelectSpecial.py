@@ -223,7 +223,7 @@ class RoleSelectSpecial(commands.Cog):
         #TODO:check is user collect complete
         pass
 
-    def shouldGetRole():
+    def shouldGetRole(self):
         seed(time.time())
         n = randrange(999)
         return n == 42 # 「生命、宇宙以及任何事情的終極答案」 --《銀河便車指南》
@@ -235,7 +235,7 @@ class RoleSelectSpecial(commands.Cog):
 
     @commands.Cog.listener('on_message')
     async def special_collect_on_message(self, message:Message):
-        if shouldGetRole():
+        if self.shouldGetRole():
             role_type = randrange(5)
             part_list = en_roles[role_type]
             part_index = randrange(5)
