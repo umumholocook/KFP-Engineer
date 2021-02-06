@@ -9,213 +9,14 @@ from random import randrange
 import discord
 from discord.ext import commands
 from discord import Guild, Member, Message, Reaction, Role
+from discord.utils import get
 
-'''
-店長：復甦（劍）、落燼（盾）、不死鳥羽（耳環）、PAPA的制約（封印）、死神誓約（蝴蝶結頸圈）
-
-死神：魂歌死鐮（武器）、地獄獠牙（披風）、不眠者的榮耀（頭冠）、喚魂笛（生草笛）、不死鳥誓約（頭紗）
-
-AME：真實之眼（放大鏡）、還原時空的懷錶（懷錶）、最強偵探的象徵（獵鹿帽+披肩外套）、（頭飾）、可以聽見心聲的黑科技產品-華生讀心器（聽診器）
-
-INA：原始咒書（魔導書）、古神傳承（頭飾）、被召喚的觸手（觸手）、守護諭（腰間的翅膀）、五法靈結（手臂和大腿的繩結飾品）
-
-鯊鯊：亞特蘭蒂斯王器（三叉戟）、鯊鯊帽（在陸地上買的可愛鯊鯊帽，無特殊能力）、鯊鯊裝（腰間的大嘴似乎可以探測到鮭魚）、BLOOP（鯊鯊的備用糧食）、鯊尾啦！（意圖使他人意識到自己是兇猛鯊魚的尾巴）
-掛號內的東西....
-在想看看有沒有能夠更簡節一點
-不然就乾脆用畫的好了
-
-'''
-kiara_weapon_role = {
-    'name' : '🗡復甦（劍）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0xEE7700),
-    'hoist' : False,
-    'mentionable' : False
-    }
-kiara_shild_role = {
-    'name' : '🛡落燼（盾）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0xFF8800),
-    'hoist' : False,
-    'mentionable' : False
-}
-kiara_earRing_role = {
-    'name' : '🪶不死鳥羽（耳環）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0xFFAA33),
-    'hoist' : False,
-    'mentionable' : False
-}
-kiara_scroll_role = {
-    'name' : '📜PAPA的制約（封印）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0xFFBB66),
-    'hoist' : False,
-    'mentionable' : False
-}
-kiara_ribbon_role = {
-    'name' : '🎀死神誓約（蝴蝶結頸圈）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0xFFBB66),
-    'hoist' : False,
-    'mentionable' : False
-}
-
-kiara_part_list = (kiara_weapon_role, kiara_shild_role, kiara_earRing_role, kiara_scroll_role, kiara_ribbon_role)
-
-calli_sickle_role = {
-    'name' : '🎶魂歌死鐮（武器）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0xFFDEDE),
-    'hoist' : False,
-    'mentionable' : False
-}
-
-calli_cloak_role = {
-    'name' : '❇地獄獠牙（披風）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0xFFABAB ),
-    'hoist' : False,
-    'mentionable' : False
-}
-
-calli_crown_role = {
-    'name' : '👑不眠者的榮耀（頭冠）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0xFF7878),
-    'hoist' : False,
-    'mentionable' : False
-}
-calli_flute_role = {
-    'name' : '📏喚魂笛（生草笛）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0xFF4545 ),
-    'hoist' : False,
-    'mentionable' : False
-}
-
-calli_veil_role = {
-    'name' : '👰不死鳥誓約（頭紗）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0xFF1212),
-    'hoist' : False,
-    'mentionable' : False
-}
-calli_part_list = (calli_sickle_role, calli_cloak_role, calli_crown_role, calli_flute_role, calli_veil_role)
-
-ame_magnifier_role = {
-    'name' : '🔍真實之眼（放大鏡）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0xEEEE00),
-    'hoist' : False,
-    'mentionable' : False
-}
-ame_watch_role = {
-    'name' : '🕰還原時空的懷錶（懷錶）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0xFFFF00),
-    'hoist' : False,
-    'mentionable' : False
-}
-ame_syringe_role = {
-    'name' : '💉生命維持針（針筒)',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0xFFFF33),
-    'hoist' : False,
-    'mentionable' : False
-}
-ame_book_role = {
-    'name' : '📒強者之證(兒時回憶錄)',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0xFFFF77),
-    'hoist' : False,
-    'mentionable' : False
-}
-ame_stethoscope_role = {
-    'name' : '🩺可以聽見心聲的黑科技產品-華生讀心器（聽診器）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0xFFFFBB ),
-    'hoist' : False,
-    'mentionable' : False
-}
-ame_part_list = (ame_magnifier_role, ame_watch_role, ame_syringe_role, ame_book_role, ame_stethoscope_role)
-
-ina_AO_role = {
-    'name' : '📖原始咒書（魔導書）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0x580099),
-    'hoist' : False,
-    'mentionable' : False
-}
-ina_toko_role = {
-    'name' : '🐙古神傳承（頭飾）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0x6400B2),
-    'hoist' : False,
-    'mentionable' : False
-}
-ina_tentacle_role = {
-    'name' : '👾被召喚的觸手（觸手）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0x7600CC),
-    'hoist' : False,
-    'mentionable' : False
-}
-ian_winds_role = {
-    'name' : 'ଘ( ˊωˋ )ଓ 守護諭（腰間的翅膀）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0x8400E6),
-    'hoist' : False,
-    'mentionable' : False
-}
-ian_ribbon_role = {
-    'name' : '💖🎀五法靈結（手臂和大腿的繩結飾品）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0x990DFF),
-    'hoist' : False,
-    'mentionable' : False
-}
-ina_part_list = (ina_AO_role, ina_toko_role, ina_tentacle_role, ian_winds_role, ian_ribbon_role)
-
-gura_trident_role = {
-    'name' : '🔱亞特蘭蒂斯王器（三叉戟）',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0x067EBA),
-    'hoist' : False,
-    'mentionable' : False
-}
-gura_hat_role = {
-    'name' : '🧢鯊鯊帽',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0x067EBA),
-    'hoist' : False,
-    'mentionable' : False
-}
-gura_cloth_role = {
-    'name' : '👚鯊鯊裝',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0x067EBA),
-    'hoist' : False,
-    'mentionable' : False
-}
-gura_bloop_role = {
-    'name' : '🥫BLOOP',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0x067EBA),
-    'hoist' : False,
-    'mentionable' : False
-}
-gura_tail_role = {
-    'name' : '🦈鯊尾',
-    'permissions' : discord.Permissions(permissions=0),
-    'colour' : discord.Colour(0x067EBA),
-    'hoist' : False,
-    'mentionable' : False
-}
-gura_part_list = (gura_trident_role, gura_hat_role, gura_cloth_role, gura_bloop_role, gura_tail_role)
-en_roles = (kiara_part_list, calli_part_list, ame_part_list, ina_part_list, gura_part_list)
+from data import SpecialRoleData
 
 class RoleSelectSpecial(commands.Cog):
+    roleMap = {} # <name, id> pair
+    initialized = False
+
     def __init__(self, client):
         self.bot = client
 
@@ -223,42 +24,83 @@ class RoleSelectSpecial(commands.Cog):
         #TODO:check is user collect complete
         pass
 
-    def shouldGetRole(self):
+    def shouldGetRole():
         seed(time.time())
         n = randrange(999)
         return n == 42 # 「生命、宇宙以及任何事情的終極答案」 --《銀河便車指南》
     
+    # Load existing roles into memory
+    def syncRoles(self, ctx):
+        for en_member in SpecialRoleData.EN_MEMBERS:
+            for part in en_member:
+                role = get(ctx.guild.roles, name=part['name'])
+                if role:
+                    self.roleMap[role.name] = role.id
+    
+    async def updateRole(self, message:Message, part):
+        ctx = await self.bot.get_context(message)
+        member = message.guild.get_member(message.author.id)
+        roleName = part['name']
+        t_role = message.guild.get_role(self.roleMap[roleName])
+        if roleName in self.roleMap and not t_role in member.roles:
+            await member.add_roles(t_role)
+            t_rmbed = discord.Embed()
+            t_rmbed.description = "恭喜<@!{}>獲得{}".format(message.author.id, part['name'])
+            await message.channel.send(embed= t_rmbed)
+
+    # To initialize special roles
+    async def initializeRoles(self, ctx):
+        f_msg = await ctx.channel.send("初始化特殊身分組....")
+        target_guild = ctx.guild
+        for en_member in SpecialRoleData.EN_MEMBERS:
+            for part in en_member:
+                part_name = part['name']
+                f_msg.edit(content= str(f_msg.content)+"\n建立{}身份組".format(part_name))
+                role = get(ctx.guild.roles, name=part_name)
+                if role:
+                    self.roleMap[role.name] = role.id
+                    await f_msg.edit(content= str(f_msg.content)+"\n{}已經存在... 合併現有資料".format(part_name))
+                else:
+                    await f_msg.edit(content= str(f_msg.content)+'\n創建身分組{} ....'.format(part_name))
+                    new_role = await target_guild.create_role(name=part_name , permissions=discord.Permissions(permissions=0) ,colour= discord.Color(part['color']), mentionable= False, hoist=False)
+                    roles[new_role.name] = new_role.id
+        await ctx.channel.send("特殊身分組初始化完成。")
+
     @commands.Cog.listener('on_role_delete')
     async def special_collect_on_role_delete(self, message:Message):
         #TODO:if special roles being delet, recreate!
         pass
 
+    @commands.Cog.listener('on_guild_join')
+    async def special_on_ready(self, guild:Guild):
+        self.syncRoles(guild)
+
     @commands.Cog.listener('on_message')
     async def special_collect_on_message(self, message:Message):
-        if self.shouldGetRole():
-            role_type = randrange(5)
-            part_list = en_roles[role_type]
-            part_index = randrange(5)
-            part = part_list[part_index]
-            #TODO: add parts to user
-        pass
+        ctx = await self.bot.get_context(message)
+        if ctx.command == None and ctx.author.id != self.bot.user.id:
+            if not self.initialized:
+                self.syncRoles(ctx)
+                self.initializeRoles = True
+            if self.shouldGetRole():
+                memberIndex = randrange(len(SpecialRoleData.EN_MEMBERS))
+                member = SpecialRoleData.EN_MEMBERS[memberIndex]
+                partIndex = randrange(len(member))
+                part = member[partIndex]
+                await self.updateRole(message, part)
 
     @commands.group(name = 'special', invoke_without_command = True)
     async def special_collect_group(self, ctx:commands.Command, *attr):
         #TODO:print special collect eqiment state
         pass
+
+    @special_collect_group.command(name = 'test')
+    async def special_collect_test(self, ctx:commands.Command, *argv):
+        await ctx.channel.send("Hello world!")
     
-    @special_collect_group.command(name = 'init_role')
+    @special_collect_group.command(name = 'init_roles')
     async def special_collect_init(self, ctx:commands.Command, *argv):
-        #TODO:check role on guild and auto create on guild
-        role_list = ctx.guild.roles
-        has_role = False
-        for g_role in role_list:
-            if g_role.name == kiara_weapon_role['name']:
-                has_role=True
-                break
-        if not has_role:
-            await ctx.guild.create_role(**kiara_weapon_role)
+        await self.initializeRoles(ctx)
 
     #TODO: design something special that shown user they got the special roles
     #Note: for inas roles, can upload some voice cut for user
