@@ -35,3 +35,7 @@ bot/resource/image
 bot/resource/ttf
 ---
 放置bot 需要參考之字型資源
+
+bot/data
+---
+放置python直讀用檔案, 與resource區別開來
