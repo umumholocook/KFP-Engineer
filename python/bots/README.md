@@ -9,12 +9,21 @@ discord.py
 asyncio
 image
 
-機器人需要開啟下面兩個權限
+1. 機器人需要開啟下面兩個權限
 
 ```
 PRESENCE INTENT
 SERVER MEMBERS INTENT
 ```
+
+並且要有Manage Roles Permission
+
+2. 修改discord_bot_2_0.py裡面的token
+
+3. 使用 start_kfp.sh
+
+4. 邀請bot到聊天室
+
 
 ## 如何增加新功能？
 
