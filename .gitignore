@@ -1,2 +1,4 @@
 **/__pycache__/
 **/*rank_role.json
+.vscode/**
+**/*.db
