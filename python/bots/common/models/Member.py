@@ -1,4 +1,3 @@
-import common.models.BaseModel as db
 from common.models.BaseModel import BaseModel
 from peewee import *
 

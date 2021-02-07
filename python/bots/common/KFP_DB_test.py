@@ -3,6 +3,8 @@ import peewee
 from peewee import SqliteDatabase
 from common.KFP_DB import KfpDb
 from common.models.Member import Member
+from common.models.Channel import Channel
+from common.Util import Util
 
 MODELS = [Member]
 default_user_id = 0
@@ -69,15 +71,44 @@ class TestKfpDb():
 
     def test_getMemberRankOrder_last(self):
         self.database.add_member(1)
-        self.database.increase_exp(1, 100)
         self.database.add_member(2)
+        
+        self.database.increase_exp(1, 100)
         self.database.increase_exp(2, 100)
+        
         assert self.database.get_member_rank_order(0) == 3
 
     def test_getMemberRankOrder_first(self):
-        self.database.increase_exp(0, 101)
         self.database.add_member(1)
-        self.database.increase_exp(1, 100)
         self.database.add_member(2)
+        
+        self.database.increase_exp(default_user_id, 101)
+        self.database.increase_exp(1, 100)
         self.database.increase_exp(2, 100)
-        assert self.database.get_member_rank_order(0) == 1
+        
+        assert self.database.get_member_rank_order(default_user_id) == 1
+
+    def test_sameMemberRankOrder_second(self):
+        self.database.add_member(1)
+        self.database.add_member(2)
+        self.database.add_member(3)
+        
+        self.database.increase_exp(default_user_id, 100)
+        self.database.increase_exp(1, 100)
+        self.database.increase_exp(2, 1000)
+        self.database.increase_exp(3, 10)
+
+        # 經驗相同時排名相同, 並列第二
+        assert self.database.get_member_rank_order(default_user_id) == 2
+        assert self.database.get_member_rank_order(1) == 2
+
+    def test_setRankupChannel_notExist(self):
+        with pytest.raises(peewee.DoesNotExist): 
+            Channel.get(channel_type=Util.ChannelType.RANK_UP)
+    
+    def test_setRankupChannel(self):
+        self.database.set_rankup_channel(123)
+        assert Channel.get(channel_type=Util.ChannelType.RANK_UP).channel_discord_id == 123
+
+        self.database.set_rankup_channel(456)
+        assert Channel.get(channel_type=Util.ChannelType.RANK_UP).channel_discord_id == 456

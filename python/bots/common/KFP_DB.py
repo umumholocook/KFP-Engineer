@@ -2,6 +2,7 @@ import sqlite3
 import common.models.BaseModel as db
 from common.Util import Util
 from common.models.Member import Member
+from common.models.Channel import Channel
 from peewee import SqliteDatabase
 
 class KfpDb():
@@ -9,7 +10,7 @@ class KfpDb():
     def __init__(self, dbFile="./common/KFP_bot.db"):
         self.sqliteDb = SqliteDatabase(dbFile)
         db.proxy.initialize(self.sqliteDb)
-        self.sqliteDb.create_tables([Member])
+        self.sqliteDb.create_tables([Member, Channel])
 
     # For test only, do not use
     def get_database(self):
@@ -61,10 +62,18 @@ class KfpDb():
     # 會員等級排名
     def get_member_rank_order(self, member_id:int):
         target_exp = Member.get_by_id(member_id).exp
-        less_than_count = Member.select().where((Member.exp < target_exp)).count()
-        total_count = Member.select().count()
-        print("total: {} and less: {}".format(total_count, less_than_count))
-        return total_count - less_than_count
+        return Member.select().where((Member.exp > target_exp)).count() + 1
+    
+    # 設定訊息頻道ID
+    def set_rankup_channel(self, channel_id:int):
+        query = Channel.select().where(Channel.channel_type == Util.ChannelType.RANK_UP)
+        if query.exists():
+            channel = Channel.get(channel_type=Util.ChannelType.RANK_UP)
+        else:
+            # channel 不存在
+            channel = Channel(channel_type=Util.ChannelType.RANK_UP)
         
+        channel.channel_discord_id = channel_id
+        channel.save()
 
         
