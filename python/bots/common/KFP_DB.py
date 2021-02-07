@@ -16,9 +16,14 @@ class KfpDb():
     def get_database(self):
         return self.sqliteDb
 
+    def has_member(self, member_id:int):
+        return Member.select().where(Member.member_id == member_id).exists()
+
     # 透過會員ID讀取會員
     def get_member(self, member_id:int):
-        return Member.get_by_id(member_id)
+        if self.has_member(member_id):
+            return Member.get_by_id(member_id)
+        return None
     
     # 增加新會員
     def add_member(self, member_id:int):
@@ -34,14 +39,21 @@ class KfpDb():
 
     # 增加會員的經驗值
     def increase_exp(self, member_id:int, new_exp:int):
-        member = Member.get_by_id(member_id)
+        query = Member.select().where(Member.member_id == member_id)
+        if not query.exists():
+            return False
+        member = query.get()
         member.exp = member.exp+new_exp
         member.save()
         self.__update_rank_if_qualified(member_id)
+        return True
     
     # 更新會員的硬幣數量, 數量可以是負數, 如果會員硬幣減至0, 以交易失敗為記
     def update_coin(self, member_id:int, amount:int):
-        member = Member.get_by_id(member_id)
+        query = Member.select().where(Member.member_id == member_id)
+        if not query.exists():
+            return False
+        member = query.get()
         newValue = member.coin+amount
         if (newValue < 0):
             return False
@@ -68,9 +80,9 @@ class KfpDb():
     def set_rankup_channel(self, channel_id:int):
         query = Channel.select().where(Channel.channel_type == Util.ChannelType.RANK_UP)
         if query.exists():
-            channel = Channel.get(channel_type=Util.ChannelType.RANK_UP)
+            channel = query.get()
         else:
-            # channel 不存在
+            # channel 不存在, 新增一個
             channel = Channel(channel_type=Util.ChannelType.RANK_UP)
         
         channel.channel_discord_id = channel_id

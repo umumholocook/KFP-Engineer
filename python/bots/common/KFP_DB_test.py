@@ -24,6 +24,9 @@ class TestKfpDb():
         self.database.add_member(12346)
         member = self.database.get_member(12346)
         assert member.member_id == 12346
+    
+    def test_getMember_notExist(self):
+        assert not self.database.get_member(100) # user 100 does not exist
         
     def test_addMultipleMembers(self):
         member_ids = [1, 2, 3, 4, 5, 6, 7, 8]
@@ -36,6 +39,9 @@ class TestKfpDb():
         with pytest.raises(peewee.IntegrityError): 
             self.database.add_member(default_user_id)
 
+    def test_increaseExp_notExist(self):
+        assert not self.database.increase_exp(100, 10) # user 100 does not exist
+
     def test_increaseExp(self):
         self.database.increase_exp(default_user_id, 10)
         member = Member.get_by_id(default_user_id)
@@ -47,6 +53,9 @@ class TestKfpDb():
         self.database.increase_exp(default_user_id, 100)
         member = Member.get_by_id(default_user_id)
         assert member.rank == 1
+    
+    def test_addCoin_notExist(self):
+        assert not self.database.update_coin(100, 10) # user 100 does not exist
 
     def test_addCoin(self):
         self.database.update_coin(default_user_id, 10)
