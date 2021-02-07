@@ -8,22 +8,24 @@ class KfpDb():
     def __init__(self, dbFile="./common/KFP_bot.db"):
         self.sqliteDb = SqliteDatabase(dbFile)
         db.proxy.initialize(self.sqliteDb)
+        self.sqliteDb.create_tables([Member])
 
     # For test only, do not use
     def get_database(self):
         return self.sqliteDb
 
-    def create_table(self, guild_id:int):
-        Member.create_table(guild_id=guild_id)
-
-    def get_member_row(self, guild_id:int, member_id:int):
-        return Member.get_member_row(guild_id, member_id)
+    def get_member_row(self, member_id:int):
+        Member.get(member_id=member_id)
     
-    def add_member(self, guild_id:int, member_id:int):
-        Member.add_member(guild_id, member_id)
+    def add_member(self, member_id:int):
+        member = Member.create(member_id=member_id)
+        member.save()
     
-    def add_members(self, guild_id:int, members_set:set):
-        Member.add_members(guild_id, members_set)
+    def add_members(self, member_ids):
+        data = []
+        for member_id in member_ids:
+            data.append({'member_id': member_id})
+        Member.insert_many(data).execute()
         
 
         
