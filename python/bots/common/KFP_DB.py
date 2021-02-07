@@ -13,25 +13,17 @@ class KfpDb():
     def get_database(self):
         return self.sqliteDb
 
-    def get_all_tables(self):
-        return Member.get_all_tables()
-
     def create_table(self, guild_id:int):
         Member.create_table(guild_id=guild_id)
 
     def get_member_row(self, guild_id:int, member_id:int):
-        return Member.get_tabel(guild_id).get(member_id=member_id)
+        return Member.get_member_row(guild_id, member_id)
     
     def add_member(self, guild_id:int, member_id:int):
-        table = Member.get_tabel(guild_id)
-        member = table.create(
-            member_id=member_id,
-            xp=0,
-            rank=0,
-            item_id_list='[]',
-            normal_coin=0,
-            special_item_id_list='[]',
-            extra_avator_image=None,
-            pure=None)
-        member.save()
+        Member.add_member(guild_id, member_id)
+    
+    def add_members(self, guild_id:int, members_set:set):
+        Member.add_members(guild_id, members_set)
+        
+
         

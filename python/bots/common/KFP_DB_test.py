@@ -11,7 +11,7 @@ class TestKfpDb():
         
     def teardown_method(self, method):
         database = self.database.get_database()
-        database.drop_tables(self.database.get_all_tables())
+        database.drop_tables(Member.get_all_tables())
         database.close()
 
     def test_guildIdDoesNotExist(self):
