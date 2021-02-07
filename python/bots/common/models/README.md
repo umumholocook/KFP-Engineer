@@ -12,3 +12,6 @@ Member.py
 ---
 基本Member模型
 
+Channel.py
+---
+用來記錄Channel以及其discord channel id的模型
