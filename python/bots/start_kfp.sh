@@ -4,7 +4,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     if [[ "$(python3 -V)" =~ "Python 3" ]]; then
         echo "Running KFP bot on OSX with python 3"
         python3 discord_bot_2_0.py
-        return
+        exit 0
     fi
 fi
 # else, run the default python
