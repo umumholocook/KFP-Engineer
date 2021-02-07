@@ -88,4 +88,10 @@ class KfpDb():
         channel.channel_discord_id = channel_id
         channel.save()
 
+    # 取得訊息頻道ID
+    def get_message_channel_id(self):
+        query = Channel.select().where(Channel.channel_type == Util.ChannelType.RANK_UP)
+        if query.exists():
+            return query.get().channel_discord_id
+        return None
         

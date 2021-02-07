@@ -112,12 +112,11 @@ class TestKfpDb():
         assert self.database.get_member_rank_order(1) == 2
 
     def test_setRankupChannel_notExist(self):
-        with pytest.raises(peewee.DoesNotExist): 
-            Channel.get(channel_type=Util.ChannelType.RANK_UP)
+        assert not self.database.get_message_channel_id()
     
     def test_setRankupChannel(self):
         self.database.set_rankup_channel(123)
-        assert Channel.get(channel_type=Util.ChannelType.RANK_UP).channel_discord_id == 123
+        assert self.database.get_message_channel_id() == 123
 
         self.database.set_rankup_channel(456)
-        assert Channel.get(channel_type=Util.ChannelType.RANK_UP).channel_discord_id == 456
+        assert self.database.get_message_channel_id() == 456
