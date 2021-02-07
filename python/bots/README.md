@@ -4,10 +4,17 @@
 
 ## 如何使用
 
-需要以下packages:
-discord.py
-asyncio
-image
+0. 安裝所需的library
+
+```
+pip install -r requirements.txt
+```
+
+NOTE: 如果要更新 requirements.txt, 可以跑下面的指令
+
+```
+pip freeze > requirements.txt
+```
 
 1. 機器人需要開啟下面兩個權限
 
