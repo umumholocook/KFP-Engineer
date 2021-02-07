@@ -32,9 +32,9 @@ class KfpDb():
         Member.insert_many(data).execute()
 
     # 增加會員的經驗值
-    def increase_xp(self, member_id:int, new_xp:int):
+    def increase_exp(self, member_id:int, new_exp:int):
         member = Member.get_by_id(member_id)
-        member.xp = member.xp+new_xp
+        member.exp = member.exp+new_exp
         member.save()
         self.__update_rank_if_qualified(member_id)
     
@@ -52,10 +52,19 @@ class KfpDb():
     def __update_rank_if_qualified(self, member_id:int):
         member = Member.get_by_id(member_id)
         new_rank = member.rank + 1
-        while (member.xp > Util.get_rank_xp(new_rank)):
+        while (member.exp > Util.get_rank_exp(new_rank)):
             new_rank += 1
         if new_rank != member.rank:
             member.rank = new_rank
             member.save()
+
+    # 會員等級排名
+    def get_member_rank_order(self, member_id:int):
+        target_exp = Member.get_by_id(member_id).exp
+        less_than_count = Member.select().where((Member.exp < target_exp)).count()
+        total_count = Member.select().count()
+        print("total: {} and less: {}".format(total_count, less_than_count))
+        return total_count - less_than_count
+        
 
         

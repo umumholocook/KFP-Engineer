@@ -4,7 +4,7 @@ from peewee import *
 
 class Member(BaseModel):
     member_id=AutoField() # INT PRIMARY KEY NOT NULL
-    xp=IntegerField(default=0) # INT NOT NULL
+    exp=IntegerField(default=0) # INT NOT NULL
     rank=BigIntegerField(default=0, null = True) # BITINT
     item_id_list=IntegerField(default='[]') # INT NOT NULL
     coin=BigIntegerField(default=0, null = True) # BITINT

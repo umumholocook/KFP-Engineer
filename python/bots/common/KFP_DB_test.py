@@ -34,15 +34,15 @@ class TestKfpDb():
         with pytest.raises(peewee.IntegrityError): 
             self.database.add_member(default_user_id)
 
-    def test_increaseXp(self):
-        self.database.increase_xp(default_user_id, 10)
+    def test_increaseExp(self):
+        self.database.increase_exp(default_user_id, 10)
         member = Member.get_by_id(default_user_id)
-        assert member.xp == 10
+        assert member.exp == 10
 
     def test_rankUp(self):
         member = Member.get_by_id(default_user_id)
         assert member.rank == 0
-        self.database.increase_xp(default_user_id, 100)
+        self.database.increase_exp(default_user_id, 100)
         member = Member.get_by_id(default_user_id)
         assert member.rank == 1
 
@@ -63,4 +63,21 @@ class TestKfpDb():
         member = self.database.get_member(default_user_id)
         assert member.coin == 100
         
+    def test_getMemberRankOrder_number1(self):
+        # 只有一人的時候那人是第一名
+        assert self.database.get_member_rank_order(0) == 1
 
+    def test_getMemberRankOrder_last(self):
+        self.database.add_member(1)
+        self.database.increase_exp(1, 100)
+        self.database.add_member(2)
+        self.database.increase_exp(2, 100)
+        assert self.database.get_member_rank_order(0) == 3
+
+    def test_getMemberRankOrder_first(self):
+        self.database.increase_exp(0, 101)
+        self.database.add_member(1)
+        self.database.increase_exp(1, 100)
+        self.database.add_member(2)
+        self.database.increase_exp(2, 100)
+        assert self.database.get_member_rank_order(0) == 1
