@@ -36,6 +36,17 @@ SERVER MEMBERS INTENT
 
 在 cogs/ 檔案夾底下添加新的功能即可
 
+## 如何跑unit tests?
+
+本項目使用了pytest作為unit test framework, 請使用以下命令執行
+
+```
+test_kfp.sh
+```
+
+TODO: 導出測試覆蓋率
+
+
 ## 常見問題
 
 ### 找不到table?
