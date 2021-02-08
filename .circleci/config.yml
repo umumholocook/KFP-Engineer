@@ -16,7 +16,7 @@ jobs:
       - run:
           command: |
             cd ./python/bots/
-            sh test_kfp.sh
+            pytest
           name: Test
 
 workflows:
