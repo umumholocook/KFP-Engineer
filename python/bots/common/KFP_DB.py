@@ -5,12 +5,18 @@ from common.models.Member import Member
 from common.models.Channel import Channel
 from peewee import SqliteDatabase
 
-class KfpDb():
+MODULES = [Member, Channel]
 
+class KfpDb():
     def __init__(self, dbFile="./common/KFP_bot.db"):
         self.sqliteDb = SqliteDatabase(dbFile)
         db.proxy.initialize(self.sqliteDb)
-        self.sqliteDb.create_tables([Member, Channel])
+        self.sqliteDb.create_tables(MODULES)
+
+    # For test only, do not use
+    def teardown(self):
+        self.sqliteDb.drop_tables(MODULES)
+        self.sqliteDb.close()
 
     # For test only, do not use
     def get_database(self):

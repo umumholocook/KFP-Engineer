@@ -16,9 +16,7 @@ class TestKfpDb():
         self.database.add_member(default_user_id) # add a default member
         
     def teardown_method(self, method):
-        database = self.database.get_database()
-        database.drop_tables(MODELS)
-        database.close()
+        self.database.teardown()
 
     def test_addMember(self):
         self.database.add_member(12346)

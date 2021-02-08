@@ -1,17 +1,14 @@
 from common import database_API
-
-import json ,os
-
-import time
 from random import seed
 from random import randrange
-
-import discord
-from discord.ext import commands
+from data import SpecialRoleData
 from discord import Guild, Member, Message, Reaction, Role
+from discord.ext import commands
 from discord.utils import get
 
-from data import SpecialRoleData
+import discord
+import json ,os
+import time
 
 class RoleSelectSpecial(commands.Cog):
     roleMap = {} # <name, id> pair
