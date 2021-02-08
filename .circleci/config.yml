@@ -19,7 +19,7 @@ jobs:
       - run:
           command: |
             cd ./python/bots/
-            pytest
+            python -m pytest
           name: Test
 
 workflows:
