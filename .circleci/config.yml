@@ -8,13 +8,13 @@ jobs:
     executor: python/default
     steps:
       - checkout
-      - run: 
-          command: cd ./python/bots/
       - python/load-cache
       - python/install-deps
       - python/save-cache
       - run:
-          command: sh test_kfp.sh
+          command: |
+            cd ./python/bots/
+            sh test_kfp.sh
           name: Test
 
 workflows:
