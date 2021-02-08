@@ -9,7 +9,7 @@ jobs:
     steps:
       - checkout
       - run: 
-          command: cd python/bot
+          command: cd ./python/bots/
       - python/load-cache
       - python/install-deps
       - python/save-cache
