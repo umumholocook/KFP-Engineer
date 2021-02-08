@@ -8,10 +8,10 @@ jobs:
     executor: python/default
     steps:
       - checkout
-      - run:
-          command: cd ./python/bots/
       - python/load-cache
-      - python/install-deps
+      # - python/install-deps
+      - run:
+          command: pip install --user -r ./project/python/bots/requirements.txt
       - python/save-cache
       - run:
           command: sh test_kfp.sh
