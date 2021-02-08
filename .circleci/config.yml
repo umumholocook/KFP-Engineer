@@ -11,7 +11,7 @@ jobs:
       - python/load-cache
       # - python/install-deps
       - run:
-          command: pip install --user -r ./project/python/bots/requirements.txt --no-python-version-warning
+          command: pip install --user -r ./python/bots/requirements.txt --no-python-version-warning
       - python/save-cache
       - run:
           command: sh test_kfp.sh
