@@ -8,10 +8,13 @@ jobs:
     executor: python/default
     steps:
       - checkout
+      - run:
+          command: cp ./python/bots/requirements.txt .
+          name: Copy requirements.txt
       - python/load-cache
       # - python/install-deps
       - run:
-          command: pip install --user -r ./python/bots/requirements.txt --no-python-version-warning
+          command: pip install --user -r requirements.txt --no-python-version-warning
       - python/save-cache
       - run:
           command: |
