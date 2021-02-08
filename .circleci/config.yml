@@ -17,11 +17,10 @@ jobs:
           command: pip install --user -r requirements.txt --no-python-version-warning
       - python/save-cache
       - run:
+          name: Test
           command: |
             cd ./python/bots/
             python -m pytest
-          name: Test
-
 workflows:
   main:
     jobs:
