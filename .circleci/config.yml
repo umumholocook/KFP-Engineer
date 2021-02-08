@@ -11,7 +11,7 @@ jobs:
       - python/load-cache
       # - python/install-deps
       - run:
-          command: python -c "import logging; logger = logging.getLogger(\"pip.deprecations\"); logger.setLevel(logging.ERROR); import pip; import sys; sys.exit(pip.main())" install --user -r ./project/python/bots/requirements.txt
+          command: pip install --user -r ./project/python/bots/requirements.txt --no-python-version-warning
       - python/save-cache
       - run:
           command: sh test_kfp.sh
