@@ -1,6 +1,4 @@
 
-[![<MAIN>](https://circleci.com/gh/umumholocook/KFP-Engineer.svg?style=svg)](<https://circleci.com/gh/umumholocook/KFP-Engineer/>)
-
 # KFP工程組
 
 ## 分支
