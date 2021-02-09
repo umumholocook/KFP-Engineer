@@ -26,7 +26,7 @@ bot/lib
 
 bot/resource
 ---
-放置bot 需要參考之文件
+放置bot 需要參考之文件 (非代碼)
 
 bot/resource/image
 ---
