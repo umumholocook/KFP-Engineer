@@ -1,6 +1,7 @@
 # BOTS
 
-Main | Staging | Release 
+Main | Staging | Release
+
 [![<KFP-Bot>](https://circleci.com/gh/umumholocook/KFP-Engineer/tree/main.svg?style=shield)](<https://circleci.com/gh/umumholocook/KFP-Engineer/tree/main>) | [![<KFP-Bot>](https://circleci.com/gh/umumholocook/KFP-Engineer/tree/staging.svg?style=shield)](<https://circleci.com/gh/umumholocook/KFP-Engineer/tree/staging>) | [![<KFP-Bot>](https://circleci.com/gh/umumholocook/KFP-Engineer/tree/release.svg?style=shield)](<https://circleci.com/gh/umumholocook/KFP-Engineer/tree/release>)
 
 這裡放置的都是基於 discord.py 所編寫的 Discord 專用 bot
