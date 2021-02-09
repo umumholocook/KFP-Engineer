@@ -52,7 +52,7 @@ class RoleSelectSpecial(commands.Cog):
         for en_member in SpecialRoleData.EN_MEMBERS:
             for part in en_member:
                 part_name = part['name']
-                f_msg.edit(content= str(f_msg.content)+"\n建立{}身份組".format(part_name))
+                await f_msg.edit(content= str(f_msg.content)+"\n建立{}身份組".format(part_name))
                 role = get(ctx.guild.roles, name=part_name)
                 if role:
                     self.roleMap[role.name] = role.id
@@ -60,7 +60,7 @@ class RoleSelectSpecial(commands.Cog):
                 else:
                     await f_msg.edit(content= str(f_msg.content)+'\n創建身分組{} ....'.format(part_name))
                     new_role = await target_guild.create_role(name=part_name , permissions=discord.Permissions(permissions=0) ,colour= discord.Color(part['color']), mentionable= False, hoist=False)
-                    roles[new_role.name] = new_role.id
+                    self.roleMap[new_role.name] = new_role.id
         await ctx.channel.send("特殊身分組初始化完成。")
 
     @commands.Cog.listener('on_role_delete')
