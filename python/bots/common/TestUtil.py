@@ -10,7 +10,9 @@ class AsyncMock(MagicMock):
         return super(AsyncMock, self).__call__(*args, **kwargs)
 
 class TestUtil():
+    __fakeGuild = None
     __testMember = None
+    __fakeRoles = []
 
     @mock.patch('common.TestUtil.Client', autospec=True)
     def createFakeClient(mock_client):
@@ -26,10 +28,12 @@ class TestUtil():
     
     @mock.patch('common.TestUtil.Guild', autospec=True)
     def createFakeGuild(mock_guild):
-        mock_guild.create_role = TestUtil.__createFakeRole
-        mock_guild.get_role = TestUtil.__getRole
-        mock_guild.get_member = TestUtil.__getMember
-        return mock_guild
+        if not TestUtil.__fakeGuild:
+            TestUtil.__fakeGuild = mock_guild
+            TestUtil.__fakeGuild.create_role = TestUtil.__createFakeRole
+            TestUtil.__fakeGuild.get_member = TestUtil.__getMember
+            TestUtil.__fakeGuild.roles = TestUtil.__fakeRoles
+        return TestUtil.__fakeGuild
 
     @mock.patch('common.TestUtil.TextChannel', autospec=True)
     def createFakeChannel(mock_channel):
@@ -61,18 +65,16 @@ class TestUtil():
 
     async def __addRoles(role):
         TestUtil.__testMember.roles.append(role)
-    
-    async def __createFakeRole(name, permissions, colour, mentionable, hoist):
+
+    async def __createFakeRole(**attrs):
         fakeRole = MagicMock()
-        fakeRole.name = name
+        fakeRole.name = attrs['name']
         fakeRole.id = randint(1, 99)
+        TestUtil.__fakeRoles.append(fakeRole)
         return fakeRole
     
-    def __getRole(id):
-        fakeRole = MagicMock()
-        fakeRole.name = "fakeRole"
-        fakeRole.id = id
-        return fakeRole
+    def getRoles():
+        return TestUtil.__fakeRoles
 
     async def fakeSendMessage(message:Message, msg:str): 
         pass

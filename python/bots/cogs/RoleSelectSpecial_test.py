@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 from cogs.RoleSelectSpecial import RoleSelectSpecial
 from common.TestUtil import TestUtil
 from data import SpecialRoleData
+from discord.utils import get
 
 
 class TestRoleSelectSpecial():
@@ -23,10 +24,11 @@ class TestRoleSelectSpecial():
         await self.cog.initializeRoles(self.fakeClient)
         for en_member in SpecialRoleData.EN_MEMBERS:
             for part in en_member:
-                assert self.cog.roleMap[part['name']]
+                assert get(self.fakeClient.guild.roles, name=part['name'])
     
     @pytest.mark.asyncio
     async def test_giveUserSpecialRoleSuccess(self):
+        await self.cog.initializeRoles(self.fakeClient)
         # disable sendMessage
         self.cog.sendMessage = TestUtil.fakeSendMessage
         fakeMessage = TestUtil.createFakeMessage()

@@ -30,5 +30,6 @@ class NewProfile(commands.Cog):
             member_ids.append(member.id)
         self.db.add_members(member_ids)
 
-# def setup(client):
-#     client.add_cog(NewProfile(client))
+def setup(client):
+    # client.add_cog(NewProfile(client))
+    pass

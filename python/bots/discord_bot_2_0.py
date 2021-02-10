@@ -58,7 +58,7 @@ async def cogs_reload(ctx, extention):
 #preload cogs
 temp = 'load cogs:\n'
 for file in os.listdir(r'./cogs'):
-    if file.endswith('.py'):
+    if not file.endswith('_test.py') and not file.startswith("__init__") and file.endswith('.py'):
         temp += '  |- {}\n'.format(file[:-3])
         bot.load_extension('cogs.{}'.format(file[:-3]))
 print(temp)
