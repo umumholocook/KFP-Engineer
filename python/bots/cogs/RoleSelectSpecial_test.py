@@ -2,15 +2,18 @@ import pytest
 from asyncio import Future
 from unittest import mock
 from unittest.mock import MagicMock
-from random import randint
 from cogs.RoleSelectSpecial import RoleSelectSpecial
-from discord import Client, TextChannel, Permissions, Color, Role
+from common.TestUtil import TestUtil
 from data import SpecialRoleData
+
 
 class TestRoleSelectSpecial():
     def setup_method(self, method):
-        self.fakeClient = self.createFakeClient()
-        self.cog = RoleSelectSpecial(self.fakeClient)
+        self.fakeMember = TestUtil.createFakeMemberWithId(234)
+        self.fakeMember.roles = []
+        TestUtil.setTestMember(self.fakeMember)
+        self.fakeClient = TestUtil.createFakeClient()
+        self.cog = RoleSelectSpecial(client=self.fakeClient, chance=0)
 
     def teardown_method(self, method):
         pass
@@ -21,29 +24,15 @@ class TestRoleSelectSpecial():
         for en_member in SpecialRoleData.EN_MEMBERS:
             for part in en_member:
                 assert self.cog.roleMap[part['name']]
-
-    @mock.patch('cogs.RoleSelectSpecial_test.Client', autospec=True)
-    def createFakeClient(self, mock_client):
-        mock_client.channel = self.createFakeChannel()
-        mock_client.guild = self.createFakeGuild()
-        return mock_client
-
-    @mock.patch('cogs.RoleSelectSpecial.Message', autospec=True)
-    def createFakeMessage(self, mock_message):
-        return mock_message
     
-    @mock.patch('cogs.RoleSelectSpecial.Guild', autospec=True)
-    def createFakeGuild(self, mock_guild):
-        mock_guild.create_role = TestRoleSelectSpecial.createFakeRole
-        return mock_guild
+    @pytest.mark.asyncio
+    async def test_giveUserSpecialRoleSuccess(self):
+        # disable sendMessage
+        self.cog.sendMessage = TestUtil.fakeSendMessage
+        fakeMessage = TestUtil.createFakeMessage()
+        fakeMessage.author = self.fakeMember
+        await self.cog.giveUserSpecialRole(self.fakeClient, fakeMessage)
+        # check to see if user has a new role
+        assert len(self.fakeMember.roles) == 1
 
-    @mock.patch('cogs.RoleSelectSpecial_test.TextChannel', autospec=True)
-    def createFakeChannel(self, mock_channel):
-        return mock_channel
-
-    async def createFakeRole(name, permissions, colour, mentionable, hoist):
-        fakeRole = MagicMock()
-        fakeRole.name = name
-        fakeRole.id = randint(1, 99)
-        return fakeRole
-        
+    
