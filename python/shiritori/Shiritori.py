@@ -16,7 +16,7 @@ async def on_ready():
 
 @bot.command(name = 'invite_link',invoke_without_command = True)
 async def command_invite_link(ctx, *attr):
-    link = "https://discordapp.com/oauth2/authorize?&client_id={}&scope=bot&permissions={}".format(bot.user.id, 0)
+    link = "https://discordapp.com/oauth2/authorize?&client_id={}&scope=bot&permissions={}".format(bot.user.id, 8192)
     await ctx.send(link)
 
 @bot.event
