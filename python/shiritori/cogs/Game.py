@@ -1,3 +1,4 @@
+import argparse
 from discord import Message
 from discord.ext import commands, tasks
 from datetime import datetime
@@ -11,10 +12,12 @@ class Game(commands.Cog):
         self.lastString = ""
         self.gameStarted = False
         self.countDownTime = 0
+        self.countDownWaitTime = 10
         self.channelId = 0
         self.secondRemained = 5
         self.msg = None
         self.history = []
+        self.setUpParser()
 
     # Listen to command
     @commands.Cog.listener('on_message')
@@ -33,7 +36,37 @@ class Game(commands.Cog):
         helptext+="!shiritori history - 顯示上一回的接龍結果"
         helptext+="```"
         await ctx.send(helptext)
-        pass
+    
+    @shiritori_group.command(name = "setting")
+    async def change_setting(self, ctx:commands.Command, *argv):
+        if len(argv) < 1:
+            helpMsg = "```"
+            helpMsg+= self.parser.format_help()
+            helpMsg+= "```"
+            await ctx.send(helpMsg)
+            return
+        
+        if len(argv) == 1 and argv[0] == 'show':
+            await self.show_setting(ctx)
+            return
+        
+        if 'word_max' in argv:
+            index = argv.index('word_max') +1
+            self.wordCount = max(int(argv[index]), 2)
+            await ctx.send("最高字數限制設為: {}".format(self.wordCount))
+
+        if 'wait_time' in argv:
+            index = argv.index('wait_time') +1
+            self.countDownWaitTime = max(int(argv[index]), 6)
+            await ctx.send("bot等待時間設為: {}".format(self.countDownWaitTime))
+    
+    async def show_setting(self, ctx:commands.Command):
+        currentSettings = "```"
+        currentSettings+= "KFP文字接龍設定\n"
+        currentSettings+= "最高字數限制: {}\n".format(self.wordCount)
+        currentSettings+= "bot等待時間: {}秒\n".format(self.countDownWaitTime)
+        currentSettings+= "```"
+        await ctx.send(currentSettings)
 
     @shiritori_group.command(name = "history")
     async def show_history(self, ctx:commands.Command, *argv):
@@ -58,6 +91,11 @@ class Game(commands.Cog):
         self.channelId = ctx.channel.id
         self.countDownTime = datetime.now()
         await self.clock.start()
+    
+    def setUpParser(self):
+        self.parser = argparse.ArgumentParser(description="文字接龍的設定")
+        self.parser.add_argument('word_max', type=int, help="文字接龍最高發言字數")
+        self.parser.add_argument('wait_time', type=int, help="bot等待時間(秒)")
     
     async def stopGame(self):
         self.gameStarted = False
@@ -104,9 +142,9 @@ class Game(commands.Cog):
             if self.channelId == 0:
                 return
             channel = self.bot.get_channel(self.channelId)
-            if sec > 10:
+            if sec > self.countDownWaitTime:
                 await self.stopGame()
-            if sec > 5:
+            if sec > (self.countDownWaitTime - 5):
                 if not self.gameStarted:
                     return
                 if not self.msg:
