@@ -11,39 +11,55 @@ import json ,os
 import time
 
 class RoleSelectSpecial(commands.Cog):
-    roleMap = {} # <name, id> pair
-    initialized = False
-
-    def __init__(self, client):
+    def __init__(self, client, chance=1000):
         self.bot = client
+        self.chance = chance
 
     def check_complete(self,member:Member):
         #TODO:check is user collect complete
         pass
-
-    def shouldGetRole(self):
+    
+    # 決定是否抽中特殊身份組, 如果要測試 把self.chance 設為0 
+    def __shouldGetRole(self):
         seed(time.time())
-        n = randrange(999)
+        if (self.chance < 1):
+            return True
+        n = randrange(self.chance)
         return n == 42 # 「生命、宇宙以及任何事情的終極答案」 --《銀河便車指南》
     
-    # Load existing roles into memory
-    def syncRoles(self, ctx):
-        for en_member in SpecialRoleData.EN_MEMBERS:
-            for part in en_member:
-                role = get(ctx.guild.roles, name=part['name'])
-                if role:
-                    self.roleMap[role.name] = role.id
+    # 從特殊身份組中選一個會員還沒有的身份組
+    def __drawSpecialRoleForMember(self, guild:Guild, member:Member):
+        memberIndex = randrange(len(SpecialRoleData.EN_MEMBERS))
+        enMember = SpecialRoleData.EN_MEMBERS[memberIndex]
+        partIndex = randrange(len(enMember))
+        part = enMember[partIndex]
+        role = get(guild.roles, name=part['name'])
+        if not role:
+            print("role {} is deleted".format(part['name']))
+            return None # 此role已被刪除
+        if role in member.roles:
+            return None # 會員已有抽到的特殊身份組, 跳過
+        return role
+        
+    async def sendMessage(self, message:Message, msg:str):
+        t_rmbed = discord.Embed()
+        t_rmbed.description = msg
+        await message.channel.send(embed= t_rmbed)
     
-    async def updateRole(self, message:Message, part):
-        ctx = await self.bot.get_context(message)
+    async def giveUserSpecialRole(self, ctx, message:Message):
+        # 1. 決定會員是不是抽中了特殊身份組
+        if not self.__shouldGetRole():
+            return
+        # 2. 決定特殊身份組
         member = message.guild.get_member(message.author.id)
-        roleName = part['name']
-        t_role = message.guild.get_role(self.roleMap[roleName])
-        if roleName in self.roleMap and not t_role in member.roles:
-            await member.add_roles(t_role)
-            t_rmbed = discord.Embed()
-            t_rmbed.description = "恭喜<@!{}>獲得{}".format(message.author.id, part['name'])
-            await message.channel.send(embed= t_rmbed)
+        newRole = self.__drawSpecialRoleForMember(message.guild, member)
+        if not newRole:
+            return # 沒抽到
+        
+        # 把抽中的特殊身份組分配給會員
+        await member.add_roles(newRole)
+        msg = "恭喜<@!{}>獲得{}".format(message.author.id, newRole.name)
+        await self.sendMessage(message, msg)
 
     # To initialize special roles
     async def initializeRoles(self, ctx):
@@ -52,15 +68,13 @@ class RoleSelectSpecial(commands.Cog):
         for en_member in SpecialRoleData.EN_MEMBERS:
             for part in en_member:
                 part_name = part['name']
-                f_msg.edit(content= str(f_msg.content)+"\n建立{}身份組".format(part_name))
+                await f_msg.edit(content= str(f_msg.content)+"\n建立{}身份組".format(part_name))
                 role = get(ctx.guild.roles, name=part_name)
                 if role:
-                    self.roleMap[role.name] = role.id
                     await f_msg.edit(content= str(f_msg.content)+"\n{}已經存在... 合併現有資料".format(part_name))
                 else:
-                    await f_msg.edit(content= str(f_msg.content)+'\n創建身分組{} ....'.format(part_name))
+                    await f_msg.edit(content= str(f_msg.content)+'\n創建身分組{} 完成'.format(part_name))
                     new_role = await target_guild.create_role(name=part_name , permissions=discord.Permissions(permissions=0) ,colour= discord.Color(part['color']), mentionable= False, hoist=False)
-                    roles[new_role.name] = new_role.id
         await ctx.channel.send("特殊身分組初始化完成。")
 
     @commands.Cog.listener('on_role_delete')
@@ -68,40 +82,23 @@ class RoleSelectSpecial(commands.Cog):
         #TODO:if special roles being delet, recreate!
         pass
 
-    @commands.Cog.listener('on_guild_join')
-    async def special_on_ready(self, guild:Guild):
-        self.syncRoles(guild)
-
     @commands.Cog.listener('on_message')
     async def special_collect_on_message(self, message:Message):
         ctx = await self.bot.get_context(message)
         if ctx.command == None and ctx.author.id != self.bot.user.id:
-            if not self.initialized:
-                self.syncRoles(ctx)
-                self.initializeRoles = True
-            if self.shouldGetRole():
-                memberIndex = randrange(len(SpecialRoleData.EN_MEMBERS))
-                member = SpecialRoleData.EN_MEMBERS[memberIndex]
-                partIndex = randrange(len(member))
-                part = member[partIndex]
-                await self.updateRole(message, part)
+            await self.giveUserSpecialRole(ctx, message)    
 
     @commands.group(name = 'special', invoke_without_command = True)
     async def special_collect_group(self, ctx:commands.Command, *attr):
         #TODO:print special collect eqiment state
         pass
-
-    @special_collect_group.command(name = 'test')
-    async def special_collect_test(self, ctx:commands.Command, *argv):
-        await ctx.channel.send("Hello world!")
     
     @special_collect_group.command(name = 'init_roles')
     async def special_collect_init(self, ctx:commands.Command, *argv):
         await self.initializeRoles(ctx)
 
     #TODO: design something special that shown user they got the special roles
-    #Note: for inas roles, can upload some voice cut for user
-        
+    #Note: for inas roles, can upload some voice cut for user       
 
 
 def setup(client):
