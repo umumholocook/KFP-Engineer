@@ -48,4 +48,5 @@ async def cogs_reload(ctx, extention):
         ctx.send('reload cog {}'.format(extention))
 
 bot.load_extension('cogs.Game')
+bot.load_extension('cogs.Kuji')
 bot.run(TOKEN)
