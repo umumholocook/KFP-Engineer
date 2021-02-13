@@ -1,4 +1,5 @@
 import re
+from zhconv import convert
 
 emoji_pattern = re.compile("["
         u"\U0001F600-\U0001F64F"  # emoticons
@@ -15,7 +16,9 @@ class StringUtil():
         return re.sub(r':\w+:', '', input)
 
     def matchTheLastWord(history, input):
-        return history[-1].endswith(input[0])
+        lastWord = convert(history[-1][-1], 'zh-hans')
+        firstWord = convert(input[0], 'zh-hans')
+        return lastWord == firstWord
 
     def toHistoryString(history):
         if len(history) < 1:
