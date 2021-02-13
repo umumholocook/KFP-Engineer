@@ -12,7 +12,7 @@ class Game(commands.Cog):
         self.lastString = ""
         self.gameStarted = False
         self.countDownTime = 0
-        self.countDownWaitTime = 10
+        self.countDownWaitTime = 20
         self.channelId = 0
         self.secondRemained = 5
         self.msg = None
@@ -70,7 +70,18 @@ class Game(commands.Cog):
 
     @shiritori_group.command(name = "history")
     async def show_history(self, ctx:commands.Command, *argv):
-        await ctx.send("剛剛大家的接龍結果是: {}".format(StringUtil.toHistoryString(self.history)))
+        historyParts = StringUtil.splitHistoryMessage(StringUtil.toHistoryString(self.history))
+        size = len(historyParts)
+        for i in range(0, size):
+            resultString = ""
+            if size > 1:
+                resultString+= "哭哦, 玩這麼久, 結果({}/{}):\n".format(i+1, size)
+            else:
+                resultString+= "剛剛大家的接龍結果是:\n"
+            resultString+= "```"
+            resultString+= historyParts[i]
+            resultString+= "```"
+            await ctx.send(resultString)
 
     @shiritori_group.command(name = "stop")
     async def game_stop(self, ctx:commands.Command, *argv):

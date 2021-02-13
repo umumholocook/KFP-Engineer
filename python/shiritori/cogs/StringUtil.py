@@ -23,11 +23,12 @@ class StringUtil():
     def toHistoryString(history):
         if len(history) < 1:
             return '[]'
-        result = '['
+        result = ""
         for i in range(len(history)):
             word = history[i]
-            if i == len(history) -1:
-                result += '{}'.format(word)
-            else:
-                result += '{}, '.format(word)
-        return result + ']'
+            result += '{}\n'.format(word)
+        return result + ""
+    
+    def splitHistoryMessage(message):
+        n = 1800
+        return [message[i:i+n] for i in range(0, len(message), n)]
