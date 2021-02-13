@@ -16,7 +16,7 @@ class Kuji(commands.Cog):
         helptext = "```"
         helptext+="KFP抽籤bot, 每人每種籤一天限抽一次\n"
         helptext+="!kuji jp - 抽日本淺草觀音寺籤\n"
-        helptext+="!kuji cn - 抽易經64籤\n"
+        # helptext+="!kuji cn - 抽易經64籤\n"
         helptext+="!kuji shake - 搖一下籤筒\n"
         helptext+="```"
         await ctx.send(helptext)
