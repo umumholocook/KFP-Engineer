@@ -1,5 +1,6 @@
 import random
 from discord import Embed
+import discord
 from discord.ext import commands
 from data.omikuji import OMIKUJI
 from cogs.KujiUtil import KujiUtil
@@ -34,7 +35,9 @@ class Kuji(commands.Cog):
     async def draw_jp(self, ctx:commands.Command, *argv):
         index = random.randint(0, 98)
         kuji = OMIKUJI[index]
-        await ctx.channel.send(embed=self.createEmbededJp(kuji))
+        status = kuji["status"]
+        img = discord.File(KujiUtil.getImageUrl(status), filename=KujiUtil.getImageName(status))
+        await ctx.channel.send(file=img, embed=self.createEmbededJp(kuji))
 
     @kuji_group.command(name = "cn")
     async def draw_cn(self, ctx:commands.Command, *argv):
@@ -42,8 +45,10 @@ class Kuji(commands.Cog):
 
     def createEmbededJp(self, kuji):
         today = date.today()
+        status = kuji["status"]
         title = today.strftime("%Y年%m月%d日")
-        title+= ", {}籤 · {}".format(kuji["title"], kuji["status"])
+        imageUri = 'attachment://{}'.format(KujiUtil.getImageName(status))
+        title+= ", {}籤 · {}".format(kuji["title"], status)
         description = "{}\n".format(kuji["poem_line1"])
         description+= "`{}`\n".format(kuji["poem_line1_explain"])
         description+= "{}\n".format(kuji["poem_line2"])
@@ -52,10 +57,9 @@ class Kuji(commands.Cog):
         description+= "`{}`\n".format(kuji["poem_line3_explain"])
         description+= "{}\n".format(kuji["poem_line4"])
         description+= "`{}`\n".format(kuji["poem_line4_explain"])
-        embedMsg = Embed(title=title, description=description, color=KujiUtil.getColor(kuji["status"]))
+        embedMsg = Embed(title=title, description=description, color=KujiUtil.getColor(status))
         embedMsg.set_author(name="KFP抽籤bot")
-        if KujiUtil.getImageUrl(kuji["status"]):
-            embedMsg.set_thumbnail(url=KujiUtil.getImageUrl(kuji["status"]))
+        embedMsg.set_thumbnail(url=imageUri)
         payload = kuji["payload"]
         for key in payload:
             embedMsg.add_field(name=key, value=payload[key], inline=True)
