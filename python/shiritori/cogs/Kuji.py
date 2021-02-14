@@ -1,17 +1,20 @@
 import random
 from discord import Embed
 import discord
+import pytz
 from discord.ext import commands
 from data.omikuji import OMIKUJI
 from cogs.KujiUtil import KujiUtil
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from database.KujiDb import KujiDb
 
 class Kuji(commands.Cog):
 
     def __init__(self, client):
         self.bot = client
-        self.db = KujiDb()
+        self.timeZone = "Asia/Taipei"
+        # self.timeZone = "America/Los_Angeles"
+        self.db = KujiDb(timeZone = self.timeZone)
 
     @commands.group(name = 'kuji', invoke_without_command = True)
     async def kuji_group(self, ctx:commands.Command, *attr):
@@ -63,7 +66,7 @@ class Kuji(commands.Cog):
 
     def createEmbededCn(self, yi):
         today = date.today()
-        title = today.strftime("%Y年%m月%d日")
+        title = self.getTitle()
         title+= "\n易經 · {} · {} {}".format(yi["name"], yi["shape"], yi["symbol"])
         embedMsg = Embed(title=title, description=yi["description"], color=KujiUtil.getYiColor(yi["name"]))
         embedMsg.set_author(name="KFP抽籤bot")
@@ -76,7 +79,7 @@ class Kuji(commands.Cog):
     def createEmbededJp(self, kuji):
         today = date.today()
         status = kuji["status"]
-        title = today.strftime("%Y年%m月%d日")
+        title = self.getTitle()
         imageUri = 'attachment://{}'.format(KujiUtil.getImageName(status))
         title+= "\n東京淺草觀音寺御神籤· {}籤 · {}".format(kuji["title"], status)
         description = "{}\n".format(kuji["poem_line1"])
@@ -94,6 +97,12 @@ class Kuji(commands.Cog):
         for key in payload:
             embedMsg.add_field(name=key, value=payload[key], inline=True)
         return embedMsg
+
+    def getTitle(self):
+        now = datetime.now()
+        timezone = pytz.timezone(self.timeZone)
+        d_aware = now.astimezone(timezone)
+        return d_aware.strftime("%Y年%m月%d日")
 
 def setup(client):
     client.add_cog(Kuji(client))

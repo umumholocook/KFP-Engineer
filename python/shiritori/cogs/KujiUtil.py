@@ -86,7 +86,7 @@ class KujiUtil():
           return 0xFF4500
         if yi == "復卦": 
           return 0xFA6868
-        if yi == "無妄卦": 
+        if yi == "无妄卦": 
           return 0xFA687E
         if yi == "大畜卦": 
           return 0xFA68A3
@@ -100,7 +100,7 @@ class KujiUtil():
           return 0xC768FA
         if yi == "咸卦": 
           return 0xA068FA
-        if yi == "恆卦": 
+        if yi == "恒卦": 
           return 0x8968FA
         if yi == "遯卦": 
           return 0x6874FA
@@ -108,7 +108,7 @@ class KujiUtil():
           return 0x688DFA
         if yi == "晉卦": 
           return 0x68A5FA
-        if yi == "明卦": 
+        if yi == "明夷卦": 
           return 0x68C3FA
         if yi == "家人卦": 
           return 0x68D5FA
@@ -144,7 +144,7 @@ class KujiUtil():
           return 0xB61919
         if yi == "漸卦": 
           return 0xB6193C
-        if yi == "歸卦": 
+        if yi == "歸妹卦": 
           return 0xB61972
         if yi == "豐卦": 
           return 0xB6199E
@@ -164,7 +164,7 @@ class KujiUtil():
           return 0x19ADB6
         if yi == "既濟卦": 
           return 0x19B68A
-        if yi == "未卦": 
+        if yi == "未濟卦": 
           return 0x19B644
 
     def __getYao():
