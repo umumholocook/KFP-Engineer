@@ -24,8 +24,8 @@ class Kuji(commands.Cog):
         await ctx.send(helptext)
     
     @kuji_group.command(name = "shake")
-    async def draw_jp(self, ctx:commands.Command, *argv):
-        channel = self.bot.getChannel(ctx.channel.id)
+    async def shake(self, ctx:commands.Command, *argv):
+        channel = self.bot.get_channel(ctx.channel.id)
         random.seed = random.randint(0, 100)
         msg = await channel.send("搖... ")
         random.seed = random.randint(0, 100)
@@ -36,7 +36,7 @@ class Kuji(commands.Cog):
     @kuji_group.command(name = "clearRecord")
     async def clear_db(self, ctx:commands.Command, *argv):
         self.db.clearDb()
-        
+
     @kuji_group.command(name = "jp")
     async def draw_jp(self, ctx:commands.Command, *argv):
         if not self.db.canDrawJp(ctx.author.id):
