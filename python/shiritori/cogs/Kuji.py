@@ -26,10 +26,12 @@ class Kuji(commands.Cog):
     @kuji_group.command(name = "shake")
     async def shake(self, ctx:commands.Command, *argv):
         channel = self.bot.get_channel(ctx.channel.id)
-        random.seed = random.randint(0, 100) + datetime.now()
-        random.seed = random.randint(0, 100) + datetime.now()
-        random.seed = random.randint(0, 100) + datetime.now()
-        await channel.send("搖... 搖... 搖...")
+        random.seed(datetime.now())
+        msg = await channel.send("搖...")
+        random.seed(datetime.now())
+        await msg.edit(content = str(msg.content)+" 搖...")
+        random.seed(datetime.now())
+        await msg.edit(content = str(msg.content)+" 搖...")
 
     @kuji_group.command(name = "clearRecord")
     async def clear_db(self, ctx:commands.Command, *argv):
