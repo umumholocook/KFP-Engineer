@@ -35,3 +35,5 @@ class KujiUtil():
         if "凶" == status:
             return 0x170300
         return
+
+    
