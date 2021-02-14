@@ -3,8 +3,7 @@ import database.BaseModel as db
 from peewee import SqliteDatabase
 from database.Kuji_Cn import RecordCn
 from database.Kuji_Jp import RecordJp
-from datetime import datetime, timedelta, tzinfo
-from tzlocal import get_localzone
+from datetime import datetime, timedelta
 
 TABLES = [RecordCn, RecordJp]
 
