@@ -25,12 +25,13 @@ class Kuji(commands.Cog):
     
     @kuji_group.command(name = "shake")
     async def shake(self, ctx:commands.Command, *argv):
+        random.seed(datetime.now())
         channel = self.bot.get_channel(ctx.channel.id)
-        random.seed(datetime.now())
+        random.seed(random.random())
         msg = await channel.send("搖...")
-        random.seed(datetime.now())
+        random.seed(random.random())
         await msg.edit(content = str(msg.content)+" 搖...")
-        random.seed(datetime.now())
+        random.seed(random.random())
         await msg.edit(content = str(msg.content)+" 搖...")
 
     @kuji_group.command(name = "clearRecord")
@@ -42,6 +43,7 @@ class Kuji(commands.Cog):
         if not self.db.canDrawJp(ctx.author.id):
             await ctx.channel.send("同學, 你今天已經抽過了哦! 每人一天只限一次.")        
             return
+        random.seed(random.random())
         index = random.randint(0, 98)
         kuji = OMIKUJI[index]
         status = kuji["status"]
@@ -54,6 +56,7 @@ class Kuji(commands.Cog):
         if not self.db.canDrawCn(ctx.author.id):
             await ctx.channel.send("同學, 你今天已經抽過了哦! 每人一天只限一次.")        
             return
+        random.seed(random.random())
         yi = KujiUtil.getYi()
         await ctx.channel.send(embed=self.createEmbededCn(yi))
         self.db.updateMemberCn(ctx.author.id)
