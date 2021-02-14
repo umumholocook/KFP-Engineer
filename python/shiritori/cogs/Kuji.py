@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from data.omikuji import OMIKUJI
 from cogs.KujiUtil import KujiUtil
-from datetime import date
+from datetime import date, datetime
 from database.KujiDb import KujiDb
 
 class Kuji(commands.Cog):
@@ -18,7 +18,7 @@ class Kuji(commands.Cog):
         helptext = "```"
         helptext+="KFP抽籤bot, 每人每種籤一天限抽一次\n"
         helptext+="!kuji jp - 抽日本淺草觀音寺籤\n"
-        # helptext+="!kuji cn - 抽易經64籤\n"
+        helptext+="!kuji cn - 抽易經64籤\n"
         helptext+="!kuji shake - 搖一下籤筒\n"
         helptext+="```"
         await ctx.send(helptext)
@@ -26,12 +26,10 @@ class Kuji(commands.Cog):
     @kuji_group.command(name = "shake")
     async def shake(self, ctx:commands.Command, *argv):
         channel = self.bot.get_channel(ctx.channel.id)
-        random.seed = random.randint(0, 100)
-        msg = await channel.send("搖... ")
-        random.seed = random.randint(0, 100)
-        await msg.edit(contnet= str(msg.content)+ "搖... ")
-        random.seed = random.randint(0, 100)
-        await msg.edit(contnet= str(msg.content)+ "搖... ")
+        random.seed = random.randint(0, 100) + datetime.now()
+        random.seed = random.randint(0, 100) + datetime.now()
+        random.seed = random.randint(0, 100) + datetime.now()
+        await channel.send("搖... 搖... 搖...")
 
     @kuji_group.command(name = "clearRecord")
     async def clear_db(self, ctx:commands.Command, *argv):
@@ -51,14 +49,31 @@ class Kuji(commands.Cog):
 
     @kuji_group.command(name = "cn")
     async def draw_cn(self, ctx:commands.Command, *argv):
-        pass
+        if not self.db.canDrawCn(ctx.author.id):
+            await ctx.channel.send("同學, 你今天已經抽過了哦! 每人一天只限一次.")        
+            return
+        yi = KujiUtil.getYi()
+        await ctx.channel.send(embed=self.createEmbededCn(yi))
+        self.db.updateMemberCn(ctx.author.id)
+
+    def createEmbededCn(self, yi):
+        today = date.today()
+        title = today.strftime("%Y年%m月%d日")
+        title+= "\n易經 · {} · {} {}".format(yi["name"], yi["shape"], yi["symbol"])
+        embedMsg = Embed(title=title, description=yi["description"], color=KujiUtil.getYiColor(yi["name"]))
+        embedMsg.set_author(name="KFP抽籤bot")
+        payload = yi["payload"]
+        for key in payload:
+            embedMsg.add_field(name=key, value=payload[key], inline=True)
+        return embedMsg
+
 
     def createEmbededJp(self, kuji):
         today = date.today()
         status = kuji["status"]
         title = today.strftime("%Y年%m月%d日")
         imageUri = 'attachment://{}'.format(KujiUtil.getImageName(status))
-        title+= ", {}籤 · {}".format(kuji["title"], status)
+        title+= "\n東京淺草觀音寺御神籤· {}籤 · {}".format(kuji["title"], status)
         description = "{}\n".format(kuji["poem_line1"])
         description+= "`{}`\n".format(kuji["poem_line1_explain"])
         description+= "{}\n".format(kuji["poem_line2"])
