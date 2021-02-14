@@ -4,4 +4,5 @@ from peewee import *
 
 class RecordJp(BaseModel):
     member_id=AutoField()
+    index=IntegerField()
     timestamp = DateTimeField(default=datetime.now)

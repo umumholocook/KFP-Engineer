@@ -55,21 +55,36 @@ class KujiDb():
             return RecordCn.get_by_id(member_id)
         return
 
-    def updateMemberJp(self, member_id:int):
+    def getHistoryJp(self, member_id:int):
+        if self.__hasMemberJp(member_id):
+            member = self.__getMemberJp(member_id)
+            return (member.index, member.timestamp)
+        return (-1, None)
+
+    def getHistoryCn(self, member_id:int):
+        if self.__hasMemberCn(member_id):
+            member = self.__getMemberCn(member_id) 
+            return (member.sky, member.bottom, member.timestamp)
+        return (-1, -1, None)
+
+    def updateMemberJp(self, member_id:int, index:int):
         if self.__hasMemberJp(member_id):
             member = RecordJp.get_by_id(member_id)
         else:
-            member = RecordJp.create(member_id=member_id)
+            member = RecordJp.create(member_id=member_id, index=index, timestamp=datetime.now())
         
         member.timestamp = datetime.now()
+        member.index = index
         member.save()
     
-    def updateMemberCn(self, member_id:int):
+    def updateMemberCn(self, member_id:int, sky:int, bottom:int):
         if self.__hasMemberCn(member_id):
             member = RecordCn.get_by_id(member_id)
         else:
-            member = RecordCn.create(member_id=member_id)
+            member = RecordCn.create(member_id=member_id, sky=sky, bottom=bottom, timestamp=datetime.now())
         
         member.timestamp = datetime.now()
+        member.sky = sky
+        member.bottom = bottom
         member.save()
             

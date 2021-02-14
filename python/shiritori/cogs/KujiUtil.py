@@ -180,14 +180,17 @@ class KujiUtil():
             return 0
         return 1 # 老陰 變卦 陽爻— 或是 少陽 陽爻—
     
+    def getTargetedYi(skyIndex:int, bottomIndex:int):
+        return YI[skyIndex][bottomIndex]
+
     def getYi():
         bottom = (KujiUtil.__getYao(), KujiUtil.__getYao(), KujiUtil.__getYao())
         sky = (KujiUtil.__getYao(), KujiUtil.__getYao(), KujiUtil.__getYao())
         
-        bottomCount = bottom[0]*4 + bottom[1]*2 + bottom[2]
-        skyCount = sky[0]*4 + sky[1]*2 + sky[2]
+        bottomIndex = bottom[0]*4 + bottom[1]*2 + bottom[2]
+        skyIndex = sky[0]*4 + sky[1]*2 + sky[2]
 
-        return YI[skyCount][bottomCount]
+        return (skyIndex, bottomIndex)
         
 
     

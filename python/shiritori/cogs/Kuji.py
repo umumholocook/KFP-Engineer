@@ -23,6 +23,7 @@ class Kuji(commands.Cog):
         helptext+="!kuji jp - 抽日本淺草觀音寺籤\n"
         helptext+="!kuji cn - 抽易經64籤\n"
         helptext+="!kuji shake - 搖一下籤筒\n"
+        helptext+="!kuji history - 查看之前抽到的籤\n"
         helptext+="```"
         await ctx.send(helptext)
     
@@ -44,29 +45,44 @@ class Kuji(commands.Cog):
     @kuji_group.command(name = "jp")
     async def draw_jp(self, ctx:commands.Command, *argv):
         if not self.db.canDrawJp(ctx.author.id):
-            await ctx.channel.send("同學, 你今天已經抽過了哦! 每人一天只限一次.")        
+            await ctx.reply("同學, 你今天已經抽過了哦! 每人一天只限一次.")        
             return
         random.seed(random.random())
         index = random.randint(0, 98)
         kuji = OMIKUJI[index]
         status = kuji["status"]
         img = discord.File(KujiUtil.getImageUrl(status), filename=KujiUtil.getImageName(status))
-        await ctx.channel.send(file=img, embed=self.createEmbededJp(kuji))
-        self.db.updateMemberJp(ctx.author.id)
+        await ctx.reply(file=img, embed=self.createEmbededJp(kuji, datetime.now()))
+        self.db.updateMemberJp(ctx.author.id, index)
 
     @kuji_group.command(name = "cn")
     async def draw_cn(self, ctx:commands.Command, *argv):
         if not self.db.canDrawCn(ctx.author.id):
-            await ctx.channel.send("同學, 你今天已經抽過了哦! 每人一天只限一次.")        
+            await ctx.reply("同學, 你今天已經抽過了哦! 每人一天只限一次.")
             return
         random.seed(random.random())
-        yi = KujiUtil.getYi()
-        await ctx.channel.send(embed=self.createEmbededCn(yi))
-        self.db.updateMemberCn(ctx.author.id)
+        yiIndex = KujiUtil.getYi()
+        yi = KujiUtil.getTargetedYi(yiIndex[0], yiIndex[1])
+        await ctx.reply(embed=self.createEmbededCn(yi, datetime.now()))
+        self.db.updateMemberCn(ctx.author.id, yiIndex[0], yiIndex[1])
 
-    def createEmbededCn(self, yi):
-        today = date.today()
-        title = self.getTitle()
+    @kuji_group.command(name = "history")
+    async def get_history(self, ctx:commands.Command, *argv):
+        historyJp = self.db.getHistoryJp(ctx.author.id)
+        historyCn = self.db.getHistoryCn(ctx.author.id)
+        if (-1, None) == historyJp and (-1, -1, None) == historyCn:
+            await ctx.reply("同學, 你還沒抽過籤呢! 先試著抽一個看看？.")
+        if not (-1, None) == historyJp:
+            kuji = OMIKUJI[historyJp[0]]
+            status = kuji["status"]
+            img = discord.File(KujiUtil.getImageUrl(status), filename=KujiUtil.getImageName(status))
+            await ctx.reply(file=img, embed=self.createEmbededJp(kuji, historyJp[1]))
+        if not (-1, -1, None) == historyCn:
+            yi = KujiUtil.getTargetedYi(historyCn[0], historyCn[1])
+            await ctx.reply(embed=self.createEmbededCn(yi, historyCn[2]))
+
+    def createEmbededCn(self, yi, timestamp):
+        title = self.getTitle(timestamp)
         title+= "\n易經 · {} · {} {}".format(yi["name"], yi["shape"], yi["symbol"])
         embedMsg = Embed(title=title, description=yi["description"], color=KujiUtil.getYiColor(yi["name"]))
         embedMsg.set_author(name="KFP抽籤bot")
@@ -76,10 +92,9 @@ class Kuji(commands.Cog):
         return embedMsg
 
 
-    def createEmbededJp(self, kuji):
-        today = date.today()
+    def createEmbededJp(self, kuji, timestamp):
         status = kuji["status"]
-        title = self.getTitle()
+        title = self.getTitle(timestamp)
         imageUri = 'attachment://{}'.format(KujiUtil.getImageName(status))
         title+= "\n東京淺草觀音寺御神籤· {}籤 · {}".format(kuji["title"], status)
         description = "{}\n".format(kuji["poem_line1"])
@@ -98,10 +113,9 @@ class Kuji(commands.Cog):
             embedMsg.add_field(name=key, value=payload[key], inline=True)
         return embedMsg
 
-    def getTitle(self):
-        now = datetime.now()
+    def getTitle(self, timestamp):
         timezone = pytz.timezone(self.timeZone)
-        d_aware = now.astimezone(timezone)
+        d_aware = timestamp.astimezone(timezone)
         return d_aware.strftime("%Y年%m月%d日")
 
 def setup(client):
