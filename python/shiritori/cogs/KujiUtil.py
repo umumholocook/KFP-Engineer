@@ -1,6 +1,27 @@
 from random import randint
 from data.yi import YI
 class KujiUtil():
+
+    def getImageNameLs(status):
+        if "下籤" == status:
+            return "low.png"
+        if "中籤" == status:
+            return "middle.png"
+        if "上籤" == status:
+            return "up.png"
+    
+    def getImageUrlLs(status):
+        return "./resources/{}".format(KujiUtil.getImageNameLs(status))
+
+    def getColorLs(status):
+        if "下籤" == status:
+            return 0x5A4A4F
+        if "中籤" == status:
+            return 0x970A8B
+        if "上籤" == status:
+            return 0xF10A53
+        return
+        
     def getImageName(status):
         if "大吉" == status:
             return "big_ji.png"
@@ -187,8 +208,8 @@ class KujiUtil():
         bottom = (KujiUtil.__getYao(), KujiUtil.__getYao(), KujiUtil.__getYao())
         sky = (KujiUtil.__getYao(), KujiUtil.__getYao(), KujiUtil.__getYao())
         
-        bottomIndex = bottom[0]*4 + bottom[1]*2 + bottom[2]
-        skyIndex = sky[0]*4 + sky[1]*2 + sky[2]
+        bottomIndex = bottom[2]*4 + bottom[1]*2 + bottom[0]
+        skyIndex = sky[2]*4 + sky[1]*2 + sky[0]
 
         return (skyIndex, bottomIndex)
         

@@ -4,6 +4,7 @@ import discord
 import pytz
 from discord.ext import commands
 from data.omikuji import OMIKUJI
+from data.lungshan import LUNGSHAN
 from cogs.KujiUtil import KujiUtil
 from datetime import date, datetime, timedelta
 from database.KujiDb import KujiDb
@@ -22,6 +23,7 @@ class Kuji(commands.Cog):
         helptext+="KFP抽籤bot, 每人每種籤一天限抽一次\n"
         helptext+="!kuji jp - 抽日本淺草觀音寺籤\n"
         helptext+="!kuji cn - 抽易經64籤\n"
+        helptext+="!kuji ls - 抽龍山寺觀音籤\n"
         helptext+="!kuji shake - 搖一下籤筒\n"
         helptext+="!kuji history - 查看之前抽到的籤\n"
         helptext+="```"
@@ -45,7 +47,7 @@ class Kuji(commands.Cog):
     @kuji_group.command(name = "jp")
     async def draw_jp(self, ctx:commands.Command, *argv):
         if not self.db.canDrawJp(ctx.author.id):
-            await ctx.reply("同學, 你今天已經抽過了哦! 每人一天只限一次.")        
+            await ctx.reply("同學, 你今天已經抽過清水寺籤了哦! 每人一天只限一次.")        
             return
         random.seed(random.random())
         index = random.randint(0, 98)
@@ -55,10 +57,23 @@ class Kuji(commands.Cog):
         await ctx.reply(file=img, embed=self.createEmbededJp(kuji, datetime.now()))
         self.db.updateMemberJp(ctx.author.id, index)
 
+    @kuji_group.command(name = "ls")
+    async def draw_jp(self, ctx:commands.Command, *argv):
+        if not self.db.canDrawLs(ctx.author.id):
+            await ctx.reply("同學, 你今天已經抽過龍山寺籤了哦! 每人一天只限一次.")        
+            return
+        random.seed(random.random())
+        index = random.randint(0, 98)
+        ls = LUNGSHAN[index]
+        status = ls["status"]
+        img = discord.File(KujiUtil.getImageUrlLs(status), filename=KujiUtil.getImageNameLs(status))
+        await ctx.reply(file=img, embed=self.createEmbededLs(ls, datetime.now()))
+        self.db.updateMemberLs(ctx.author.id, index)
+
     @kuji_group.command(name = "cn")
     async def draw_cn(self, ctx:commands.Command, *argv):
         if not self.db.canDrawCn(ctx.author.id):
-            await ctx.reply("同學, 你今天已經抽過了哦! 每人一天只限一次.")
+            await ctx.reply("同學, 你今天已經抽過易經了哦! 每人一天只限一次.")
             return
         random.seed(random.random())
         yiIndex = KujiUtil.getYi()
@@ -70,13 +85,21 @@ class Kuji(commands.Cog):
     async def get_history(self, ctx:commands.Command, *argv):
         historyJp = self.db.getHistoryJp(ctx.author.id)
         historyCn = self.db.getHistoryCn(ctx.author.id)
-        if (-1, None) == historyJp and (-1, -1, None) == historyCn:
+        historyLs = self.db.getHistoryLs(ctx.author.id)
+        if (-1, None) == historyJp and (-1, None) == historyLs and (-1, -1, None) == historyCn:
             await ctx.reply("同學, 你還沒抽過籤呢! 先試著抽一個看看？.")
+        if not (-1, None) == historyLs:
+            ls = LUNGSHAN[historyLs[0]]
+            status = ls["status"]
+            img = discord.File(KujiUtil.getImageUrlLs(status), filename=KujiUtil.getImageNameLs(status))
+            await ctx.reply(file=img, embed=self.createEmbededLs(ls, datetime.now()))
+
         if not (-1, None) == historyJp:
             kuji = OMIKUJI[historyJp[0]]
             status = kuji["status"]
             img = discord.File(KujiUtil.getImageUrl(status), filename=KujiUtil.getImageName(status))
             await ctx.reply(file=img, embed=self.createEmbededJp(kuji, historyJp[1]))
+
         if not (-1, -1, None) == historyCn:
             yi = KujiUtil.getTargetedYi(historyCn[0], historyCn[1])
             await ctx.reply(embed=self.createEmbededCn(yi, historyCn[2]))
@@ -109,6 +132,29 @@ class Kuji(commands.Cog):
         embedMsg.set_author(name="KFP抽籤bot")
         embedMsg.set_thumbnail(url=imageUri)
         payload = kuji["payload"]
+        for key in payload:
+            embedMsg.add_field(name=key, value=payload[key], inline=True)
+        return embedMsg
+
+    def createEmbededLs(self, ls, timestamp):
+        status = ls["status"]
+        title = self.getTitle(timestamp)
+        imageUri = 'attachment://{}'.format(KujiUtil.getImageNameLs(status))
+        title+= "\n台北龍山寺觀音籤· {} · {}".format(ls["title"], status)
+        payload = ls["payload"]
+        description = "**{}**\n".format(ls["poem_line1"])
+        description+= "**{}**\n".format(ls["poem_line2"])
+        description+= "**{}**\n".format(ls["poem_line3"])
+        description+= "**{}**\n".format(ls["poem_line4"])
+        description+= "\n詩意:\n{}\n".format(ls["meaning"])
+        description+= "\n解曰:\n{}\n".format(ls["explain"])
+        if len(payload) > 0:
+            description+= "\n聖意:\n"
+
+        embedMsg = Embed(title=title, description=description, color=KujiUtil.getColorLs(status))
+        embedMsg.set_author(name="KFP抽籤bot")
+        embedMsg.set_thumbnail(url=imageUri)
+        embedMsg.set_image(url=ls["url"])
         for key in payload:
             embedMsg.add_field(name=key, value=payload[key], inline=True)
         return embedMsg
