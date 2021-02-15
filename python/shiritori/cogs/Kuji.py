@@ -58,7 +58,7 @@ class Kuji(commands.Cog):
         self.db.updateMemberJp(ctx.author.id, index)
 
     @kuji_group.command(name = "ls")
-    async def draw_jp(self, ctx:commands.Command, *argv):
+    async def draw_ls(self, ctx:commands.Command, *argv):
         if not self.db.canDrawLs(ctx.author.id):
             await ctx.reply("同學, 你今天已經抽過龍山寺籤了哦! 每人一天只限一次.")        
             return
