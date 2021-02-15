@@ -140,7 +140,11 @@ class Kuji(commands.Cog):
         status = ls["status"]
         title = self.getTitle(timestamp)
         imageUri = 'attachment://{}'.format(KujiUtil.getImageNameLs(status))
-        title+= "\n台北龍山寺觀音籤· {} · {}".format(ls["title"], status)
+        title+= "\n台北龍山寺觀音籤· {}\n".format(status)
+        if len(ls["image"]) > 0:
+            title+= "{} · {}".format(ls["title"], ls["image"])
+        else:
+            title+= "{}".format(ls["title"])
         payload = ls["payload"]
         description = "**{}**\n".format(ls["poem_line1"])
         description+= "**{}**\n".format(ls["poem_line2"])
