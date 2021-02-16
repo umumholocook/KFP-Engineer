@@ -51,8 +51,8 @@ class KfpDb():
         member = query.get()
         member.exp = member.exp+new_exp
         member.save()
-        self.__update_rank_if_qualified(member_id)
-        return True
+        return self.__update_rank_if_qualified(member_id)
+        #return True
     
     # 更新會員的硬幣數量, 數量可以是負數, 如果會員硬幣減至0, 以交易失敗為記
     def update_coin(self, member_id:int, amount:int):
@@ -76,6 +76,7 @@ class KfpDb():
         if new_rank != member.rank:
             member.rank = new_rank
             member.save()
+        return member.rank
 
     # 會員等級排名
     def get_member_rank_order(self, member_id:int):
