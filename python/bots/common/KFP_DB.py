@@ -8,7 +8,7 @@ from peewee import SqliteDatabase
 MODULES = [Member, Channel]
 
 class KfpDb():
-    def __init__(self, dbFile="./common/KFP_bot.db"):
+    def __init__(self, dbFile=r"./common/KFP_bot.db"):
         self.sqliteDb = SqliteDatabase(dbFile)
         db.proxy.initialize(self.sqliteDb)
         self.sqliteDb.create_tables(MODULES)
@@ -70,7 +70,7 @@ class KfpDb():
     # 如果需要升級會員等級便升級
     def __update_rank_if_qualified(self, member_id:int):
         member = Member.get_by_id(member_id)
-        new_rank = member.rank + 1
+        new_rank = member.rank
         while (member.exp > Util.get_rank_exp(new_rank)):
             new_rank += 1
         if new_rank != member.rank:
