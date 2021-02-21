@@ -8,7 +8,7 @@ from peewee import SqliteDatabase
 MODULES = [Member, Channel]
 
 class KfpDb():
-    def __init__(self, dbFile="./common/KFP_bot.db"):
+    def __init__(self, dbFile=r"./common/KFP_bot.db"):
         self.sqliteDb = SqliteDatabase(dbFile)
         db.proxy.initialize(self.sqliteDb)
         self.sqliteDb.create_tables(MODULES)
@@ -51,8 +51,8 @@ class KfpDb():
         member = query.get()
         member.exp = member.exp+new_exp
         member.save()
-        self.__update_rank_if_qualified(member_id)
-        return True
+        return self.__update_rank_if_qualified(member_id)
+        #return True
     
     # 更新會員的硬幣數量, 數量可以是負數, 如果會員硬幣減至0, 以交易失敗為記
     def update_coin(self, member_id:int, amount:int):
@@ -70,12 +70,13 @@ class KfpDb():
     # 如果需要升級會員等級便升級
     def __update_rank_if_qualified(self, member_id:int):
         member = Member.get_by_id(member_id)
-        new_rank = member.rank + 1
+        new_rank = member.rank
         while (member.exp > Util.get_rank_exp(new_rank)):
             new_rank += 1
         if new_rank != member.rank:
             member.rank = new_rank
             member.save()
+        return member.rank
 
     # 會員等級排名
     def get_member_rank_order(self, member_id:int):
