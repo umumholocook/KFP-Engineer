@@ -173,9 +173,9 @@ class NewProfile(commands.Cog):
     #TODO: add check permiision function, base on roles
     db = None
 
-    def __init__(self, client):
+    def __init__(self, client, dbFile:str):
         self.bot = client
-        self.db = KfpDb()
+        self.db = KfpDb(dbFile)
         
     @commands.Cog.listener('on_message')
     async def profile_on_message(self, message:Message):
@@ -242,4 +242,4 @@ class NewProfile(commands.Cog):
         await channel.send('<@!{}> 設定升級訊息將會於此。'.format(ctx.author.id))
             
 def setup(client):
-    client.add_cog(NewProfile(client))
+    client.add_cog(NewProfile(client, Util.DEFAULT_DB_PATH))
