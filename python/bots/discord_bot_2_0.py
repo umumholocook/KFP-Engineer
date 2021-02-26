@@ -43,7 +43,7 @@ async def command_invite_link(ctx, *attr):
     link = "https://discordapp.com/oauth2/authorize?&client_id={}&scope=bot&permissions={}".format(bot.user.id, 1543892049)
     await ctx.send(link)
 
-@bot.command(name = 'restart',invoke_without_command = True)
+@bot.command(name = 'update',invoke_without_command = True)
 async def command_restart(ctx, *attr):
     db = KfpDb()
     db.set_reboot_message_channel(channel_id=ctx.channel.id)
