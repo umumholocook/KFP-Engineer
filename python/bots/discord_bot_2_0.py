@@ -78,7 +78,7 @@ async def cogs_reload(ctx, extention):
     ctx.send('reload cog {}'.format(extention))
 
 def getTempFile():
-    return Path('%s/kpf_restart'.format(tempfile.TemporaryDirectory))
+    return Path('{}/kpf_restart'.format(tempfile.TemporaryDirectory))
 
 #preload cogs
 temp = 'load cogs:\n'
