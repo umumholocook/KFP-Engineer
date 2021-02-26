@@ -5,7 +5,6 @@ from pathlib import Path
 from subprocess import Popen
 from discord.ext import commands
 from common.KFP_DB import KfpDb
-from common.Util import Util
 
 TOKEN=os.environ['KFP_SHIRITORI_TOKEN']
 intents = discord.Intents.default()
@@ -19,8 +18,9 @@ async def on_ready():
     print(bot.user.id)
     print(' --  --  -- ')
 
-    if getTempFile().exists():
-        os.remove('restarted.txt')
+    tmpFile = getTempFile()
+    if tmpFile.exists():
+        os.remove(tmpFile.absolute())
         db = KfpDb()
         channel_id = db.get_reboot_message_channel()
         if channel_id:
