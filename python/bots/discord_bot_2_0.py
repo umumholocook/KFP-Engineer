@@ -24,7 +24,7 @@ async def on_ready():
         db = KfpDb()
         channel_id = db.get_reboot_message_channel()
         if channel_id:
-            bot.get_channel(channel_id).send("更新完成")
+            await bot.get_channel(channel_id).send("更新完成")
 
 @bot.event
 async def on_message(message):
