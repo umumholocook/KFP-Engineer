@@ -15,3 +15,7 @@ Member.py
 Channel.py
 ---
 用來記錄Channel以及其discord channel id的模型
+
+ProfileObject.py
+---
+用來展示Profile的物件

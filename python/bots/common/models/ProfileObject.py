@@ -1,3 +1,7 @@
+import io
+import common.database_API as database_API
+from PIL import Image, ImageEnhance, ImageFont, ImageDraw
+
 class ProfileObject():
     def __init__(
         self, icon_jpg:bytes, display_name:str, 
@@ -13,8 +17,8 @@ class ProfileObject():
         self.set_base_model()
         if icon_jpg != None:
             self.past_icon(icon_jpg)
-        self.coin_num = coin_num
-        self.xp_num = xp_num
+        self.coin_num = coin
+        self.xp_num = exp
         self.set_member_text()
         self.set_rank_text()
         self.set_xp_progress_and_coin_num()
