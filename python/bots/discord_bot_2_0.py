@@ -1,5 +1,6 @@
 import discord
 import os
+import tempfile
 from pathlib import Path
 from subprocess import Popen
 from discord.ext import commands
@@ -16,7 +17,7 @@ async def on_ready():
     print(bot.user.id)
     print(' --  --  -- ')
 
-    if Path('restarted.txt').exists():
+    if getTempFile().exists():
         os.remove('restarted.txt')
         channel_id = KfpDb.get_reboot_message_channel()
         if channel_id:
@@ -43,7 +44,7 @@ async def command_invite_link(ctx, *attr):
 async def command_restart(ctx, *attr):
     KfpDb.set_reboot_message_channel(ctx.channel.id)
     await ctx.send("重新啟動中...")
-    Path('restarted.txt').touch()
+    getTempFile().touch()
     bot.loop.stop()
     Popen(['update_and_restart.sh'], shell=True)
 
@@ -71,6 +72,9 @@ async def cogs_reload(ctx, extention):
     bot.unload_extension(f'cogs.{extention}')
     bot.load_extension(f'cogs.{extention}')
     ctx.send('reload cog {}'.format(extention))
+
+def getTempFile():
+    return Path('%s/kpf_restart'.format(tempfile.TemporaryDirectory))
 
 #preload cogs
 temp = 'load cogs:\n'
