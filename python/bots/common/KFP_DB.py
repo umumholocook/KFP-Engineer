@@ -1,4 +1,3 @@
-import sqlite3
 import common.models.BaseModel as db
 from common.Util import Util
 from common.models.Member import Member

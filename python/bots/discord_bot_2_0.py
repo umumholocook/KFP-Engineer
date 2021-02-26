@@ -5,11 +5,13 @@ from pathlib import Path
 from subprocess import Popen
 from discord.ext import commands
 from common.KFP_DB import KfpDb
+from common.Util import Util
 
 TOKEN=os.environ['KFP_SHIRITORI_TOKEN']
 intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix = '!',intents = intents)
+
 @bot.event
 async def on_ready():
     print('Logged in as')
@@ -19,7 +21,8 @@ async def on_ready():
 
     if getTempFile().exists():
         os.remove('restarted.txt')
-        channel_id = KfpDb.get_reboot_message_channel()
+        db = KfpDb()
+        channel_id = db.get_reboot_message_channel()
         if channel_id:
             bot.get_channel(channel_id).send("更新完成")
 
@@ -42,7 +45,8 @@ async def command_invite_link(ctx, *attr):
 
 @bot.command(name = 'restart',invoke_without_command = True)
 async def command_restart(ctx, *attr):
-    KfpDb.set_reboot_message_channel(ctx.channel.id)
+    db = KfpDb()
+    db.set_reboot_message_channel(channel_id=ctx.channel.id)
     await ctx.send("重新啟動中...")
     getTempFile().touch()
     bot.loop.stop()
