@@ -1,5 +1,6 @@
 # This is to generate image with Shiritori result
-from common.models.Kiji import Kuji
+from common.models.Kuji import Kuji
+from PIL import Image
 
 class GenImgShiritori():
     def __init(self, kuji: Kuji):

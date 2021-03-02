@@ -19,8 +19,8 @@ class Kuji():
     # main text 指籤詩
     def getMainText(self):
         return {
-            Util.KujiType.LUNGSHAN: self.__getPoemFromLS(),
-            Util.KujiType.OMIKUJI: self.__getPoemFromOmikuji,
+            Util.KujiType.LUNGSHAN: self.__getPoem(),
+            Util.KujiType.OMIKUJI: self.__getPoem(),
             Util.KujiType.YI: self.__getPoemFromYi()
         }[self.kujitype]
     
@@ -40,22 +40,15 @@ class Kuji():
                 "小吉": "small.jpg",
                 "末小吉": "tail_small.jpg",
                 "末吉": "tail.jpg"
-            }[self.omikuji["status"]]
+            }[self.kuji["status"]]
         return None # don't support LS nor Yi until NINI gives me images
 
-    def __getPoemFromLS(self):
+    def __getPoem(self):
         return "{}\n{}\n{}\n{}".format(
-            self.lungshan.poem_line1,
-            self.lungshan.poem_line2,
-            self.lungshan.poem_line3,
-            self.lungshan.poem_line4)
-    
-    def __getPoemFromOmikuji(self):
-        return "{}\n{}\n{}\n{}".format(
-            self.omikuji.poem_line1,
-            self.omikuji.poem_line2,
-            self.omikuji.poem_line3,
-            self.omikuji.poem_line4)
+            self.kuji["poem_line1"],
+            self.kuji["poem_line2"],
+            self.kuji["poem_line3"],
+            self.kuji["poem_line4"])
     
     def __getPoemFromYi(self):
         return "" # TODO(umum) WTF?

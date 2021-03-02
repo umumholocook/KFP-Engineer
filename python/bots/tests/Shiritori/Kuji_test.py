@@ -40,4 +40,4 @@ class TestKuji():
             "眾人皆仰望",
             "莫作等閒看"
         )
-        # assert kuji.getMainText() == expectedMainText
+        assert kuji.getMainText() == expectedMainText
