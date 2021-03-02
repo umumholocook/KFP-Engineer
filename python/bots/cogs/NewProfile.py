@@ -242,4 +242,4 @@ class NewProfile(commands.Cog):
         await channel.send('<@!{}> 設定升級訊息將會於此。'.format(ctx.author.id))
             
 def setup(client):
-    client.add_cog(NewProfile(client, r"./common/KFP_bot.db"))
+    client.add_cog(NewProfile(client, Util.DEFAULT_DB_PATH))
