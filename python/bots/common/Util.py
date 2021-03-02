@@ -12,3 +12,10 @@ class Util:
         RANK_UP = 1
         REBOOT_MESSAGE = 2
         # 只能新添Channel, 不要刪除舊有的
+
+    class KujiType(IntEnum):
+        UNKNOWN = 0 
+        LUNGSHAN = 1 # 龍山寺
+        OMIKUJI = 2 # 日本神簽
+        YI = 3 # 易經
+        # 只能添加新的抽籤種類, 不要刪除舊有的

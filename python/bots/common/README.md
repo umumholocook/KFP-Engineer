@@ -20,3 +20,7 @@ KFP_DB.py 的 unit tests
 database_API.py
 ---
 舊版本 database 介面, 使用純SQL
+
+gen_img_shiritori.py
+---
+用來產生抽籤結果的畫面, 輸入抽籤結果. 根據結果產生相對應的圖片.
