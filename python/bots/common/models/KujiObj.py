@@ -3,7 +3,7 @@ import os
 from common.Util import Util
 from PIL import Image
 
-class Kuji():
+class KujiObj():
     def __init__(self, kuji):
         self.kuji = kuji
         if "ls" == kuji["type"]:

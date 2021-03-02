@@ -1,6 +1,6 @@
 from common.Util import Util
 import pytest
-from common.models.Kuji import Kuji 
+from common.models.Kuji import KujiObj
 
 class TestKuji():
     def setup_method(self):
@@ -29,11 +29,11 @@ class TestKuji():
         pass
 
     def test_kujiType(self):
-        kuji = Kuji(self.testKuji)
+        kuji = KujiObj(self.testKuji)
         assert kuji.kujitype == Util.KujiType.OMIKUJI
 
     def test_getMainText(self):
-        kuji = Kuji(self.testKuji)
+        kuji = KujiObj(self.testKuji)
         expectedMainText = "{}\n{}\n{}\n{}".format(
             "七寶浮圖塔",
             "高峰頂上安",

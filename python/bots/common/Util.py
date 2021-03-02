@@ -3,9 +3,6 @@ from enum import IntEnum
 class Util:
     # 預設database 位置
     DEFAULT_DB_PATH = r"./common/KFP_bot.db"
-    # 升級為next_rank所需的經驗值
-    def get_rank_exp(next_rank:int):
-        return 5 / 6 * next_rank * (2 * next_rank * next_rank + 27 * next_rank + 91)
 
     class ChannelType(IntEnum):
         UNKNOWN = 0
@@ -19,3 +16,7 @@ class Util:
         OMIKUJI = 2 # 日本神簽
         YI = 3 # 易經
         # 只能添加新的抽籤種類, 不要刪除舊有的
+        
+    # 升級為next_rank所需的經驗值
+    def get_rank_exp(next_rank:int):
+        return 5 / 6 * next_rank * (2 * next_rank * next_rank + 27 * next_rank + 91)
