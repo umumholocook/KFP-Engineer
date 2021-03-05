@@ -162,7 +162,7 @@ class ProfileImage(object):
         self._closeAllImage()
 
 #因為我不想改回去多伺服器的，就鎖乾淨吧
-whitelist = [770197802470735913, 786612294762889247]
+whitelist = [770197802470735913, 786612294762889247, 749699470819590155]
 
 def isWhiteList(ctx):
     if ctx.guild == None:
@@ -200,6 +200,8 @@ class NewProfile(commands.Cog):
     @commands.group(name = 'profile', invoke_without_command = True)
     async def profile_profile_group(self, ctx:commands.Context, *attr):
         if not isWhiteList(ctx):
+            if ctx.guild:
+                print("{} is not on white list, if you are a developer, add your server to the white list".format(ctx.guild.id))
             return
         memberRow = self.db.get_member(ctx.author.id)
         if memberRow == None:

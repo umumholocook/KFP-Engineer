@@ -6,7 +6,8 @@ from subprocess import Popen
 from discord.ext import commands
 from common.KFP_DB import KfpDb
 
-TOKEN=os.environ['KFP_SHIRITORI_TOKEN']
+VERSION = "0.0.1"
+TOKEN=os.environ['KFP_TOKEN']
 intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix = '!',intents = intents)
@@ -51,6 +52,10 @@ async def command_restart(ctx, *attr):
     getTempFile().touch()
     bot.loop.stop()
     Popen(['update_and_restart.sh'], shell=True)
+
+@bot.command(name = 'version',invoke_without_command = True)
+async def command_get_version(ctx, *attr):
+    await ctx.send(VERSION)
 
 @bot.group(name = 'cogs', invoke_without_command = True)
 async def cogs_group(ctx, *attr):
