@@ -27,3 +27,7 @@ GamblingGame.py
 GamblingBet.py
 ---
 用來代表會員賭注紀錄
+
+Role.py
+---
+用來記錄各種權限
