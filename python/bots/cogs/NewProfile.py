@@ -200,7 +200,8 @@ class NewProfile(commands.Cog):
     @commands.group(name = 'profile', invoke_without_command = True)
     async def profile_profile_group(self, ctx:commands.Context, *attr):
         if not isWhiteList(ctx):
-            print("{} is not on white list, if you are a developer, add your server to the white list".format(ctx.guild.id))
+            if ctx.guild:
+                print("{} is not on white list, if you are a developer, add your server to the white list".format(ctx.guild.id))
             return
         memberRow = self.db.get_member(ctx.author.id)
         if memberRow == None:

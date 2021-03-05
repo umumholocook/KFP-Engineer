@@ -1,5 +1,4 @@
-from discord import channel
-import pytest, sys, os
+import pytest
 from unittest import mock
 #if con not find cogs non-commont fowing code
 #if not os.getcwd() in sys.path:
