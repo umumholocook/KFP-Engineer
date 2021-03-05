@@ -189,7 +189,7 @@ class NewProfile(commands.Cog):
             self.db.add_member(member.id)
             membeInDb = self.db.get_member(member.id)
         increaseNumber = randint(10,25)
-        rank = self.db.increase_exp(member.id, increaseNumber)
+        rank = self.db.increase_exp(message.channel.guild.id, message.channel.id, member.id, increaseNumber)
         assert rank != False, 'method increase_xp should not retrun None in profile_on_message'
         if membeInDb.rank != rank:
             channel = self.db.get_message_channel_id()

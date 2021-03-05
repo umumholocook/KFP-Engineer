@@ -19,3 +19,11 @@ Channel.py
 ProfileObject.py
 ---
 用來展示Profile的物件
+
+GamblingGame.py
+---
+賭盤
+
+GamblingBet.py
+---
+用來代表會員賭注紀錄

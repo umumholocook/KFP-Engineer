@@ -201,7 +201,7 @@ class TestNewProfile():
     
     @pytest.mark.asyncio
     async def test_member_first_talk_with_bind(self):
-        self.target.db.set_rankup_channel(self.fake_guild.channels[1].id)
+        self.target.db.set_rankup_channel(self.fake_guild.id, self.fake_guild.channels[1].id)
         fake_message = FakeMessage(channel= self.fake_guild.channels[0], author= self.fake_member, content= 'anyway')
         await self.target.profile_on_message(fake_message)
         assert self.fake_guild.messageLast.content == '恭喜<@{}> 等級提升至{}。'.format(self.fake_member.id, 1)
@@ -209,7 +209,7 @@ class TestNewProfile():
 
     @pytest.mark.asyncio
     async def test_member_second_talk(self):
-        self.target.db.set_rankup_channel(self.fake_guild.channels[1].id)
+        self.target.db.set_rankup_channel(self.fake_guild.id, self.fake_guild.channels[1].id)
         fake_message = FakeMessage(channel= self.fake_guild.channels[0], author= self.fake_member, content= 'anyway')
         await self.target.profile_on_message(fake_message)
         self.fake_guild.messageLast = None
@@ -219,7 +219,7 @@ class TestNewProfile():
     @pytest.mark.asyncio
     async def test_member_talk_outof_whiteList(self):
         wrong_id = 97979797979
-        self.target.db.set_rankup_channel(self.fake_guild.channels[1].id)
+        self.target.db.set_rankup_channel(self.fake_guild.id, self.fake_guild.channels[1].id)
         fake_message = FakeMessage(channel= self.fake_guild.channels[0], author= self.fake_member, content= 'anyway')
         self.fake_guild.id =wrong_id
         await self.target.profile_on_message(fake_message)
@@ -228,7 +228,7 @@ class TestNewProfile():
     @pytest.mark.asyncio
     async def test_member_talk_on_privateChannel(self):
         wrong_id = 97979797979
-        self.target.db.set_rankup_channel(self.fake_guild.channels[1].id)
+        self.target.db.set_rankup_channel(self.fake_guild.id, self.fake_guild.channels[1].id)
         fake_message = FakeMessage(author= self.fake_member, content= 'anyway')
         self.fake_guild.id =wrong_id
         await self.target.profile_on_message(fake_message)
@@ -237,7 +237,7 @@ class TestNewProfile():
     @pytest.mark.asyncio
     async def test_member_talk_is_bot(self):
         wrong_id = 97979797979
-        self.target.db.set_rankup_channel(self.fake_guild.channels[1].id)
+        self.target.db.set_rankup_channel(self.fake_guild.id, self.fake_guild.channels[1].id)
         self.fake_member.bot = True
         fake_message = FakeMessage(author= self.fake_member, content= 'anyway')
         self.fake_guild.id =wrong_id

@@ -48,17 +48,31 @@ class TestKfpDb():
             self.database.add_member(default_user_id)
 
     def test_increaseExp_notExist(self):
-        assert not self.database.increase_exp(100, 10) # user 100 does not exist
+        assert not self.database.increase_exp(0, 0, 100, 10) # user 100 does not exist
 
     def test_increaseExp(self):
-        self.database.increase_exp(default_user_id, 10)
+        self.database.increase_exp(0, 0, default_user_id, 10)
+        member = Member.get_by_id(default_user_id)
+        assert member.exp == 10
+
+    def test_ignore_increaseExp(self):
+        self.database.set_ignore_xp_channel(3, 5)
+        self.database.increase_exp(3, 5, default_user_id, 10)
+        member = Member.get_by_id(default_user_id)
+        assert member.exp == 0
+
+    def test_after_remove_ignore_increaseExp(self):
+        self.database.remove_ignore_xp_channel(3, 5)
+        self.database.set_ignore_xp_channel(3, 5)
+        self.database.remove_ignore_xp_channel(3, 5)
+        self.database.increase_exp(3, 5, default_user_id, 10)
         member = Member.get_by_id(default_user_id)
         assert member.exp == 10
 
     def test_rankUp(self):
         member = Member.get_by_id(default_user_id)
         assert member.rank == 0
-        self.database.increase_exp(default_user_id, 100)
+        self.database.increase_exp(0, 0, default_user_id, 100)
         member = Member.get_by_id(default_user_id)
         assert member.rank == 1
     
@@ -90,8 +104,8 @@ class TestKfpDb():
         self.database.add_member(1)
         self.database.add_member(2)
         
-        self.database.increase_exp(1, 100)
-        self.database.increase_exp(2, 100)
+        self.database.increase_exp(0, 0, 1, 100)
+        self.database.increase_exp(0, 0, 2, 100)
         
         assert self.database.get_member_rank_order(0) == 3
 
@@ -99,9 +113,9 @@ class TestKfpDb():
         self.database.add_member(1)
         self.database.add_member(2)
         
-        self.database.increase_exp(default_user_id, 101)
-        self.database.increase_exp(1, 100)
-        self.database.increase_exp(2, 100)
+        self.database.increase_exp(0, 0, default_user_id, 101)
+        self.database.increase_exp(0, 0, 1, 100)
+        self.database.increase_exp(0, 0, 2, 100)
         
         assert self.database.get_member_rank_order(default_user_id) == 1
 
@@ -110,10 +124,10 @@ class TestKfpDb():
         self.database.add_member(2)
         self.database.add_member(3)
         
-        self.database.increase_exp(default_user_id, 100)
-        self.database.increase_exp(1, 100)
-        self.database.increase_exp(2, 1000)
-        self.database.increase_exp(3, 10)
+        self.database.increase_exp(0, 0, default_user_id, 100)
+        self.database.increase_exp(0, 0, 1, 100)
+        self.database.increase_exp(0, 0, 2, 1000)
+        self.database.increase_exp(0, 0, 3, 10)
 
         # 經驗相同時排名相同, 並列第二
         assert self.database.get_member_rank_order(default_user_id) == 2
@@ -123,8 +137,8 @@ class TestKfpDb():
         assert not self.database.get_message_channel_id()
     
     def test_setRankupChannel(self):
-        self.database.set_rankup_channel(123)
+        self.database.set_rankup_channel(0, 123)
         assert self.database.get_message_channel_id() == 123
 
-        self.database.set_rankup_channel(456)
+        self.database.set_rankup_channel(0, 456)
         assert self.database.get_message_channel_id() == 456
