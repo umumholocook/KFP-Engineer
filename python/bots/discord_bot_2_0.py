@@ -1,3 +1,4 @@
+from common.KfpDbUtil import KfpDbUtil
 import discord
 import os
 import tempfile
@@ -11,6 +12,9 @@ TOKEN=os.environ['KFP_TOKEN']
 intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix = '!',intents = intents)
+
+def getTempFile():
+    return Path('{}/kpf_restart'.format(tempfile.gettempdir()))
 
 @bot.event
 async def on_ready():
@@ -57,6 +61,13 @@ async def command_restart(ctx, *attr):
 async def command_get_version(ctx, *attr):
     await ctx.send(VERSION)
 
+@bot.command(name = 'import_data', invoke_without_command = True)
+async def import_data(ctx, *attr):
+    await ctx.send("導入舊有資料中...")
+    newCount = KfpDbUtil.importFromOldDatabase(ctx.guild.id, "KFP_bot_old.db")
+    oldCount = KfpDbUtil.getCount(ctx.guild.id, "KFP_bot_old.db") 
+    await ctx.send("導入結束資料中... 舊有資料{}筆, 導入{}筆".format(oldCount, newCount))
+
 @bot.group(name = 'cogs', invoke_without_command = True)
 async def cogs_group(ctx, *attr):
     description = 'cogs:\n'
@@ -81,9 +92,6 @@ async def cogs_reload(ctx, extention):
     bot.unload_extension(f'cogs.{extention}')
     bot.load_extension(f'cogs.{extention}')
     ctx.send('reload cog {}'.format(extention))
-
-def getTempFile():
-    return Path('{}/kpf_restart'.format(tempfile.gettempdir()))
 
 #preload cogs
 temp = 'load cogs:\n'
