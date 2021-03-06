@@ -2,3 +2,4 @@
 **/*rank_role.json
 .vscode/**
 **/*.db
+!python/bots/tests/Database/*.db
