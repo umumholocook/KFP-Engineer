@@ -1,26 +1,32 @@
+from common.ChannelUtil import ChannelUtil
 import datetime
+
 import common.models.BaseModel as db
 from common.models.PermissionRole import PermissionRole
 from common.models.GamblingBet import GamblingBet
 from common.Util import Util
-from common.models.Member import Member
 from common.models.Channel import Channel
+from common.models.GamblingBet import GamblingBet
 from common.models.GamblingGame import GamblingGame
+from common.models.PermissionRole import PermissionRole
+from common.models.Member import Member
+
 from discord.guild import Guild, Role
-from discord.ext import commands
 from peewee import SqliteDatabase
 
-MODULES = [Member, Channel]
+MODULES = [Channel, GamblingBet, GamblingGame, Member, PermissionRole]
 
 class KfpDb():
     # {guild:[channel, channel,...] ... }
     __ignoreXpChannel = {}
+    __autoClearChannel = {}
 
     def __init__(self, dbFile=r"./common/KFP_bot.db"):
         self.sqliteDb = SqliteDatabase(dbFile)
         db.proxy.initialize(self.sqliteDb)
         self.sqliteDb.create_tables(MODULES)
-        self.__ignoreXpChannel = self.__getXPIgnoredChannels()
+        self.__ignoreXpChannel = ChannelUtil.getXPIgnoredChannels()
+        self.__autoClearChannel = ChannelUtil.getAutoClearChannels()
 
     # For test only, do not use
     def teardown(self):
@@ -65,37 +71,16 @@ class KfpDb():
         member.save()
         return self.__update_rank_if_qualified(member_id)
     
-    # 獲得不需要增加經驗的頻道
-    def __getXPIgnoredChannels(self):
-        result = {}
-        query = Channel.select().where(Channel.channel_type == Util.ChannelType.IGNORE_XP)
-        if query.exists():
-            channel: Channel
-            for channel in query.iterator():
-                channelList = result.get(channel.channel_guild_id, [])
-                channelList.append(channel.channel_id) 
-                result[channel.channel_guild_id] = channelList
-        return result
-    
-    def set_ignore_xp_channel(self, guild_id: int, channel_id: int):
-        channel = Channel.create(channel_type=Util.ChannelType.IGNORE_XP, channel_guild_id=guild_id, channel_id=channel_id)
-        channel.save()
-        self.__ignoreXpChannel = self.__getXPIgnoredChannels()
-
-    def remove_ignore_xp_channel(self, guild_id: int, channel_id: int):
-        Channel.delete().where(Channel.channel_type == Util.ChannelType.IGNORE_XP, Channel.channel_guild_id == guild_id, Channel.channel_id == channel_id).execute()
-        self.__ignoreXpChannel = self.__getXPIgnoredChannels()
-    
     # 更新會員的硬幣數量, 數量可以是負數, 如果會員硬幣減至0, 以交易失敗為記
     def update_coin(self, member_id:int, amount:int):
         query = Member.select().where(Member.member_id == member_id)
         if not query.exists():
             return False
         member = query.get()
-        return self.update_coin(member, amount)
+        return self.update_member_coin(member, amount)
     
-    def update_coin(self, member: Member, amount: int) -> bool :
-        newValue = member.coin+amount
+    def update_member_coin(self, member: Member, amount: int) -> bool :
+        newValue = member.coin + amount
         if (newValue < 0):
             return False
         member.coin = newValue
@@ -127,56 +112,24 @@ class KfpDb():
         target_exp = Member.get_by_id(member_id).exp
         return Member.select().where((Member.exp > target_exp)).count() + 1
     
-    # 設定訊息頻道ID
-    def set_rankup_channel(self, guild_id:int, channel_id:int):
-        query = Channel.select().where(Channel.channel_type == Util.ChannelType.RANK_UP)
-        if query.exists():
-            channel = query.get()
-        else:
-            # channel 不存在, 新增一個
-            channel = Channel(channel_type=Util.ChannelType.RANK_UP)
-        channel.channel_guild_id = guild_id
-        channel.channel_id = channel_id
-        channel.save()
+    # 設定不需要增加經驗的頻道
+    def set_ignore_xp_channel(self, guild_id: int, channel_id: int):
+        ChannelUtil.setChannel(guild_id, channel_id, Util.ChannelType.IGNORE_XP, True)
+        self.__ignoreXpChannel = ChannelUtil.getXPIgnoredChannels()
 
-    # 取得訊息頻道ID
-    def get_message_channel_id(self):
-        query = Channel.select().where(Channel.channel_type == Util.ChannelType.RANK_UP)
-        if query.exists():
-            return query.get().channel_id
-        return None
+    # 取消不需要增加經驗的頻道
+    def remove_ignore_xp_channel(self, guild_id: int, channel_id: int):
+        ChannelUtil.removeChannel(guild_id, channel_id, Util.ChannelType.IGNORE_XP)
+        self.__ignoreXpChannel = ChannelUtil.getXPIgnoredChannels()
 
-    def has_channel(self, guild_id: int, channel_id: int, channel_type: Util.ChannelType) -> bool:
-        query = Channel.select().where(Channel.channel_type == type, Channel.channel_guild_id == guild_id, Channel.channel_id == channel_id)
-        return query.exists()
-    
-    # 儲存一個新的頻道, 如果評道已經存在, 返回false, 反之返回true
-    def add_channel(self, guild_id: int, channel_id: int, channel_type: Util.ChannelType) -> bool:
-        query = Channel.select().where(Channel.channel_type == channel_type, Channel.channel_guild_id == guild_id, Channel.channel_id == channel_id)
-        if query.exists():
-            return False
+    # 檢查此頻道是不是刪除用戶發言的頻道
+    def is_channel_auto_clear(self, guild_id: int, channel_id: int) -> bool:
+        return channel_id in self.__autoClearChannel.get(guild_id, [])
 
-        new_channel = Channel(channel_guild_id = guild_id, channel_id = channel_id, channel_type = channel_type)
-        new_channel.save()
-        return True
-    
-    # 設定自我更新啟動時使用的頻道ID
-    def set_reboot_message_channel(self, channel_id:int):
-        query = Channel.select().where(Channel.channel_type == Util.ChannelType.REBOOT_MESSAGE)
-        if query.exists():
-            channel = query.get()
-        else:
-            channel = Channel(channel_type=Util.ChannelType.REBOOT_MESSAGE)
-        channel.channel_id = channel_id
-        channel.save()
-    
-    # 取得自我更新啟動時使用的頻道ID
-    def get_reboot_message_channel(self):
-        query = Channel.select().where(Channel.channel_type == Util.ChannelType.REBOOT_MESSAGE)
-        if query.exists():
-            return query.get().channel_id
-        return None
-    
+    # 獲得所有自動刪除頻道
+    def get_auto_clear_channels(self, guild_id: int):
+        return self.__autoClearChannel.get(guild_id, [])
+
     # 取得現在這個群所有的賭盤
     def get_active_betting_list(self, guild_id:int):
         result = []
@@ -260,7 +213,7 @@ class KfpDb():
         role.save()
         return role
     
-    def has_permission(self, guild_id: int, role_id: int, type: Util.Roletype) -> bool:
-        query = PermissionRole.select().where(PermissionRole.role_type == type, PermissionRole.guild_id == ctx.guild.id, PermissionRole.role_id == role_id)
+    def has_permission(self, guild_id: int, role_id: int, type: Util.RoleType) -> bool:
+        query = PermissionRole.select().where(PermissionRole.role_type == type, PermissionRole.guild_id == guild_id, PermissionRole.role_id == role_id)
         return query.exists()
     

@@ -1,12 +1,10 @@
 import pytest
 import peewee
 import os
-from peewee import SqliteDatabase
 from common.KFP_DB import KfpDb
 from common.models.Member import Member
 
 
-MODELS = [Member]
 default_user_id = 0
 
 class TestKfpDb():
@@ -133,12 +131,4 @@ class TestKfpDb():
         assert self.database.get_member_rank_order(default_user_id) == 2
         assert self.database.get_member_rank_order(1) == 2
 
-    def test_setRankupChannel_notExist(self):
-        assert not self.database.get_message_channel_id()
     
-    def test_setRankupChannel(self):
-        self.database.set_rankup_channel(0, 123)
-        assert self.database.get_message_channel_id() == 123
-
-        self.database.set_rankup_channel(0, 456)
-        assert self.database.get_message_channel_id() == 456

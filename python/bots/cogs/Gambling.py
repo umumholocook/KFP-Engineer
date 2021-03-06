@@ -9,11 +9,11 @@ class Gambling(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.bot = client
         self.database = KfpDb()
-        self.betting_permissions = self.database.load_permissions()
+        self.betting_permissions = self.database.load_permissions(Util.RoleType.Gambling)
 
     @commands.Cog.listener('on_message')
     async def profile_on_message(self, message:Message):
-        if message.channel.id in keep_clear_list and not message.author.bot:
+        if self.database.is_channel_auto_clear(message.guild.id, message.channel.id) and not message.author.bot:
             await message.delete()
     
     @commands.Cog.listener('on_guild_role_delete')
@@ -166,13 +166,7 @@ class Gambling(commands.Cog):
         if ctx.channel == None:
             await ctx.author.send("請在頻道中設置這個指令")
             return
-        if ctx.channel.id in keep_clear_list:
-            keep_clear_list.pop(keep_clear_list.index(ctx.channel.id))
-            with open('./clear_channel_list.json', mode='w', encoding='utf-8') as fp:
-                json.dump(keep_clear_list, fp)
-                fp.close()
-            await ctx.channel.send('取消這個頻道自動刪除成員留言功能')
-            self.database.remove_ignore_xp_channel(ctx.guild.id, ctx.channel.id)
+        self.database.remove_channel(ctx.guild.id, ctx.channel.id, Util.ChannelType.AUTO_DELETE, Util.ChannelType.IGNORE_XP)
     
     # 顯示所有啟動自動刪除留言功能的頻道
     @betting_keep_clear_group.command(name = 'list')
@@ -181,7 +175,7 @@ class Gambling(commands.Cog):
             await ctx.author.send("請在伺服器中呼叫這個指令")
             return
         result = ''
-        for channel_id in keep_clear_list:
+        for channel_id in self.database.get_auto_clear_channels:
             if ctx.guild.get_channel(channel_id) != None:
                 result += '<#{}>'.format(channel_id)
         await ctx.channel.send(result)

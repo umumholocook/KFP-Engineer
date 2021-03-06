@@ -6,6 +6,7 @@ from discord.ext import commands
 from random import randint
 from common.KFP_DB import KfpDb 
 from common.Util import Util
+from common.ChannelUtil import ChannelUtil
 
 class ProfileImage(object):
     def __init__(self):
@@ -192,7 +193,7 @@ class NewProfile(commands.Cog):
         rank = self.db.increase_exp(message.channel.guild.id, message.channel.id, member.id, increaseNumber)
         assert rank != False, 'method increase_xp should not retrun None in profile_on_message'
         if membeInDb.rank != rank:
-            channel = self.db.get_message_channel_id()
+            channel = ChannelUtil.getMessageChannelId(message.guild.id)
             if channel == None:
                 await message.channel.send('恭喜<@{}> 等級提升至{}。'.format(message.author.id, rank))
             else:

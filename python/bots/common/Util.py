@@ -1,4 +1,3 @@
-from cogs.Gambling import Gambling
 from enum import IntEnum
 # 工具類 methods
 class Util:
