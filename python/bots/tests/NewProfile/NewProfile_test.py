@@ -176,11 +176,9 @@ class TestNewProfile():
     async def test_bind_command(self):
         wrong_id = 787878787
         fakecontext = FakeContext(client= self.fake_guild, author = self.fake_member, channel= self.fake_guild.channels[0])
-        await self.target.profile_group_bind_command(self.target, fakecontext, "<#{}>".format(wrong_id))
-        assert self.fake_guild.messageLast.content == '沒有id: {}的頻道'.format(wrong_id), "請檢查失敗訊息"
-        await self.target.profile_group_bind_command(self.target, fakecontext, "<#{}>".format(self.fake_guild.channels[1].id))
+        await self.target.profile_group_bind_command(self.target, fakecontext)
         assert self.fake_guild.messageLast.content == '<@!{}> 設定升級訊息將會於此。'.format(self.fake_member.id)
-        assert self.fake_guild.messageLast.channel.id == self.fake_guild.channels[1].id , 'check message chennal'
+        assert self.fake_guild.messageLast.channel.id == self.fake_guild.channels[0].id , 'check message chennal'
         assert self.target.db.get_message_channel_id() != None , 'check database'
 
     def test_not_in_whiteList(self):

@@ -237,9 +237,6 @@ class NewProfile(commands.Cog):
     @commands.check(isWhiteList)
     async def profile_group_bind_command(self, ctx:commands.Context, *arg):
         channel = ctx.channel
-        if channel == None:
-            await ctx.channel.send('沒有id: {}的頻道'.format(ctx.channel.id))
-            return 
         self.db.set_rankup_channel(channel.id)
         await channel.send('<@!{}> 設定升級訊息將會於此。'.format(ctx.author.id))
             
