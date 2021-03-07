@@ -20,7 +20,7 @@ class KfpDbUtil():
             query = Member.select().where(Member.member_id == member_id)
             member: Member
             if query.exists():
-                member = query
+                member = query.get()
             else:
                 member = Member.create(member_id= member_id)    
             member.exp = exp
