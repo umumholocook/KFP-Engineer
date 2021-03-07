@@ -54,7 +54,7 @@ async def command_restart(ctx, *attr):
     await ctx.send("現在版本 {}, 檢查更新中...".format(VERSION))
     getTempFile().touch()
     bot.loop.stop()
-    Popen(['update_and_restart.sh'], shell=True)
+    Popen([os.sep.join((os.getcwd(), "update_and_restart.sh"))], shell=True)
 
 @bot.command(name = 'version',invoke_without_command = True)
 async def command_get_version(ctx, *attr):
