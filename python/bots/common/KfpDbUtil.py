@@ -18,7 +18,7 @@ class KfpDbUtil():
             coin = row[4]
             pure = row[7]
             member = Member.create(member_id= member_id, exp= exp, rank= rank, coin= coin, pure= pure)
-            member.save()
+            member.save(force_insert=True)
             count += 1
         conn.close()
         return count
