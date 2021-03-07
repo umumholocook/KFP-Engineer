@@ -17,8 +17,17 @@ class KfpDbUtil():
             rank = row[2]
             coin = row[4]
             pure = row[7]
-            member = Member.create(member_id= member_id, exp= exp, rank= rank, coin= coin, pure= pure)
-            member.save(force_insert=True)
+            query = Member.select().where(Member.member_id == member_id)
+            member: Member
+            if query.exists():
+                member = query
+            else:
+                member = Member.create(member_id= member_id)    
+            member.exp = exp
+            member.rank = rank
+            member.coin = coin
+            member.pure = pure
+            member.save()
             count += 1
         conn.close()
         return count
