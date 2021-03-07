@@ -6,7 +6,7 @@ from subprocess import Popen
 from discord.ext import commands
 from common.KFP_DB import KfpDb
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 TOKEN=os.environ['KFP_TOKEN']
 intents = discord.Intents.default()
 intents.members = True
@@ -28,7 +28,7 @@ async def on_ready():
         db = KfpDb()
         channel_id = db.get_reboot_message_channel()
         if channel_id:
-            await bot.get_channel(channel_id).send("更新完成")
+            await bot.get_channel(channel_id).send("更新結束, 現在版本 {}".format(VERSION))
 
 @bot.event
 async def on_message(message):
@@ -51,7 +51,7 @@ async def command_invite_link(ctx, *attr):
 async def command_restart(ctx, *attr):
     db = KfpDb()
     db.set_reboot_message_channel(channel_id=ctx.channel.id)
-    await ctx.send("重新啟動中...")
+    await ctx.send("現在版本 {}, 檢查更新中...".format(VERSION))
     getTempFile().touch()
     bot.loop.stop()
     Popen(['update_and_restart.sh'], shell=True)
