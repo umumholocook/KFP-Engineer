@@ -7,7 +7,7 @@ from subprocess import Popen
 from discord.ext import commands
 from common.KFP_DB import KfpDb
 
-VERSION = "0.0.1"
+VERSION = "0.1.0"
 TOKEN=os.environ['KFP_TOKEN']
 intents = discord.Intents.default()
 intents.members = True
@@ -60,13 +60,6 @@ async def command_restart(ctx, *attr):
 @bot.command(name = 'version',invoke_without_command = True)
 async def command_get_version(ctx, *attr):
     await ctx.send(VERSION)
-
-@bot.command(name = 'import_data', invoke_without_command = True)
-async def import_data(ctx, *attr):
-    await ctx.send("導入舊有資料中...")
-    newCount = KfpDbUtil.importFromOldDatabase(ctx.guild.id, "KFP_bot_old.db")
-    oldCount = KfpDbUtil.getCount(ctx.guild.id, "KFP_bot_old.db") 
-    await ctx.send("導入結束資料中... 舊有資料{}筆, 導入{}筆".format(oldCount, newCount))
 
 @bot.group(name = 'cogs', invoke_without_command = True)
 async def cogs_group(ctx, *attr):
