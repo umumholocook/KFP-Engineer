@@ -240,7 +240,7 @@ class NewProfile(commands.Cog):
     @commands.check(isWhiteList)
     async def profile_group_bind_command(self, ctx:commands.Context, *arg):
         channel = ctx.channel
-        self.db.set_rankup_channel(channel.id)
+        ChannelUtil.setRankupChannel(ctx.guild.id, channel.id)
         await channel.send('<@!{}> 設定升級訊息將會於此。'.format(ctx.author.id))
             
 def setup(client):
