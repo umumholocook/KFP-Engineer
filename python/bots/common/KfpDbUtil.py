@@ -5,6 +5,7 @@ from common.models.Member import Member
 class KfpDbUtil():
     def importFromOldDatabase(guild_id: int, db_name: str):
         table_name = "server_{}".format(guild_id)
+        print(table_name)
         conn = sqlite3.connect(db_name)
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM {};".format(table_name))
