@@ -89,12 +89,12 @@ class KfpDb():
     
     def update_token(self, member_id:int, amount:int):
         query = Member.select().where(Member.member_id == member_id)
-        if not query.exists():
-            return False
-        member = query.get()
+        if query.exists():
+            member = query.get()
+        else:
+            member = self.add_member(member_id)
         member.token = amount
         member.save()
-        return True
     
     # 如果需要升級會員等級便升級
     def __update_rank_if_qualified(self, member_id:int):

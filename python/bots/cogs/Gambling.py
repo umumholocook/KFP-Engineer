@@ -1,3 +1,5 @@
+from common.models.Channel import Channel
+from common.ChannelUtil import ChannelUtil
 from common.models.GamblingGame import GamblingGame
 from common.KFP_DB import KfpDb
 from common.Util import Util
@@ -52,12 +54,7 @@ class Gambling(commands.Cog):
         if target_member == None:
             await ctx.channel.send('權限錯誤: 無法獲得成員，id: {}'.format(argv[0][3:-1]))
             return
-        
-        if not self.database.has_member(target_member.id):
-            self.database.add_member(target_member.id)
-        self.database.get_member(target_member.id)
         self.database.update_token(target_member.id, int(argv[1]))
-
         await ctx.channel.send('將成員: {}的🍗量設置為{}。'.format(target_member.display_name, argv[1]))
         await target_member.send('你的🍗量被{}設置為{}'.format(ctx.author.display_name, argv[1]))
 
@@ -67,12 +64,37 @@ class Gambling(commands.Cog):
             await ctx.author.send("請在頻道中設置這個指令")
             return
         if not self.database.has_channel(ctx.guild.id, ctx.channel.id, Util.ChannelType.AUTO_DELETE):
-            result = self.database.add_channel(ctx.guild.id, ctx.channel.id, Util.ChannelType.AUTO_DELETE)
+            result = ChannelUtil.setChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.AUTO_DELETE)
             if result:
                 await ctx.channel.send('這個頻道將開始自動刪除接下來的所有成員留言')
                 self.database.set_ignore_xp_channel(ctx.guild.id, ctx.channel.id)
             else:
                 await ctx.channel.send('這個頻道已經開啟自動刪除')
+        else:
+            await ctx.channel.send('這個頻道已經開啟自動刪除')
+
+    @betting_keep_clear_group.command(name = 'disable')
+    async def keep_clear_disable_command(self, ctx:commands.Context, *argv):
+        if ctx.channel == None:
+            await ctx.author.send("請在頻道中設置這個指令")
+            return
+        if self.database.has_channel(ctx.guild.id, ctx.channel.id, Util.ChannelType.AUTO_DELETE):
+            ChannelUtil.removeChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.AUTO_DELETE)
+            await ctx.channel.send('取消這個頻道自動刪除成員留言功能')
+            self.database.remove_ignore_xp_channel(ctx.guild.id, ctx.channel.id)
+    
+    @betting_keep_clear_group.command(name = 'list')
+    async def keep_clear_list_command(self, ctx:commands.Context, *argv):
+        if ctx.guild == None:
+            await ctx.author.send("請在伺服器中呼叫這個指令")
+            return
+        result = ''
+        autoDeleteList = ChannelUtil.GetChannelWithGuild(ctx.guild.id, Util.ChannelType.AUTO_DELETE)
+        channel: Channel
+        for channel in autoDeleteList:
+            if ctx.uild.get_channel(channel.channel_id) != None:
+                result += '<#{}>'.format(channel.channel_id)
+        await ctx.channel.send(result)
 
     # 啟動下注, 格式為 "!bet 加注數量 下注編號 [賭局ID]"
     @commands.command(name = 'bet')
@@ -159,7 +181,22 @@ class Gambling(commands.Cog):
     @commands.group(name = 'betting', invoke_without_command = True)
     async def betting_command_group(self, ctx:commands.Context, *attr):
         pass
-    
+
+    @betting_command_group.command(name= 'list')
+    async def betting_list_command(self, ctx, *argv):
+        guild = ctx.guild
+        betting_list = get_active_betting_list(guild.id)
+        if len(betting_list) == 0:
+            return
+        embed = Embed()
+        embed.title = '賭盤列表'
+        for betting in betting_list:
+            guild = self.bot.get_guild(betting[Betting_index.guild_id])
+            channel = guild.get_channel(betting[Betting_index.channel_id])
+            embed.add_field(name= betting[Betting_index.betting_name], value= '每注: {}, 獎金池: {}, 狀態: {}\n頻道: <#{}>, 伺服器:{}'.format(betting[Betting_index.betting_base],betting[Betting_index.pool], Betting_state(betting[Betting_index.status]).name, channel.id, guild.name), inline=False)
+            
+        await ctx.channel.send(embed= embed)
+
     # 取消自動刪除留言功能
     @betting_keep_clear_group.command(name = 'disable')
     async def keep_clear_disable_command(self, ctx:commands.Context, *argv):
