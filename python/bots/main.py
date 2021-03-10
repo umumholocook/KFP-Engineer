@@ -6,7 +6,7 @@ from subprocess import Popen
 from discord.ext import commands
 from common.KFP_DB import KfpDb
 
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 TOKEN=os.environ['KFP_TOKEN']
 intents = discord.Intents.default()
 intents.members = True

@@ -59,10 +59,21 @@ class RockPaperScissors(commands.Cog):
         right_index = self.rps.index(right)
         if (left_index == right_index):
             return 0
-        if (left_index == 2 and right_index == 0) or (left_index < right_index):
-            return -1
-        if (left_index > right_index) or (left_index == 0 and right_index == 2):
-            return 1
+        if (left_index == 2):
+            if (right_index == 0):
+                return -1
+            if (right_index == 1):
+                return 1
+        if (left_index == 1):
+            if (right_index == 0):
+                return 1
+            if (right_index == 2):
+                return -1
+        if (left_index == 0):
+            if (right_index == 1):
+                return -1
+            if (right_index == 2):
+                return 1
         return 0
 
 def setup(bot):
