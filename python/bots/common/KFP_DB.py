@@ -154,3 +154,20 @@ class KfpDb():
             
     def counting_table_clean(self):
         Ranking.update({Ranking.count:0}).execute()
+    
+    # 設定自我更新啟動時使用的頻道ID
+    def set_reboot_message_channel(self, channel_id:int):
+        query = Channel.select().where(Channel.channel_type == Util.ChannelType.REBOOT_MESSAGE)
+        if query.exists():
+            channel = query.get()
+        else:
+            channel = Channel(channel_type=Util.ChannelType.REBOOT_MESSAGE)
+        channel.channel_discord_id = channel_id
+        channel.save()
+    
+    # 取得自我更新啟動時使用的頻道ID
+    def get_reboot_message_channel(self):
+        query = Channel.select().where(Channel.channel_type == Util.ChannelType.REBOOT_MESSAGE)
+        if query.exists():
+            return query.get().channel_discord_id
+        return None

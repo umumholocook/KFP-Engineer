@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from cogs.ReactionRanking import Ranking
 import pytest
 import peewee
+import os
 from peewee import SqliteDatabase
 from common.KFP_DB import KfpDb
 from common.models.Member import Member
@@ -20,9 +21,19 @@ class TestKfpDb():
         
     def teardown_method(self, method):
         self.database.teardown()
+        for file in os.listdir():
+            if file.endswith("test.db"):
+                os.remove(file)
 
     def test_addMember(self):
         self.database.add_member(12346)
+        member = self.database.get_member(12346)
+        assert member.member_id == 12346
+
+    def test_dataIntegrity(self):
+        self.database = KfpDb(dbFile="tmp_test.db")
+        self.database.add_member(12346)
+        self.database = KfpDb(dbFile="tmp_test.db")
         member = self.database.get_member(12346)
         assert member.member_id == 12346
     

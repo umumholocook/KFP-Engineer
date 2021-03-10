@@ -1,3 +1,4 @@
+from common.models.Member import Member
 import discord, os, io
 from PIL import Image, ImageDraw, ImageFont ,ImageEnhance
 from discord import Message
@@ -18,6 +19,7 @@ class ProfileImage(object):
         self.displayName = ''
         self.userName = ''
         self.rankNumber = -1
+        self.levelNumber = 0
         self.xpNumber = 0
         self.coinNumber = 0
         
@@ -134,7 +136,7 @@ class ProfileImage(object):
         
         text_list_1 = ('硬幣:', str(self.coinNumber))
         text_list_fill_1 = ('#E1E100', '#F9F900')[::-1]
-        text_list_2 = (str(self.xpNumber), '/', str(int(Util.get_rank_exp(self.rankNumber + 1))), 'XP')
+        text_list_2 = (str(self.xpNumber), '/', "{:0.2f}".format(Util.get_rank_exp(self.levelNumber + 1)), 'XP')
         text_list_fill_2 = ('#FFFFFF', '#ADADAD', '#ADADAD', '#ADADAD')[::-1]
 
         x_base = 934 - 60 - 30
@@ -162,7 +164,7 @@ class ProfileImage(object):
         self._closeAllImage()
 
 #因為我不想改回去多伺服器的，就鎖乾淨吧
-whitelist = [770197802470735913, 786612294762889247]
+whitelist = [770197802470735913, 786612294762889247, 749699470819590155]
 
 def isWhiteList(ctx):
     if ctx.guild == None:
@@ -200,8 +202,10 @@ class NewProfile(commands.Cog):
     @commands.group(name = 'profile', invoke_without_command = True)
     async def profile_profile_group(self, ctx:commands.Context, *attr):
         if not isWhiteList(ctx):
+            if ctx.guild:
+                print("{} is not on white list, if you are a developer, add your server to the white list".format(ctx.guild.id))
             return
-        memberRow = self.db.get_member(ctx.author.id)
+        memberRow: Member = self.db.get_member(ctx.author.id)
         if memberRow == None:
             self.db.add_member(ctx.author.id)
             memberRow = self.db.get_member(ctx.author.id)
@@ -233,13 +237,10 @@ class NewProfile(commands.Cog):
 
     @profile_profile_group.command(name= 'bind')
     @commands.check(isWhiteList)
-    async def profile_group_bind_command(self, ctx:commands.Context, input_channel, *arg):
-        channel = ctx.guild.get_channel(int(input_channel[2:-1]))
-        if channel == None:
-            await ctx.channel.send('沒有id: {}的頻道'.format(int(input_channel[2:-1])))
-            return 
+    async def profile_group_bind_command(self, ctx:commands.Context, *arg):
+        channel = ctx.channel
         self.db.set_rankup_channel(channel.id)
         await channel.send('<@!{}> 設定升級訊息將會於此。'.format(ctx.author.id))
             
 def setup(client):
-    client.add_cog(NewProfile(client, r"./common/KFP_bot.db"))
+    client.add_cog(NewProfile(client, Util.DEFAULT_DB_PATH))
