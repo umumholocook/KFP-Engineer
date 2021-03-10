@@ -1,9 +1,12 @@
+from datetime import datetime, timedelta
+from cogs.ReactionRanking import Ranking
 import pytest
 import peewee
 from peewee import SqliteDatabase
 from common.KFP_DB import KfpDb
 from common.models.Member import Member
 from common.models.Channel import Channel
+from common.models.Ranking import Ranking
 from common.Util import Util
 
 MODELS = [Member]
@@ -118,3 +121,47 @@ class TestKfpDb():
 
         self.database.set_rankup_channel(456)
         assert self.database.get_message_channel_id() == 456
+
+    def test_increase_counting_table(self):
+        _from = datetime.today().timestamp()-1
+        self.database.increase_counting_table(123, 'reactionId', self.guild_id)
+        _end = datetime.today().timestamp()+1
+        
+        rows = self.database.get_conting_table(self.guild_id, _from, _end)
+        assert rows != None
+        assert len(rows) == 1
+        assert rows[0].user_id == 123 and rows[0].guild_id == self.guild_id and rows[0].count == 1
+
+        self.database.increase_counting_table(123, 'reactionId', self.guild_id)
+        _end = datetime.today().timestamp()+1
+        rows = self.database.get_conting_table(self.guild_id, _from, _end)
+        assert len(rows) == 1
+        assert rows[0].user_id == 123 and rows[0].guild_id == self.guild_id and rows[0].count == 2
+        self.database.teardown()
+
+    def test_reduce_counting_table(self):
+        _from = datetime.today().timestamp()-1
+        self.database.reduce_counting_table(123, 'reactionId', self.guild_id)
+        _end = datetime.today().timestamp()+1
+        
+        rows = self.database.get_conting_table(self.guild_id, _from, _end)
+        assert rows != None
+        assert len(rows) == 1
+        assert rows[0].user_id == 123 and rows[0].guild_id == self.guild_id and rows[0].count == -1
+
+        self.database.reduce_counting_table(123, 'reactionId', self.guild_id)
+        _end = datetime.today().timestamp()+1
+        rows = self.database.get_conting_table(self.guild_id, _from, _end)
+        assert len(rows) == 1
+        assert rows[0].user_id == 123 and rows[0].guild_id == self.guild_id and rows[0].count == -2
+        
+    def test_reduce_counting_table_multi_user(self):
+        _from = datetime.today().timestamp()-1
+        self.database.reduce_counting_table(123, 'reactionId', self.guild_id)
+        self.database.reduce_counting_table(234, 'reactionId', self.guild_id)
+        _end = datetime.today().timestamp()+1
+
+        rows = self.database.get_conting_table(self.guild_id, _from, _end)
+        assert rows != None
+        assert len(rows) == 2
+        
