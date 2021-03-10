@@ -164,4 +164,19 @@ class TestKfpDb():
         rows = self.database.get_conting_table(self.guild_id, _from, _end)
         assert rows != None
         assert len(rows) == 2
+
+    def test_counting_table_clean(self):
+        _from = datetime.today().timestamp()-1
+        self.database.increase_counting_table(123, 'reactionId', self.guild_id)
+        self.database.increase_counting_table(123, 'reactionId2', self.guild_id)
+        _end = datetime.today().timestamp()+1
+
+        rows = self.database.get_conting_table(self.guild_id, _from, _end)
+        assert rows != None
+        assert rows[0].count == 1 and rows[1].count == 1
+
+        self.database.counting_table_clean()
+        rows = self.database.get_conting_table(self.guild_id, _from, _end)
+        assert rows != None
+        assert rows[0].count == 0 and rows[1].count == 0
         
