@@ -179,4 +179,8 @@ class TestKfpDb():
         rows = self.database.get_conting_table(self.guild_id, _from, _end)
         assert rows != None
         assert rows[0].count == 0 and rows[1].count == 0
+    #fill the testing coverage
+    def test_get_conting_table(self):
+        rows = self.database.get_conting_table(self.guild_id, 0, 1)
+        assert rows == None
         
