@@ -151,3 +151,6 @@ class KfpDb():
             return result
         else:
             None
+            
+    def counting_table_clean(self):
+        Ranking.update({Ranking.count:0}).execute()
