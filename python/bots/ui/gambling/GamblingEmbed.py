@@ -1,3 +1,4 @@
+from common.GamblingUtil import GamblingUtil
 import json
 from common.models.GamblingBet import GamblingBet
 from common.KFP_DB import KfpDb
@@ -7,7 +8,7 @@ from discord import Color, Embed, Guild
 from discord.ext import commands
 from random import randint
 
-class Gambling():
+class GamblingEmbed():
     def get_betting_embed(bot: commands.Bot, database: KfpDb, game:GamblingGame):
         guild: Guild = bot.get_guild(game.guild_id)
         if guild == None:
@@ -31,7 +32,7 @@ class Gambling():
         #[第一項總注，第n項總注...,總項總注]
         member_charge_sum = [0] * len(betting_items)
         member_bet = {}
-        bets = database.get_bets(game)
+        bets = GamblingUtil.get_bets(game)
 
         bet : GamblingBet
         for bet in bets:

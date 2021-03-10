@@ -18,6 +18,11 @@ class ChannelUtil():
             channel = Channel(channel_type=channel_type.value, channel_guild_id=guild_id, channel_id = channel_id)
         channel.channel_id = channel_id
         channel.save()
+
+    # 確定頻道存在
+    def hasChannel(guild_id: int, channel_id:int, channel_type: Util.ChannelType):
+        query = Channel.select().where(Channel.channel_type == channel_type.value, Channel.channel_guild_id == guild_id, Channel.channel_id == channel_id)
+        return query.exists()
     
     # 新增頻道
     def addChannel(guild_id: int, channel_id:int, channel_type: Util.ChannelType):

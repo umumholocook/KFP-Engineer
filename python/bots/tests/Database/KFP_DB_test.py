@@ -75,22 +75,22 @@ class TestKfpDb():
         assert member.rank == 1
     
     def test_addCoin_notExist(self):
-        assert not self.database.update_coin(100, 10) # user 100 does not exist
+        assert not self.database.add_coin(100, 10) # user 100 does not exist
 
     def test_addCoin(self):
-        self.database.update_coin(default_user_id, 10)
+        self.database.add_coin(default_user_id, 10)
         member = self.database.get_member(default_user_id)
         assert member.coin == 10
 
     def test_subtractCoin(self):
-        self.database.update_coin(default_user_id, 100)
-        self.database.update_coin(default_user_id, -10)
+        self.database.add_coin(default_user_id, 100)
+        self.database.add_coin(default_user_id, -10)
         member = self.database.get_member(default_user_id)
         assert member.coin == 90
     
     def test_notEnoughMoney(self):
-        self.database.update_coin(default_user_id, 100)
-        assert not self.database.update_coin(default_user_id, -1000)
+        self.database.add_coin(default_user_id, 100)
+        assert not self.database.add_coin(default_user_id, -1000)
         member = self.database.get_member(default_user_id)
         assert member.coin == 100
         
@@ -131,4 +131,13 @@ class TestKfpDb():
         assert self.database.get_member_rank_order(default_user_id) == 2
         assert self.database.get_member_rank_order(1) == 2
 
-    
+    def test_resetEveryoneToken(self):
+        self.database.add_member(1)
+        self.database.add_member(2)
+        self.database.add_member(3)
+
+        self.database.reset_everyone_token()
+
+        assert self.database.get_member(1).token == 100
+        assert self.database.get_member(2).token == 100
+        assert self.database.get_member(3).token == 100

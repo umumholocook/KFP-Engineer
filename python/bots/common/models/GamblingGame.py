@@ -7,11 +7,11 @@ class GamblingGame(BaseModel):
     guild_id = IntegerField() # 賭盤的群id
     base = IntegerField() # 每注單位
     start = DateTimeField()
-    end = DateTimeField()
+    end = DateTimeField(null = True)
     status = IntegerField() # 賭盤狀態
     pool = IntegerField() # 賭池, 目前下注的總資金
     creater_id = IntegerField() # 發起人
-    message_id = IntegerField() # 觸發賭盤的消息id
-    channel_id = IntegerField()
-    winning_index = IntegerField() # 賭盤贏的項目
+    message_id = IntegerField(null = True) # 觸發賭盤的消息id
+    channel_id = IntegerField(null = True)
+    winning_index = IntegerField(null = True) # 賭盤贏的項目
     item_list = TextField() # 賭盤裡可以下注的項目
