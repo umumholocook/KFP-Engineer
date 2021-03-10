@@ -1,11 +1,15 @@
+from datetime import datetime, timedelta
 import sqlite3
+
+from discord.reaction import Reaction
 import common.models.BaseModel as db
 from common.Util import Util
 from common.models.Member import Member
 from common.models.Channel import Channel
+from common.models.Ranking import Ranking
 from peewee import SqliteDatabase
 
-MODULES = [Member, Channel]
+MODULES = [Member, Channel, Ranking]
 
 class KfpDb():
     def __init__(self, dbFile=r"./common/KFP_bot.db"):
@@ -102,3 +106,48 @@ class KfpDb():
             return query.get().channel_discord_id
         return None
         
+    def increase_counting_table(self, user_id:int, key:str, guild_id:int, ):
+        now = datetime.today()
+        nowf = now.replace(hour=0,minute=0, second=0, microsecond=0).timestamp()
+        nowe = (datetime.today() + timedelta(days=1)).timestamp()
+        query = Ranking.select().where(Ranking.ranking_key == key, Ranking.user_id == user_id, Ranking.timestamp >= nowf and Ranking.timestamp < nowe)
+        if not query.exists():
+            ranking = Ranking.insert(rankingt_type = Util.RankingType.REACTION,
+                ranking_key = key,
+                user_id = user_id,
+                guild_id = guild_id,
+                count = 1, 
+                timestamp = now.timestamp()).execute()
+        else:
+            ranking = query.get()
+            ranking.count += 1
+            ranking.timestamp = now.timestamp()
+            ranking.save()
+
+    def reduce_counting_table(self, user_id:int, key:str, guild_id:int):
+        now = datetime.today()
+        nowf = now.replace(hour=0,minute=0, second=0, microsecond=0).timestamp()
+        nowe = (datetime.today() + timedelta(days=1)).timestamp()
+        query = Ranking.select().where(Ranking.ranking_key == key, Ranking.user_id == user_id, Ranking.timestamp >= nowf and Ranking.timestamp < nowe)
+        if not query.exists():
+            ranking = Ranking.insert(rankingt_type = Util.RankingType.REACTION,
+                ranking_key = key,
+                user_id = user_id,
+                guild_id = guild_id,
+                count = -1, 
+                timestamp = now.timestamp()).execute()
+        else:
+            ranking = query.get()
+            ranking.count -= 1
+            ranking.timestamp = now.timestamp()
+            ranking.save()
+    
+    def get_conting_table(self,guild_id:int, timestamp_from:float, timestamp_end:float):
+        assert timestamp_from != timestamp_end
+        result = list()
+        for query in Ranking.select().where(Ranking.rankingt_type == Util.RankingType.REACTION, Ranking.guild_id == guild_id,Ranking.timestamp >= timestamp_from and Ranking.timestamp <= timestamp_end):
+            result.append(query.get())
+        if result != []:
+            return result
+        else:
+            None

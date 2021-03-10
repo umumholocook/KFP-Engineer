@@ -8,4 +8,9 @@ class Util:
     class ChannelType(IntEnum):
         UNKNOWN = 0
         RANK_UP = 1
+        RANKING_ANNOUNCEMENT = 2
         # 只能新添Channel, 不要刪除舊有的
+
+    class RankingType(IntEnum):
+        UNKNOWN = 0
+        REACTION = 1
