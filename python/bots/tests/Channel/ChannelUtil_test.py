@@ -1,6 +1,8 @@
+import pytest, sys, os
+if not os.getcwd() in sys.path:
+    sys.path.append(os.getcwd())
 from common.models.Channel import Channel
 from common.ChannelUtil import ChannelUtil
-import pytest
 from common.KFP_DB import KfpDb
 from common.Util import Util
 
