@@ -1,3 +1,4 @@
+from common.models.Member import Member
 import discord, os, io
 from PIL import Image, ImageDraw, ImageFont ,ImageEnhance
 from discord import Message
@@ -18,6 +19,7 @@ class ProfileImage(object):
         self.displayName = ''
         self.userName = ''
         self.rankNumber = -1
+        self.levelNumber = 0
         self.xpNumber = 0
         self.coinNumber = 0
         
@@ -134,7 +136,7 @@ class ProfileImage(object):
         
         text_list_1 = ('硬幣:', str(self.coinNumber))
         text_list_fill_1 = ('#E1E100', '#F9F900')[::-1]
-        text_list_2 = (str(self.xpNumber), '/', str(int(Util.get_rank_exp(self.rankNumber + 1))), 'XP')
+        text_list_2 = (str(self.xpNumber), '/', "{:0.2f}".format(Util.get_rank_exp(self.levelNumber + 1)), 'XP')
         text_list_fill_2 = ('#FFFFFF', '#ADADAD', '#ADADAD', '#ADADAD')[::-1]
 
         x_base = 934 - 60 - 30
@@ -203,7 +205,7 @@ class NewProfile(commands.Cog):
             if ctx.guild:
                 print("{} is not on white list, if you are a developer, add your server to the white list".format(ctx.guild.id))
             return
-        memberRow = self.db.get_member(ctx.author.id)
+        memberRow: Member = self.db.get_member(ctx.author.id)
         if memberRow == None:
             self.db.add_member(ctx.author.id)
             memberRow = self.db.get_member(ctx.author.id)
