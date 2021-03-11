@@ -154,9 +154,9 @@ class KfpDb():
 
     # 重置所有人的🍗
     def reset_everyone_token(self):
-        member_id_list = Member.select(Member.id)
+        member_id_list = Member.select(Member.member_id)
         for member_id in member_id_list:
-            Member.update(token=100).where(Member.id == member_id).execute()
+            Member.update(token=100).where(Member.member_id == member_id).execute()
     
     def add_permission_role(self, guild: Guild, new_role: Role, role_type: Util.RoleType):
         role = PermissionRole(role_type = role_type, guild_id = guild.id, role_id = new_role.id)
