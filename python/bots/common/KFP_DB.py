@@ -52,7 +52,7 @@ class KfpDb():
         member.coin += coin
         member.save()
 
-    # 增加會員的經驗值, -1 代表等級沒有提升
+    # 增加會員的經驗值, -1 代表找不到會員
     def increase_exp(self, member_id:int, new_exp:int):
         query = Member.select().where(Member.member_id == member_id)
         if not query.exists():

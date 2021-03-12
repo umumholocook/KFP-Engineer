@@ -186,14 +186,13 @@ class NewProfile(commands.Cog):
     async def profile_on_message(self, message:Message):
         if message.channel == None or not message.channel.guild.id in whitelist or message.author.bot:
             return
-        member = message.guild.get_member(message.author.id)
-        member: Member = self.db.get_member(member.id)
-        if member == None:
-            self.db.add_member(member.id)
-            member = self.db.get_member(member.id)
+        member: Member = self.db.get_member(message.author.id)
+        if not member:
+            self.db.add_member(message.author.id)
+            member = self.db.get_member(message.author.id)
         increaseNumber = randint(10,25)
-        rank = self.db.increase_exp(member.id, increaseNumber)
-        assert rank != -1, f'cannot find user {member.id}'
+        rank = self.db.increase_exp(member.member_id, increaseNumber)
+        assert rank != -1, f'cannot find user {member.member_id}'
         if member.rank != rank:
             channel = self.db.get_rankup_channel_id()
             if channel == None:
