@@ -1,4 +1,3 @@
-import pytest
 from cogs.RockPaperScissors import RockPaperScissors
 
 class TestRockPaperScissors():

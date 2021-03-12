@@ -7,4 +7,5 @@ class KfpRole(BaseModel):
     role_id = IntegerField()
     role_name = TextField()
     color = TextField()
-    level = IntegerField(null=True) 
+    level = IntegerField(default = 0)
+    category = IntegerField(default = 0)

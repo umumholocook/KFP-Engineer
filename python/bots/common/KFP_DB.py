@@ -2,9 +2,10 @@ import common.models.BaseModel as db
 from common.Util import Util
 from common.models.Member import Member
 from common.models.Channel import Channel
+from common.models.KfpRole import KfpRole
 from peewee import SqliteDatabase
 
-MODULES = [Member, Channel]
+MODULES = [Member, Channel, KfpRole]
 
 class KfpDb():
     def __init__(self, dbFile=r"./common/KFP_bot.db"):
@@ -42,11 +43,20 @@ class KfpDb():
             data.append({'member_id': member_id})
         Member.insert_many(data).execute()
 
-    # 增加會員的經驗值
+    # 增加會員的硬幣
+    def increase_coin(self, guild_id: int, member_id: int, coin: int):
+        query = Member.select().where(Member.member_id == member_id)
+        if not query.exists():
+            return
+        member: Member = query.get()
+        member.coin += coin
+        member.save()
+
+    # 增加會員的經驗值, -1 代表等級沒有提升
     def increase_exp(self, member_id:int, new_exp:int):
         query = Member.select().where(Member.member_id == member_id)
         if not query.exists():
-            return False
+            return -1
         member = query.get()
         member.exp = member.exp+new_exp
         member.save()
@@ -74,8 +84,7 @@ class KfpDb():
         if new_rank != member.rank:
             member.rank = new_rank
             member.save()
-            return True
-        return False
+        return member.rank
 
     # 會員等級排名
     def get_member_rank_order(self, member_id:int):
@@ -95,7 +104,7 @@ class KfpDb():
         channel.save()
 
     # 取得訊息頻道ID
-    def get_message_channel_id(self):
+    def get_rankup_channel_id(self):
         query = Channel.select().where(Channel.channel_type == Util.ChannelType.RANK_UP)
         if query.exists():
             return query.get().channel_discord_id

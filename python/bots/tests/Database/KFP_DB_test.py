@@ -48,7 +48,7 @@ class TestKfpDb():
             self.database.add_member(default_user_id)
 
     def test_increaseExp_notExist(self):
-        assert not self.database.increase_exp(100, 10) # user 100 does not exist
+        assert self.database.increase_exp(100, 10) < 0 # user 100 does not exist
 
     def test_increaseExp(self):
         self.database.increase_exp(default_user_id, 10)
@@ -120,11 +120,11 @@ class TestKfpDb():
         assert self.database.get_member_rank_order(1) == 2
 
     def test_setRankupChannel_notExist(self):
-        assert not self.database.get_message_channel_id()
+        assert not self.database.get_rankup_channel_id()
     
     def test_setRankupChannel(self):
         self.database.set_rankup_channel(123)
-        assert self.database.get_message_channel_id() == 123
+        assert self.database.get_rankup_channel_id() == 123
 
         self.database.set_rankup_channel(456)
-        assert self.database.get_message_channel_id() == 456
+        assert self.database.get_rankup_channel_id() == 456

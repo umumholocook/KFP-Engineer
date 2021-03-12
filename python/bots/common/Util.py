@@ -17,6 +17,10 @@ class Util:
         OMIKUJI = 2 # 日本神簽
         YI = 3 # 易經
         # 只能添加新的抽籤種類, 不要刪除舊有的
+
+    class RoleCategory(IntEnum):
+        NONE = 0
+        KFP_DEFAULT = 1
         
     # 升級為next_rank所需的經驗值
     def get_rank_exp(next_rank:int):
