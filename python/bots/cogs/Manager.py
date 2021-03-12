@@ -1,6 +1,10 @@
-import discord, os, json
+from common.models.KfpRole import KfpRole
+from common.RoleUtil import RoleUtil
+import os, json
+from discord import Color, Permissions, Role
 from discord.ext import commands
-from discord import Guild, Member, Message, Reaction, Role
+from discord.utils import get
+from data.DefaultRoleData import KFP_DEFAULT
 
 def load_json_file(file_name):
     if os.path.exists(file_name):
@@ -20,9 +24,37 @@ def has_permission(file_name:str, guild_id, roles:list):
             return True
     return False
 
+ROLE_DATA = [KFP_DEFAULT]
+
 class Manager(commands.Cog):
     def __init__(self, client):
         self.bot = client
+
+    @commands.group(name = 'role', invoke_without_command = True)
+    async def role_manager_group(self, ctx:commands.Context, *attr):
+        if ctx.author.id != ctx.guild.owner.id:
+            await ctx.channel.send('本功能只有群主可以使用')
+            return
+        
+    @role_manager_group.command(name = 'init')
+    async def initialize_roles(self, ctx:commands.Context, *argv):
+        if ctx.author.id != ctx.guild.owner.id:
+            await ctx.channel.send('本功能只有群主可以使用')
+            return
+        msg = await ctx.channel.send('初始化身分組{}...'.format("KFP 預設"))
+        for data in ROLE_DATA:
+            for role_dic in data:
+                role_name = role_dic['name']
+                role: Role = get(ctx.guild.roles, name=role_name)
+                if role:
+                    await msg.edit(content=str(msg.content)+"\n{}已經存在... 合併現有資料".format(role_name))
+                else:
+                    await msg.edit(content=str(msg.contnet)+"\n創建身分組{} 完成".format(role_name))
+                    role = await ctx.guild.create_role(name=role_name, permissions= Permissions(permissions=0) ,colour= Color(role_dic['color']), mentionable= False, hoist=False)
+                kfpRole: KfpRole = RoleUtil.updateRole(ctx.guild.id, role.id, role.name, role.color)
+                RoleUtil.updateKfpRoleLevel(kfpRole, role_dic['level'])
+
+        await ctx.channel.send("身分組初始化完成.")
 
     @commands.command(name = 'link_role',invoke_without_command = True)
     async def Manager_link_role_command(self, ctx, *argv):

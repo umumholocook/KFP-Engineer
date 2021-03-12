@@ -8,6 +8,7 @@ class Util:
         UNKNOWN = 0
         RANK_UP = 1
         REBOOT_MESSAGE = 2
+        ROLE_EDITOR = 3
         # 只能新添Channel, 不要刪除舊有的
 
     class KujiType(IntEnum):
