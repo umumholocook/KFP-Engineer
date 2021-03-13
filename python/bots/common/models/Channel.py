@@ -3,5 +3,6 @@ from peewee import *
 
 class Channel(BaseModel):
     id = AutoField()
-    channel_type = IntegerField()
-    channel_discord_id = IntegerField()
+    channel_type = IntegerField() # common/Util.ChannelType
+    channel_guild_id = IntegerField()
+    channel_id = IntegerField()

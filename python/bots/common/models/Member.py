@@ -7,3 +7,4 @@ class Member(BaseModel):
     rank=BigIntegerField(default=0, null = True) # BITINT
     coin=BigIntegerField(default=0, null = True) # BITINT
     pure=IntegerField(default=0, null = True) # INT
+    token=BigIntegerField(default=100, null = True) # BITINT

@@ -9,6 +9,7 @@ from discord.ext import commands
 from random import randint
 from common.KFP_DB import KfpDb 
 from common.Util import Util
+from common.ChannelUtil import ChannelUtil
 
 class ProfileImage(object):
     def __init__(self):
@@ -191,10 +192,10 @@ class NewProfile(commands.Cog):
             self.db.add_member(message.author.id)
             member = self.db.get_member(message.author.id)
         increaseNumber = randint(10,25)
-        rank = self.db.increase_exp(member.member_id, increaseNumber)
-        assert rank != -1, f'cannot find user {member.member_id}'
+        rank = self.db.increase_exp(message.channel.guild.id, message.channel.id, message.author.id, increaseNumber)
+        assert rank > 0, 'method increase_xp should not retrun less than 1 in profile_on_message'
         if member.rank != rank:
-            channel = self.db.get_rankup_channel_id()
+            channel = ChannelUtil.getMessageChannelId(message.guild.id)
             if channel == None:
                 await message.channel.send('恭喜<@{}> 等級提升至{}。'.format(message.author.id, rank))
             else:
@@ -252,7 +253,7 @@ class NewProfile(commands.Cog):
     @commands.check(isWhiteList)
     async def profile_group_bind_command(self, ctx:commands.Context, *arg):
         channel = ctx.channel
-        self.db.set_rankup_channel(channel.id)
+        ChannelUtil.setRankupChannel(ctx.guild.id, channel.id)
         await channel.send('<@!{}> 設定升級訊息將會於此。'.format(ctx.author.id))
             
 def setup(client):

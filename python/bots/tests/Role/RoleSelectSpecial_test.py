@@ -1,5 +1,4 @@
 import pytest
-from asyncio import Future
 from unittest import mock
 from unittest.mock import MagicMock
 from cogs.RoleSelectSpecial import RoleSelectSpecial
