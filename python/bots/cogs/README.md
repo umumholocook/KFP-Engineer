@@ -19,3 +19,7 @@
 ## RockPaperScissors
 
 剪刀石頭布
+
+## Gambling
+
+賭盤系統
