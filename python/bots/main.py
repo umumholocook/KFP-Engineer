@@ -1,6 +1,6 @@
 from common.models.Channel import Channel
 import discord
-import os
+import os, signal
 import tempfile
 from pathlib import Path
 from subprocess import Popen
@@ -28,8 +28,10 @@ async def on_ready():
     if tmpFile.exists():
         f = open(tmpFile, 'r')
         guild_id = int(f.read())
+        pid = int(f.read())
         f.close()
         os.remove(tmpFile.absolute())
+        os.kill(pid, signal.SIGKILL)
         db = KfpDb()
         channel: Channel = ChannelUtil.getRebootMessageChannel(guild_id)
         if channel:
@@ -60,7 +62,8 @@ async def command_restart(ctx, *attr):
     tmpFile = getTempFile()
     tmpFile.touch()
     f = open(tmpFile, "a")
-    f.write(f"{ctx.guild.id}")
+    f.write(f"{ctx.guild.id}\n")
+    f.write(f"{os.getpid()}")
     f.close()
 
     bot.loop.stop()
