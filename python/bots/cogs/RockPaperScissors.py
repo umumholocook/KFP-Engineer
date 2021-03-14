@@ -18,6 +18,14 @@ class RockPaperScissors(commands.Cog):
         else:
             await self._rpsGame(ctx, attr[0])
 
+    @rps_game.error
+    async def rps_error(ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            msg = '哎哎 同學你太快了, 稍微冷靜一下. 等個{:.2f}秒好嗎?'.format(error.retry_after)
+            await ctx.send(msg)
+        else:
+            raise error
+
     @rps_game.command(name = "help")
     async def print_help(self, ctx:commands.Command, *argv):
         helptext = "```"
@@ -35,7 +43,7 @@ class RockPaperScissors(commands.Cog):
             await ctx.send(f"輸入的指令 \"{user_choice}\" 不正確, 請重新輸入")
         if user_choice == None:
             user_choice_chinese = choice(self.rps)
-            await ctx.send(f"既然你這麼懶, 那我就幫你決定了, 你出的是 {user_choice_chinese}")
+            await ctx.send(f"用戶沒有提供猜拳類型, 隨機選擇:{user_choice_chinese}")
         elif user_choice.lower() == 's' or user_choice.lower() == 'scissor' or user_choice == '剪刀':
             user_choice_chinese = '剪刀'
         elif user_choice.lower() == 'r' or user_choice.lower() == 'rock' or user_choice == '石頭':
@@ -45,11 +53,11 @@ class RockPaperScissors(commands.Cog):
         
         result = self.whoWin(bot_choice, user_choice_chinese)
         if result == 1:
-            await ctx.send(f'{ctx.author.mention} 我出的是 {bot_choice}, 你輸了！')
+            await ctx.send(f'{ctx.author.mention} 你出 {user_choice_chinese} , 我出的是 {bot_choice}, 你輸了！')
         elif result == -1:
-            await ctx.send(f'{ctx.author.mention} 我出的是 {bot_choice}, 你贏了！')
+            await ctx.send(f'{ctx.author.mention} 你出 {user_choice_chinese} , 我出的是 {bot_choice}, 你贏了！')
         else:
-            await ctx.send(f'{ctx.author.mention} 我出的是 {bot_choice}, 平手！')
+            await ctx.send(f'{ctx.author.mention} 你出 {user_choice_chinese} , 我出的是 {bot_choice}, 平手！')
         
     # if left win, return 1
     # if right win, return -1
