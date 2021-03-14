@@ -81,8 +81,8 @@ class ChannelUtil():
         ChannelUtil.setChannel(guild_id, channel_id, Util.ChannelType.REBOOT_MESSAGE, True)
 
     # 取得自我更新啟動時使用的頻道ID
-    def getRebootMessageChannel(guild_id: int):
-        result = ChannelUtil.GetChannelWithGuild(guild_id, Util.ChannelType.REBOOT_MESSAGE)
+    def getRebootMessageChannel():
+        result = ChannelUtil.__get_channel(Util.ChannelType.REBOOT_MESSAGE)
         if len(result) < 1:
             return None
         return result[0]

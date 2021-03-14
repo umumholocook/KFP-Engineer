@@ -52,7 +52,7 @@ async def command_invite_link(ctx, *attr):
 @bot.command(name = 'update',invoke_without_command = True)
 async def command_restart(ctx, *attr):
     db = KfpDb()
-    ChannelUtil.setRebootMessageChannel(channel_id=ctx.channel.id)
+    ChannelUtil.setRebootMessageChannel(guild_id= ctx.guild.id, channel_id=ctx.channel.id)
     await ctx.send("現在版本 {}, 檢查更新中...".format(VERSION))
     getTempFile().touch()
     bot.loop.stop()
