@@ -68,7 +68,6 @@ async def command_restart(ctx, *attr):
     f.write(f"{os.getpid()}")
     f.close()
 
-    bot.loop.stop()
     Popen([os.sep.join((os.getcwd(), "update_and_restart.sh"))], shell=True)
 
 @bot.command(name = 'version',invoke_without_command = True)

@@ -7,5 +7,6 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         exit 0
     fi
 fi
+pkill -9 Python
 # else, run the default python
 python main.py
