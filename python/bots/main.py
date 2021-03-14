@@ -33,7 +33,12 @@ async def on_ready():
         pid = int(line[1])
         f.close()
         os.remove(tmpFile.absolute())
-        os.kill(pid, signal.SIGKILL)
+        try:
+            os.kill(pid, signal.SIGKILL)
+        except OSError:
+            print(f"pid {pid} is not found. Ignore")
+        else:
+            print("restart successful, sending success message")
         db = KfpDb()
         channel: Channel = ChannelUtil.getRebootMessageChannel(guild_id)
         if channel:
