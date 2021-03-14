@@ -1,6 +1,6 @@
 from common.models.Member import Member
 from peewee import SqliteDatabase
-from peewee import BigIntegerField
+from peewee import BigIntegerField, IntegerField
 from playhouse.migrate import SqliteMigrator
 from playhouse.migrate import migrate
 
@@ -15,6 +15,14 @@ class KfpMigrator():
                 tokenField = BigIntegerField(default=100)
                 migrate(
                     migrator.add_column("member", 'token', tokenField)
+                )
+        if "channel" in tables:
+            columns = database.get_columns("channel")
+            if not KfpMigrator.hasColumn("channel_id", columns):
+                guildIdField = IntegerField(default=-1)
+                migrate(
+                    migrator.add_column('channel', 'channel_guild_id', guildIdField),
+                    migrator.rename_column('channel', 'channel_discord_id', 'channel_id'),
                 )
         return True
 
