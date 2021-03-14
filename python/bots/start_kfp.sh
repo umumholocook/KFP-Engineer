@@ -8,8 +8,9 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         exit 0
     fi
 elif [[ "$OSTYPE" == "linux-gnu" ]]; then
-    pkill -9 Python
-    python3 main.py
+    echo "Running KFP bot on Linux with python"
+    killall -9 python
+    python main.py
     exit 0
 fi
 pkill -9 Python
