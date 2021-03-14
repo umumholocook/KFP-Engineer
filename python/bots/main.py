@@ -26,9 +26,11 @@ async def on_ready():
 
     tmpFile = getTempFile()
     if tmpFile.exists():
+        print(tmpFile)
         f = open(tmpFile, 'r')
-        guild_id = int(f.read())
-        pid = int(f.read())
+        line = f.read().split(".")
+        guild_id = int(line[0])
+        pid = int(line[1])
         f.close()
         os.remove(tmpFile.absolute())
         os.kill(pid, signal.SIGKILL)
@@ -62,7 +64,7 @@ async def command_restart(ctx, *attr):
     tmpFile = getTempFile()
     tmpFile.touch()
     f = open(tmpFile, "a")
-    f.write(f"{ctx.guild.id}\n")
+    f.write(f"{ctx.guild.id}.")
     f.write(f"{os.getpid()}")
     f.close()
 
