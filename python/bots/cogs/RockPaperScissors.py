@@ -19,7 +19,7 @@ class RockPaperScissors(commands.Cog):
             await self._rpsGame(ctx, attr[0])
 
     @rps_game.error
-    async def rps_error(ctx, error):
+    async def rps_error(self, ctx:commands.Context, error):
         if isinstance(error, commands.CommandOnCooldown):
             msg = '哎哎 同學你太快了, 稍微冷靜一下. 等個{:.2f}秒好嗎?'.format(error.retry_after)
             await ctx.send(msg)
@@ -57,7 +57,7 @@ class RockPaperScissors(commands.Cog):
         elif result == -1:
             await ctx.send(f'{ctx.author.mention} 你出 {user_choice_chinese} , 我出的是 {bot_choice}, 你贏了！')
         else:
-            await ctx.send(f'{ctx.author.mention} 你出 {user_choice_chinese} , 我出的是 {bot_choice}, 平手！')
+            await ctx.send(f'{ctx.author.mention} 你出 {user_choice_chinese} , 我出的也是 {bot_choice}, 我們平手！')
         
     # if left win, return 1
     # if right win, return -1
