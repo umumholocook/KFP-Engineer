@@ -26,9 +26,12 @@ async def on_ready():
 
     tmpFile = getTempFile()
     if tmpFile.exists():
+        f = open(tmpFile, 'r')
+        guild_id = int(f.read())
+        f.close()
         os.remove(tmpFile.absolute())
         db = KfpDb()
-        channel: Channel = ChannelUtil.getRebootMessageChannel()
+        channel: Channel = ChannelUtil.getRebootMessageChannel(guild_id)
         if channel:
             await bot.get_channel(channel.channel_id).send("更新結束, 現在版本 {}".format(VERSION))
 
@@ -54,7 +57,12 @@ async def command_restart(ctx, *attr):
     db = KfpDb()
     ChannelUtil.setRebootMessageChannel(guild_id= ctx.guild.id, channel_id=ctx.channel.id)
     await ctx.send("現在版本 {}, 檢查更新中...".format(VERSION))
-    getTempFile().touch()
+    tmpFile = getTempFile()
+    tmpFile.touch()
+    f = open(tmpFile, "a")
+    f.write(f"{ctx.guild.id}")
+    f.close()
+
     bot.loop.stop()
     Popen([os.sep.join((os.getcwd(), "update_and_restart.sh"))], shell=True)
 
