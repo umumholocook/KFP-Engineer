@@ -10,6 +10,7 @@ class Util:
         REBOOT_MESSAGE = 2 # Bot重啟之後提示的頻道
         IGNORE_XP = 3 # 停止增加經驗值
         AUTO_DELETE = 4 # 自動刪除成員留言
+        ROLE_EDITOR = 5 # 可以修改身分組的頻道
         # 只能新添Channel, 不要刪除舊有的
 
     class KujiType(IntEnum):
@@ -19,6 +20,12 @@ class Util:
         YI = 3 # 易經
         # 只能添加新的抽籤種類, 不要刪除舊有的
 
+    # 一般會員身分組種類
+    class RoleCategory(IntEnum):
+        NONE = 0 # 其他
+        KFP_DEFAULT = 1 # KFP預設 (雞蛋, 小雞... 等)
+    
+    # 賭盤狀態
     class GamblingStatus(IntEnum):
         init = 0
         ready = 1 #可以加註的狀態
@@ -26,13 +33,15 @@ class Util:
         end = 3 #賭局結束
         # 只能新添Status, 不要刪除舊有的
     
+    # 賭盤錯誤狀態
     class GamblingError(IntEnum):
         ok = 1
         error = 0
         state_wrong = -1
         # 只能新添Error, 不要刪除舊有的
 
-    class RoleType(IntEnum):
+    # 管理級別身分組類別
+    class ManagementType(IntEnum):
         Gambling = 1
         # 只能新添Role, 不要刪除舊有的
 

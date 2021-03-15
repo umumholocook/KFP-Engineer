@@ -1,7 +1,10 @@
+from discord.embeds import Embed
+from common.models.KfpRole import KfpRole
+from common.RoleUtil import RoleUtil
 from common.models.Member import Member
 import discord, os, io
 from PIL import Image, ImageDraw, ImageFont ,ImageEnhance
-from discord import Message
+from discord import Message, Role
 from discord.ext import commands
 from random import randint
 from common.KFP_DB import KfpDb 
@@ -184,21 +187,31 @@ class NewProfile(commands.Cog):
     async def profile_on_message(self, message:Message):
         if message.channel == None or not message.channel.guild.id in whitelist or message.author.bot:
             return
-        member = message.guild.get_member(message.author.id)
-        membeInDb = self.db.get_member(member.id)
-        if membeInDb == None:
-            self.db.add_member(member.id)
-            membeInDb = self.db.get_member(member.id)
+        member: Member = self.db.get_member(message.author.id)
+        if not member:
+            self.db.add_member(message.author.id)
+            member = self.db.get_member(message.author.id)
         increaseNumber = randint(10,25)
-        rank = self.db.increase_exp(message.channel.guild.id, message.channel.id, member.id, increaseNumber)
-        assert rank != False, 'method increase_xp should not retrun None in profile_on_message'
-        if membeInDb.rank != rank:
+        rank = self.db.increase_exp(message.channel.guild.id, message.channel.id, message.author.id, increaseNumber)
+        assert rank > 0, 'method increase_xp should not retrun less than 1 in profile_on_message'
+        if member.rank != rank:
             channel = ChannelUtil.getMessageChannelId(message.guild.id)
             if channel == None:
                 await message.channel.send('恭喜<@{}> 等級提升至{}。'.format(message.author.id, rank))
             else:
                 channel = message.guild.get_channel(channel)
                 await channel.send('恭喜<@{}> 等級提升至{}。'.format(message.author.id, rank))
+        #     newRole: KfpRole = RoleUtil.getKfpRoleFromLevel(message.guild.id, rank)            
+        #     if newRole:
+        #         newGuildRole: Role = message.guild.get_role(newRole.role_id)
+        #         await message.author.add_roles(newGuildRole)
+        #         embed = Embed()
+        #         embed.description = '恭喜<@!{}> 成為 {}'.format(message.author.id, newGuildRole.name)
+        #         await message.channel.send(embed= embed)
+        #         rankup_id = self.db.get_rankup_channel_id()
+        #         if rankup_id != None:
+        #             await message.guild.get_channel(rankup_id).send(embed= embed)
+        # self.db.increase_coin(message.guild.id, message.author.id, increaseNumber)
     
     @commands.group(name = 'profile', invoke_without_command = True)
     async def profile_profile_group(self, ctx:commands.Context, *attr):

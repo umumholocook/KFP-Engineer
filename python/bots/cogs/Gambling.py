@@ -17,7 +17,7 @@ class Gambling(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.bot = client
         self.database = KfpDb()
-        self.betting_permissions = self.database.load_permissions(Util.RoleType.Gambling)
+        self.betting_permissions = self.database.load_permissions(Util.ManagementType.Gambling)
 
     @commands.Cog.listener('on_message')
     async def profile_on_message(self, message:Message):
@@ -27,12 +27,12 @@ class Gambling(commands.Cog):
     @commands.Cog.listener('on_guild_role_delete')
     async def betting_on_guild_role_delete(self, old_role:Role):
         new_role = await old_role.guild.create_role(name= '賭盤權限狗(可以自由編輯這個身分組)')
-        self.database.update_permission_role(old_role.id, new_role.id, old_role.guild.id, Util.RoleType.Gambling)
+        self.database.update_permission_role(old_role.id, new_role.id, old_role.guild.id, Util.ManagementType.Gambling)
     
     @commands.Cog.listener('on_guild_join')
     async def betting_guild_join(self, guild:Guild):
         role = await guild.create_role(name= '賭盤權限狗(可以自由編輯這個身分組)')
-        self.database.add_permission_role(guild, role, Util.RoleType.Gambling)
+        self.database.add_permission_role(guild, role, Util.ManagementType.Gambling)
 
     @commands.command(name = 'cheat', description= 'argv: <@!member_id> token_numbers\n set tokens number that someone owns, this is cheating!')
     async def betting_cheat_command(self, ctx:commands.Context, *argv):
@@ -44,7 +44,7 @@ class Gambling(commands.Cog):
             return
         check_role = True
         for member_role in ctx.author.roles:
-            if self.database.has_permission(ctx.guild.id, member_role.id, Util.RoleType.Gambling):
+            if self.database.has_permission(ctx.guild.id, member_role.id, Util.ManagementType.Gambling):
                 check_role = False  
         if check_role:
             await ctx.channel.send('權限錯誤: 你沒有使用這個指令的權限')

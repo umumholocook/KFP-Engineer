@@ -46,7 +46,7 @@ class TestKfpDb():
             self.database.add_member(default_user_id)
 
     def test_increaseExp_notExist(self):
-        assert not self.database.increase_exp(0, 0, 100, 10) # user 100 does not exist
+        assert -1 == self.database.increase_exp(0, 0, 100, 10) # user 100 does not exist
 
     def test_increaseExp(self):
         self.database.increase_exp(0, 0, default_user_id, 10)
@@ -130,6 +130,16 @@ class TestKfpDb():
         # 經驗相同時排名相同, 並列第二
         assert self.database.get_member_rank_order(default_user_id) == 2
         assert self.database.get_member_rank_order(1) == 2
+    
+    def test_setRankupChannel_notExist(self):
+        assert not self.database.get_rankup_channel_id(11)
+    
+    def test_setRankupChannel(self):
+        self.database.set_rankup_channel(11, 123)
+        assert self.database.get_rankup_channel_id(11) == 123
+
+        self.database.set_rankup_channel(11, 456)
+        assert self.database.get_rankup_channel_id(11) == 456
 
     def test_resetEveryoneToken(self):
         self.database.add_member(1)

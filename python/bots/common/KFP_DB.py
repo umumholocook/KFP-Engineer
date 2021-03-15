@@ -8,6 +8,7 @@ from common.Util import Util
 from common.models.Channel import Channel
 from common.models.GamblingBet import GamblingBet
 from common.models.GamblingGame import GamblingGame
+from common.models.KfpRole import KfpRole
 from common.models.PermissionRole import PermissionRole
 from common.models.Member import Member
 from common.database.KfpMigrator import KfpMigrator
@@ -15,7 +16,7 @@ from common.database.KfpMigrator import KfpMigrator
 from discord.guild import Guild, Role
 from peewee import SqliteDatabase
 
-MODULES = [Channel, GamblingBet, GamblingGame, Member, PermissionRole]
+MODULES = [Channel, GamblingBet, GamblingGame, KfpRole, Member, PermissionRole]
 
 class KfpDb():
     # {guild:[channel, channel,...] ... }
@@ -60,14 +61,23 @@ class KfpDb():
         for member_id in member_ids:
             data.append({'member_id': member_id})
         Member.insert_many(data).execute()
-
-    # 增加會員的經驗值
-    def increase_exp(self, guild_id:int, channel_id:int, member_id:int, new_exp:int):
-        if channel_id in self.__ignoreXpChannel.get(guild_id, []):
-            return 
+    
+    # 增加會員的硬幣
+    def increase_coin(self, guild_id: int, member_id: int, coin: int):
         query = Member.select().where(Member.member_id == member_id)
         if not query.exists():
-            return False
+            return
+        member: Member = query.get()
+        member.coin += coin
+        member.save()    
+
+    # 增加會員的經驗值, -1 代表找不到會員
+    def increase_exp(self, guild_id:int, channel_id:int, member_id:int, new_exp:int):
+        if channel_id in self.__ignoreXpChannel.get(guild_id, []):
+            return
+        query = Member.select().where(Member.member_id == member_id)
+        if not query.exists():
+            return -1
         member = query.get()
         member.exp = member.exp+new_exp
         member.save()
@@ -114,6 +124,26 @@ class KfpDb():
         target_exp = Member.get_by_id(member_id).exp
         return Member.select().where((Member.exp > target_exp)).count() + 1
     
+    # 設定訊息頻道ID
+    def set_rankup_channel(self, guild_id: int, channel_id:int):
+        query = Channel.select().where(Channel.channel_type == Util.ChannelType.RANK_UP, Channel.channel_guild_id == guild_id)
+        channel: Channel
+        if query.exists():
+            channel = query.get()
+        else:
+            # channel 不存在, 新增一個
+            channel = Channel(channel_type=Util.ChannelType.RANK_UP, channel_guild_id=guild_id, channel_id = channel_id)
+        channel.channel_id = channel_id
+        channel.save()
+
+    # 取得訊息頻道ID
+    def get_rankup_channel_id(self, guild_id: int):
+        query = Channel.select().where(Channel.channel_type == Util.ChannelType.RANK_UP, Channel.channel_guild_id == guild_id)
+        if query.exists():
+            channel: Channel = query.get()
+            return channel.channel_id
+        return None
+
     # 設定不需要增加經驗的頻道
     def set_ignore_xp_channel(self, guild_id: int, channel_id: int):
         ChannelUtil.setChannel(guild_id, channel_id, Util.ChannelType.IGNORE_XP, True)
@@ -133,7 +163,7 @@ class KfpDb():
         return self.__autoClearChannel.get(guild_id, [])
 
     # 獲得管理身分組列表
-    def load_permissions(self, role_type: Util.RoleType):
+    def load_permissions(self, role_type: Util.ManagementType):
         result = []
         query = PermissionRole.select().where(PermissionRole.role_type == role_type)
         if query.exists():
@@ -143,7 +173,7 @@ class KfpDb():
         return result
     
     # 更新管理身分組的id, 通常是在bot被踢出又加入之後才會用到
-    def update_permission_role(self, old_id: int, new_id: int, guild_id: int, role_type: Util.RoleType):
+    def update_permission_role(self, old_id: int, new_id: int, guild_id: int, role_type: Util.ManagementType):
         query = PermissionRole.select().where(PermissionRole.role_type == role_type, PermissionRole.role_id == old_id)
         if query.exists():
             role = query.get()
@@ -158,12 +188,12 @@ class KfpDb():
         for member_id in member_id_list:
             Member.update(token=100).where(Member.member_id == member_id).execute()
     
-    def add_permission_role(self, guild: Guild, new_role: Role, role_type: Util.RoleType):
+    def add_permission_role(self, guild: Guild, new_role: Role, role_type: Util.ManagementType):
         role = PermissionRole(role_type = role_type, guild_id = guild.id, role_id = new_role.id)
         role.save()
         return role
     
-    def has_permission(self, guild_id: int, role_id: int, type: Util.RoleType) -> bool:
+    def has_permission(self, guild_id: int, role_id: int, type: Util.ManagementType) -> bool:
         query = PermissionRole.select().where(PermissionRole.role_type == type, PermissionRole.guild_id == guild_id, PermissionRole.role_id == role_id)
         return query.exists()
     
