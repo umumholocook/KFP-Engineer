@@ -45,6 +45,11 @@ class Util:
         Gambling = 1
         # 只能新添Role, 不要刪除舊有的
 
+    class ForwardType(IntEnum):
+        DIRECT = 0
+        BROADCAST = 1
+        # 只能新添Type, 不要刪除舊有的
+
     # 升級為next_rank所需的經驗值
     def get_rank_exp(next_rank:int):
         return round(5 / 6 * next_rank * (2 * next_rank * next_rank + 27 * next_rank + 91), 2)
