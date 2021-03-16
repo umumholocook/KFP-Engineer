@@ -2,7 +2,7 @@ from common.models.Forward import Forward
 from common.Util import Util
 
 class ForwardUtil():
-    def create_forward(send_guild_id: int, send_channel_id: int, receive_guild_id: int, receive_channel_id: int, delete_original:bool):
+    def create_forward(send_guild_id: int, send_channel_id: int, receive_guild_id: int, receive_channel_id: int, delete_original:bool = True):
         if send_guild_id != receive_guild_id:
             # 目前不支援跨群直傳
             return False
