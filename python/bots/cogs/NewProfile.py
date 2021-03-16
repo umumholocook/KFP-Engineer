@@ -269,8 +269,11 @@ class NewProfile(commands.Cog):
         msg+= "員工等級排名:\n"
         member: Member
         for rank, member in enumerate(top_leaders):
-            user: User = await self.bot.fetch_user(member.member_id)
-            msg+= f"第{rank+1}名: {user.display_name}\n"
+            guild_member = ctx.guild.get_member(member.member_id)
+            if guild_member.nick:
+                msg+= f"第{rank+1}名: {guild_member.nick}({guild_member.display_name})\n"
+            else:
+                msg+= f"第{rank+1}名: {guild_member.display_name}\n"
         msg+= "```"
         await ctx.channel.send(msg)
         
