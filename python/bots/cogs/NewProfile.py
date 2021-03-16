@@ -270,7 +270,7 @@ class NewProfile(commands.Cog):
         member: Member
         for rank, member in enumerate(top_leaders):
             user: User = await self.bot.fetch_user(member.member_id)
-            msg+= f"第{rank+1}名: {user.display_name}"
+            msg+= f"第{rank+1}名: {user.display_name}\n"
         msg+= "```"
         await ctx.channel.send(msg)
         
