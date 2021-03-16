@@ -123,6 +123,15 @@ class KfpDb():
     def get_member_rank_order(self, member_id:int):
         target_exp = Member.get_by_id(member_id).exp
         return Member.select().where((Member.exp > target_exp)).count() + 1
+
+    # 獲得前n名的會員, n = max_limit
+    def get_leader_board(self, max_limit: int):
+        query = Member.select().order_by(Member.exp.desc()).limit(max_limit)
+        result = []
+        if query.exists():
+            for member in query.iterator():
+                result.append(member)
+        return result
     
     # 設定訊息頻道ID
     def set_rankup_channel(self, guild_id: int, channel_id:int):
