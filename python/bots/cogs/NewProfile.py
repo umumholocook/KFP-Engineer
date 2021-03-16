@@ -273,7 +273,7 @@ class NewProfile(commands.Cog):
             user = await self.bot.fetch_user(member.member_id)
             if guild_member:
                 if guild_member.nick:
-                    msg+= f"第{rank+1}名: {guild_member.nick}({guild_member.display_name})\n"
+                    msg+= f"第{rank+1}名: {guild_member.nick}\n"
                 else:
                     msg+= f"第{rank+1}名: {guild_member.display_name}\n"
             elif user:
