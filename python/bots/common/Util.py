@@ -45,13 +45,17 @@ class Util:
         Gambling = 1
         # 只能新添Role, 不要刪除舊有的
 
+    class ForwardType(IntEnum):
+        DIRECT = 0
+        BROADCAST = 1
+        # 只能新添Type, 不要刪除舊有的
+
     # 抽籤種類
     class KujiType(IntEnum):
         OMIKUJI = 0
         LUNGSHAN = 1
         YI = 2
         # 只能新添Type, 不要刪除舊有的
-
 
     # 升級為next_rank所需的經驗值
     def get_rank_exp(next_rank:int):

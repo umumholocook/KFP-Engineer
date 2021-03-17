@@ -11,13 +11,14 @@ from common.models.GamblingGame import GamblingGame
 from common.models.KfpRole import KfpRole
 from common.models.PermissionRole import PermissionRole
 from common.models.Member import Member
+from common.models.Forward import Forward
 from common.models.KujiRecord import KujiRecord
 from common.database.KfpMigrator import KfpMigrator
 
 from discord.guild import Guild, Role
 from peewee import SqliteDatabase
 
-MODULES = [Channel, GamblingBet, GamblingGame, KfpRole, KujiRecord, Member, PermissionRole]
+MODULES = [Channel, Forward, GamblingBet, GamblingGame, KfpRole, KujiRecord, Member, PermissionRole]
 
 class KfpDb():
     # {guild:[channel, channel,...] ... }
