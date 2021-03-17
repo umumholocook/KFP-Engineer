@@ -1,6 +1,5 @@
 from common.Util import Util
-import pytest
-from common.models.KujiObj import KujiObj
+from common.KujiObj import KujiObj
 
 class TestKuji():
     def setup_method(self):

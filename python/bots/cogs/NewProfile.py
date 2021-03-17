@@ -1,3 +1,4 @@
+from discord.abc import User
 from discord.embeds import Embed
 from common.models.KfpRole import KfpRole
 from common.RoleUtil import RoleUtil
@@ -255,6 +256,31 @@ class NewProfile(commands.Cog):
         channel = ctx.channel
         ChannelUtil.setRankupChannel(ctx.guild.id, channel.id)
         await channel.send('<@!{}> 設定升級訊息將會於此。'.format(ctx.author.id))
+
+    @profile_profile_group.command(name = 'leaderboard')
+    @commands.check(isWhiteList)
+    async def profile_leaderboard(self, ctx:commands.Context, limit=10):
+        max_limit = 25
+        if limit > max_limit:
+            await ctx.channel.send(f'{limit} 超過上限, 請選擇小於 {max_limit} 的數字')
+            return
+        top_leaders = self.db.get_leader_board(limit)
+        msg = "```"
+        msg+= "員工等級排名:\n"
+        member: Member
+        for rank, member in enumerate(top_leaders):
+            guild_member = ctx.guild.get_member(member.member_id)
+            user = await self.bot.fetch_user(member.member_id)
+            if guild_member:
+                if guild_member.nick:
+                    msg+= f"第{rank+1}名: {guild_member.nick}\n"
+                else:
+                    msg+= f"第{rank+1}名: {guild_member.display_name}\n"
+            elif user:
+                msg+= f"第{rank+1}名: {user.display_name}\n"
+        msg+= "```"
+        await ctx.channel.send(msg)
+        
             
 def setup(client):
     client.add_cog(NewProfile(client, Util.DEFAULT_DB_PATH))
