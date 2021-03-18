@@ -479,11 +479,10 @@ class Gambling(commands.Cog):
         if not argv[0].isdigit():
             await ctx.channel.send('參數錯誤: 🍗數量必須為數字')
             return
-        if argv[0] < 1:
+        desired_token = int(argv[0])
+        if desired_token < 1:
             await ctx.channel.send('參數錯誤: 🍗數量不能低於1')
             return
-
-        desired_token = argv[0]
 
         member: Member = self.database.get_member(ctx.author.id)
         if member == None:
@@ -494,10 +493,17 @@ class Gambling(commands.Cog):
             await ctx.channel.send(f'參數錯誤: 您目前手持硬幣數量不夠 目前 {exchange_rate}硬幣兌換1🍗\n目前您擁有硬幣{member.coin}, 小於交換所需量 {required_coin}')
             return
         
-        self.database.add_coin(member.id, -1 * required_coin)
-        self.database.add_token(member.id, desired_token)
+        self.database.add_coin(member.member_id, -1 * required_coin)
+        self.database.add_token(member.member_id, desired_token)
         member: Member = self.database.get_member(ctx.author.id)
-        await ctx.channel.send(f'兌換完成: 目前持有硬幣 {member.coin}, 持有🍗 {member.token}')
+        msg = "```兌換完成! 兌換明細如下:\n"
+        msg+=f"本次兌換匯率: {exchange_rate}\n"
+        msg+=f"本次兌換消耗硬幣: {required_coin}\n"
+        msg+=f"本次兌換獲得🍗: {desired_token}根\n"
+        msg+=f"目前持有硬幣: {member.coin}\n"
+        msg+=f"目前持有🍗: {member.token}根\n"
+        msg+= "```"
+        await ctx.channel.send(msg)
     
     # 重置所有人
     @betting_command_group.command(name = 'reset_everyone')
