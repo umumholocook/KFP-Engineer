@@ -44,10 +44,10 @@ class Kuji(commands.Cog):
 
     @kuji_group.command(name = "jp")
     async def draw_jp(self, ctx:commands.Command, *argv):
-        if not await self.checkToken(ctx):
-            return
         if not KujiUtil.canDrawJp(ctx.author.id):
             await ctx.reply("親愛的員工, 你今天已經抽過清水寺籤了哦! 每人一天只限一次.")        
+            return
+        if not await self.checkToken(ctx):
             return
         random.seed(random.random())
         index = random.randint(0, 98)
@@ -59,10 +59,10 @@ class Kuji(commands.Cog):
 
     @kuji_group.command(name = "ls")
     async def draw_ls(self, ctx:commands.Command, *argv):
-        if not await self.checkToken(ctx):
-            return
         if not KujiUtil.canDrawLs(ctx.author.id):
             await ctx.reply("親愛的員工, 你今天已經抽過龍山寺籤了哦! 每人一天只限一次.")        
+            return
+        if not await self.checkToken(ctx):
             return
         random.seed(random.random())
         index = random.randint(0, 98)
@@ -74,10 +74,10 @@ class Kuji(commands.Cog):
 
     @kuji_group.command(name = "cn")
     async def draw_cn(self, ctx:commands.Command, *argv):
-        if not await self.checkToken(ctx):
-            return
         if not KujiUtil.canDrawCn(ctx.author.id):
             await ctx.reply("親愛的員工, 你今天已經抽過易經了哦! 每人一天只限一次.")
+            return
+        if not await self.checkToken(ctx):
             return
         random.seed(random.random())
         yiIndex = KujiUtil.getYi()
