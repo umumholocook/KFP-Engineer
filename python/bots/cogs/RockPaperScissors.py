@@ -1,3 +1,5 @@
+from discord.ext.commands.context import Context
+from common.MemberUtil import MemberUtil
 from random import choice
 from discord.ext import commands
 from discord.ext.commands.errors import MissingRequiredArgument
@@ -56,9 +58,15 @@ class RockPaperScissors(commands.Cog):
             await ctx.send(f'{ctx.author.mention} 你出 {user_choice_chinese} , 我出的是 {bot_choice}, 你輸了！')
         elif result == -1:
             await ctx.send(f'{ctx.author.mention} 你出 {user_choice_chinese} , 我出的是 {bot_choice}, 你贏了！')
+            await self.addToken(ctx)
         else:
             await ctx.send(f'{ctx.author.mention} 你出 {user_choice_chinese} , 我出的也是 {bot_choice}, 我們平手！')
         
+    async def addToken(self, ctx:commands.Context):
+        MemberUtil.add_token(ctx.author.id, 1)
+        member = MemberUtil.get_member(ctx.author.id)
+        await ctx.send(f'恭喜{ctx.author.mention}獲得1隻🍗, 目前擁有{member.token}隻🍗')
+
     # if left win, return 1
     # if right win, return -1
     # if tie, return 0

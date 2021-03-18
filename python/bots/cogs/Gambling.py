@@ -463,10 +463,16 @@ class Gambling(commands.Cog):
                 embed = self.get_betting_embed(game)
                 await massage.edit(embed= embed)
         
+    # 查詢兌換率
+    @betting_command_group.command(name= 'rate')
+    async def betting_exchange_rate_command(self, ctx:commands.Context, *argv):
+        exchange_rate = GamblingUtil.get_token_rate()
+        await ctx.channel.send(f"目前🍗兌換率為 {exchange_rate} 硬幣:1隻🍗")
+
     # 兌換🍗
     @betting_command_group.command(name= 'exchange')
     async def betting_exchange_command(self, ctx:commands.Context, *argv):
-        exchange_rate = 5
+        exchange_rate = GamblingUtil.get_token_rate()
         if len(argv) != 1:
             await ctx.channel.send('參數錯誤: 請使用`!betitng exchange 🍗數量`')
             return

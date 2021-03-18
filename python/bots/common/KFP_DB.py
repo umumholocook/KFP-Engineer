@@ -1,3 +1,4 @@
+from common.MemberUtil import MemberUtil
 from common.ChannelUtil import ChannelUtil
 import datetime
 
@@ -42,20 +43,13 @@ class KfpDb():
     def get_database(self):
         return self.sqliteDb
 
-    def has_member(self, member_id:int):
-        return Member.select().where(Member.member_id == member_id).exists()
-
     # 透過會員ID讀取會員
     def get_member(self, member_id:int) -> Member:
-        if self.has_member(member_id):
-            return Member.get_by_id(member_id)
-        return None
+        return MemberUtil.get_member(member_id)
     
     # 增加新會員
     def add_member(self, member_id:int) -> Member:
-        member = Member.create(member_id=member_id)
-        member.save()
-        return member
+        MemberUtil.add_member(member_id)
     
     #　增加復數會員
     def add_members(self, member_ids):
@@ -102,13 +96,7 @@ class KfpDb():
         return True
     
     def add_token(self, member_id:int, amount:int):
-        query = Member.select().where(Member.member_id == member_id)
-        if query.exists():
-            member = query.get()
-        else:
-            member = self.add_member(member_id)
-        member.token += amount
-        member.save()
+        MemberUtil.add_token(member_id, amount)
     
     # 如果需要升級會員等級便升級
     def __update_rank_if_qualified(self, member_id:int):

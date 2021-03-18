@@ -1,11 +1,15 @@
 # 一些輔助性質的功能
 import asyncio
+from common.MemberUtil import MemberUtil
 from common.models.GamblingBet import GamblingBet
 from common.Util import Util
 from datetime import datetime
 from common.models.GamblingGame import GamblingGame
 
 class GamblingUtil():
+
+    DEFAULT_RATE = 5
+
     async def create_loop(bot, embed, main_message, ctx, value_type, main_name, embed_index):
         def check(m):
             return m.channel == ctx.channel and m.author == ctx.author
@@ -130,5 +134,13 @@ class GamblingUtil():
         if not winning_index:
             game.winning_index = winning_index
         game.save()
+
+    # 目前雞腿匯率
+    def get_token_rate():
+        current_token = MemberUtil.get_total_token()
+        current_coins = MemberUtil.get_total_coin()
+        if current_token == 0 or current_coins == 0:
+            return GamblingUtil.DEFAULT_RATE
+        return max(current_coins // current_token, GamblingUtil.DEFAULT_RATE)
     
     

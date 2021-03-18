@@ -87,3 +87,24 @@ class TestGamblingUtil():
 
         assert original.pool == 300
         
+    def test_tokenRateDefault(self):
+        assert GamblingUtil.DEFAULT_RATE == GamblingUtil.get_token_rate()
+    
+    def test_tokenRateCorrect(self):
+        self.database.add_member(123) # token: 100, coin: 0, rate: NAN
+        assert GamblingUtil.DEFAULT_RATE == GamblingUtil.get_token_rate()
+
+        self.database.add_coin(123, 10) # token: 100, coin: 10, rate: 0.1
+        assert GamblingUtil.DEFAULT_RATE == GamblingUtil.get_token_rate()
+
+        self.database.add_coin(123, 90) # token: 100, coin: 100, rate: 1
+        assert GamblingUtil.get_token_rate() == GamblingUtil.get_token_rate()
+
+        self.database.add_coin(123, 500) # token: 100, coin: 600, rate: 6
+        assert GamblingUtil.get_token_rate() == 6
+
+        self.database.add_member(321) # token: 200, coin: 600, rate: 3
+        assert GamblingUtil.get_token_rate() == GamblingUtil.get_token_rate()
+
+        self.database.add_coin(321, 600) # token: 200, coin: 1200, rate: 6
+        assert GamblingUtil.get_token_rate() == 6
