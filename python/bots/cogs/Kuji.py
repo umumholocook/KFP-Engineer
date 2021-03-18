@@ -1,3 +1,4 @@
+from common.MemberUtil import MemberUtil
 import random
 from common.KujiUtil import KujiUtil
 from datetime import datetime
@@ -41,6 +42,8 @@ class Kuji(commands.Cog):
 
     @kuji_group.command(name = "jp")
     async def draw_jp(self, ctx:commands.Command, *argv):
+        if not await self.checkToken(ctx):
+            return
         if not KujiUtil.canDrawJp(ctx.author.id):
             await ctx.reply("同學, 你今天已經抽過清水寺籤了哦! 每人一天只限一次.")        
             return
@@ -54,6 +57,8 @@ class Kuji(commands.Cog):
 
     @kuji_group.command(name = "ls")
     async def draw_ls(self, ctx:commands.Command, *argv):
+        if not await self.checkToken(ctx):
+            return
         if not KujiUtil.canDrawLs(ctx.author.id):
             await ctx.reply("同學, 你今天已經抽過龍山寺籤了哦! 每人一天只限一次.")        
             return
@@ -67,6 +72,8 @@ class Kuji(commands.Cog):
 
     @kuji_group.command(name = "cn")
     async def draw_cn(self, ctx:commands.Command, *argv):
+        if not await self.checkToken(ctx):
+            return
         if not KujiUtil.canDrawCn(ctx.author.id):
             await ctx.reply("同學, 你今天已經抽過易經了哦! 每人一天只限一次.")
             return
@@ -99,7 +106,15 @@ class Kuji(commands.Cog):
             yi = KujiUtil.getTargetedYi(historyCn[0], historyCn[1])
             await ctx.reply(embed=KujiEmbed.createEmbededCn(yi, historyCn[2], f"{self.bot.user.name} - 抽籤遊戲"))
 
-    
+    async def checkToken(self, ctx:commands.Command):
+        member = MemberUtil.get_or_add_member(ctx.author.id)
+        rate = 2
+        if member.token < rate:
+            await ctx.reply(f"同學, 你的雞腿不夠不能抽籤哦! 你只有{member.token}隻.")
+            return False
+        MemberUtil.add_token(member.member_id, -1 * rate)
+        await ctx.reply(f"移除{rate}隻雞腿, 你還剩下{member.token}隻.")
+        return True
 
 def setup(client):
     client.add_cog(Kuji(client))
