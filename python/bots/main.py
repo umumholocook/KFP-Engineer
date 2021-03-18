@@ -8,7 +8,7 @@ from discord.ext import commands
 from common.KFP_DB import KfpDb
 from common.ChannelUtil import ChannelUtil
 
-VERSION = "0.5.2"
+VERSION = "0.5.3"
 TOKEN=os.environ['KFP_TOKEN']
 intents = discord.Intents.default()
 intents.members = True
