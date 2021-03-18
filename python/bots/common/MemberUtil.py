@@ -39,3 +39,9 @@ class MemberUtil():
         if query.exists():
             return query.get()
         return None
+    
+    def get_or_add_member(member_id:int):
+        query = Member.select().where(Member.member_id == member_id)
+        if query.exists():
+            return query.get()
+        return MemberUtil.add_member(member_id)
