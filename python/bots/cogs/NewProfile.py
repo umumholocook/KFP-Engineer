@@ -180,13 +180,19 @@ class NewProfile(commands.Cog):
     #TODO: add check permiision function, base on roles
     db = None
 
+    __channels = []
+
     def __init__(self, client, dbFile:str):
         self.bot = client
         self.db = KfpDb(dbFile)
-        
+
     @commands.Cog.listener('on_message')
     async def profile_on_message(self, message:Message):
         if message.channel == None or not message.channel.guild.id in whitelist or message.author.bot:
+            return
+        if self.populateChannels(message):
+            return
+        if not message.channel.id in self.__channels:
             return
         member: Member = self.db.get_member(message.author.id)
         if not member:
@@ -257,6 +263,16 @@ class NewProfile(commands.Cog):
         ChannelUtil.setRankupChannel(ctx.guild.id, channel.id)
         await channel.send('<@!{}> 設定升級訊息將會於此。'.format(ctx.author.id))
 
+    @profile_profile_group.command(name = 'allowed')
+    async def profile_group_bind_command(self, ctx:commands.Context, *arg):
+        msg = "```"
+        msg+= "allowed channel list:\n"
+        for channel_id in self.__channels:
+            channel = ctx.guild.get_channel(channel_id)
+            msg+= f"{channel.id}: {channel.name}\n"
+        msg+= "```"
+        await ctx.message.channel.send(msg)
+
     @profile_profile_group.command(name = 'leaderboard')
     @commands.check(isWhiteList)
     async def profile_leaderboard(self, ctx:commands.Context, limit=10):
@@ -281,6 +297,18 @@ class NewProfile(commands.Cog):
         msg+= "```"
         await ctx.channel.send(msg)
         
+    def populateChannels(self, message:Message):
+        if len(self.__channels) == 0:
+            categories = message.guild.categories
+            for category in categories:
+                if category.name == "🐔員工大廳-Hühnerfarm":
+                    channels = category.channels
+                    result = []
+                    for channel in channels: 
+                        result.append(channel.id)
+                    self.__channels = result
+                    return True
+        return False
             
 def setup(client):
     client.add_cog(NewProfile(client, Util.DEFAULT_DB_PATH))
