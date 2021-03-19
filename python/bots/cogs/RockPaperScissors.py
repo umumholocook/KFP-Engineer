@@ -1,8 +1,7 @@
-from discord.ext.commands.context import Context
+from common.RockPaperScissorsUtil import RockPaperScissorsUtil
 from common.MemberUtil import MemberUtil
 from random import choice
 from discord.ext import commands
-from discord.ext.commands.errors import MissingRequiredArgument
 
 class RockPaperScissors(commands.Cog):
     def __init__(self, bot):
@@ -23,7 +22,7 @@ class RockPaperScissors(commands.Cog):
     @rps_game.error
     async def rps_error(self, ctx:commands.Context, error):
         if isinstance(error, commands.CommandOnCooldown):
-            msg = '哎哎 同學你太快了, 稍微冷靜一下. 等個{:.2f}秒好嗎?'.format(error.retry_after)
+            msg = RockPaperScissorsUtil.getTooFastDialog().format(error.retry_after)
             await ctx.send(msg)
         else:
             raise error
