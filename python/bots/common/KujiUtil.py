@@ -1,6 +1,8 @@
+from common.KujiObj import KujiObj
 from operator import mod
-import os, pytz, math
+import os, pytz, tempfile
 from common.models.KujiRecord import KujiRecord
+from common.models.KujiDrawing import KujiDrawing
 from common.Util import Util
 from datetime import datetime, timedelta
 from random import randint
@@ -8,6 +10,11 @@ from resource.data.yi import YI
 
 class KujiUtil():
     __timeZone = "Asia/Taipei"
+
+    def generageImageForJp(type: KujiObj):
+        drawing = KujiDrawing(type)
+        drawing.generateKujiJpImage(KujiUtil.getKujiImagePath())
+        return KujiUtil.getKujiImagePath()
 
     def getImageNameLs(status):
         if "下籤" == status:
@@ -29,6 +36,12 @@ class KujiUtil():
             return 0xF10A53
         return
         
+    def getKujiImageName():
+        return "kuji_result.png"
+    
+    def getKujiImagePath():
+        return os.sep.join((tempfile.gettempdir(), KujiUtil.getKujiImageName()))
+
     def getImageName(status):
         if "大吉" == status:
             return "big_ji_old.png"

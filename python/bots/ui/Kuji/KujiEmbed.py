@@ -52,7 +52,7 @@ class KujiEmbed():
     def createEmbededJp(kuji, timestamp, author:str):
         status = kuji["status"]
         title = KujiEmbed.getTitle(timestamp)
-        imageUri = 'attachment://{}'.format(KujiUtil.getImageName(status))
+        imageUri = 'attachment://{}'.format(KujiUtil.getKujiImageName())
         title+= "\n東京淺草觀音寺御神籤· {}籤 · {}".format(kuji["title"], status)
         description = "{}\n".format(kuji["poem_line1"])
         description+= "`{}`\n".format(kuji["poem_line1_explain"])
@@ -64,7 +64,7 @@ class KujiEmbed():
         description+= "`{}`\n".format(kuji["poem_line4_explain"])
         embedMsg = Embed(title=title, description=description, color=KujiUtil.getColor(status))
         embedMsg.set_author(name=author)
-        embedMsg.set_thumbnail(url=imageUri)
+        embedMsg.set_image(url=imageUri)
         payload = kuji["payload"]
         for key in payload:
             embedMsg.add_field(name=key, value=payload[key], inline=True)
