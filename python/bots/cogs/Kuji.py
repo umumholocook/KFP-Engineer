@@ -101,8 +101,8 @@ class Kuji(commands.Cog):
 
         if not (-1, None) == historyJp:
             kuji = OMIKUJI[historyJp[0]]
-            status = kuji["status"]
-            img = File(KujiUtil.getImageUrl(status), filename=KujiUtil.getImageName(status))
+            imagePath = KujiUtil.generageImageForJp(KujiObj(kuji))
+            img = File(imagePath, filename=KujiUtil.getKujiImageName())
             await ctx.reply(file=img, embed=KujiEmbed.createEmbededJp(kuji, historyJp[1], f"{self.bot.user.name} - 抽籤遊戲"))
 
         if not (-1, -1, None) == historyCn:
