@@ -1,6 +1,7 @@
-from common.MemberUtil import MemberUtil
 import random
+from common.MemberUtil import MemberUtil
 from common.KujiUtil import KujiUtil
+from common.KujiObj import KujiObj
 from datetime import datetime
 from discord import File
 from discord.ext import commands
@@ -52,8 +53,8 @@ class Kuji(commands.Cog):
         random.seed(random.random())
         index = random.randint(0, 98)
         kuji = OMIKUJI[index]
-        status = kuji["status"]
-        img = File(KujiUtil.getImageUrl(status), filename=KujiUtil.getImageName(status))
+        imagePath = KujiUtil.generageImageForJp(KujiObj(kuji))
+        img = File(imagePath, filename=KujiUtil.getKujiImageName())
         await ctx.reply(file=img, embed=KujiEmbed.createEmbededJp(kuji, datetime.now(), f"{self.bot.user.name} - 抽籤遊戲"))
         KujiUtil.updateMemberJp(ctx.author.id, index)
 

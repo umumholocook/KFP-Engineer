@@ -29,6 +29,20 @@ class KujiObj():
             return Image.open(os.sep.join((os.getcwd(), 'resource', 'image', "shiritori", self.__getImageName())))
         return None
 
+    def getStartPosition(self):
+        if Util.KujiType.OMIKUJI == self.kujitype:
+            # get image for OMIKUJI
+            return {
+                "凶": (625, 100),
+                "大吉": (500, 95),
+                "半吉": (515, 90),
+                "吉": (515, 90),
+                "小吉": (625, 100),
+                "末小吉": (640, 100),
+                "末吉": (640, 100)
+            }[self.kuji["status"]]
+        return None # don't support LS nor Yi until NINI gives me images
+
     def __getImageName(self):
         if Util.KujiType.OMIKUJI == self.kujitype:
             # get image for OMIKUJI
@@ -42,6 +56,9 @@ class KujiObj():
                 "末吉": "tail.jpg"
             }[self.kuji["status"]]
         return None # don't support LS nor Yi until NINI gives me images
+
+    def getPoemLines(self):
+        return [self.kuji["poem_line1"], self.kuji["poem_line2"], self.kuji["poem_line3"], self.kuji["poem_line4"]]
 
     def __getPoem(self):
         return "{}\n{}\n{}\n{}".format(
