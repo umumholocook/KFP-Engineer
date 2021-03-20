@@ -1,7 +1,7 @@
 from random import choices
 
 class RockPaperScissorsUtil():
-    DEFAULT_MAIN_RESPONSE_WEIGHT = 40
+    DEFAULT_MAIN_RESPONSE_WEIGHT = 100
     TOO_FAST = [
         "等... 等一下啦... 你太快了... 我還要{:.2f}秒",
         "等... 等一下啦... 弄這麼快... 我還要{:.2f}秒",
