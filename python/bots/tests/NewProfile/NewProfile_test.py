@@ -132,7 +132,7 @@ class TestNewProfile():
         self.fake_guild._create_channel(2)
         self.fake_guild._create_channel(3)
 
-        self.target = NewProfile.NewProfile(self.fake_guild, ':memory:')
+        self.target = NewProfile.NewProfile(self.fake_guild, ':memory:', True)
         
         self.fake_member = FakeMember(member_id= 123, member_name='test name', guild= self.fake_guild, nick_name='test nick name')
         with open(r'./tests/NewProfile/test_icon.jpg', 'rb') as fp:
@@ -246,4 +246,4 @@ class TestNewProfile():
         assert self.fake_guild.messageLast == None
 
     def test_profile_cog_setUp(self):
-        NewProfile.setup(self.client)
+        NewProfile.setup(self.client, True)

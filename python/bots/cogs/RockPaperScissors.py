@@ -54,12 +54,12 @@ class RockPaperScissors(commands.Cog):
         
         result = self.whoWin(bot_choice, user_choice_chinese)
         if result == 1:
-            await ctx.send(f'{ctx.author.mention} 你出 {user_choice_chinese} , 我出的是 {bot_choice}, 你輸了！')
+            await ctx.send(f'{ctx.author.mention} 你出 {user_choice_chinese} , 我出的是 {bot_choice}.\n{RockPaperScissorsUtil.getBotWinDialog()}')
         elif result == -1:
-            await ctx.send(f'{ctx.author.mention} 你出 {user_choice_chinese} , 我出的是 {bot_choice}, 你贏了！')
+            await ctx.send(f'{ctx.author.mention} 你出 {user_choice_chinese} , 我出的是 {bot_choice}.\n{RockPaperScissorsUtil.getBotLossDialog()}')
             await self.addToken(ctx)
         else:
-            await ctx.send(f'{ctx.author.mention} 你出 {user_choice_chinese} , 我出的也是 {bot_choice}, 我們平手！')
+            await ctx.send(f'{ctx.author.mention} 你出 {user_choice_chinese} , 我出的也是 {bot_choice}.\n{RockPaperScissorsUtil.getTieDialog()}')
         
     async def addToken(self, ctx:commands.Context):
         MemberUtil.add_token(ctx.author.id, 1)
