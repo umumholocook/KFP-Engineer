@@ -205,20 +205,18 @@ class NewProfile(commands.Cog):
         if member.rank != rank:
             channel = ChannelUtil.getMessageChannelId(message.guild.id)
             if channel == None:
-                await message.channel.send('恭喜<@{}> 等級提升至{}。'.format(message.author.id, rank))
+                channelToUse = message.channel
             else:
-                channel = message.guild.get_channel(channel)
-                await channel.send('恭喜<@{}> 等級提升至{}。'.format(message.author.id, rank))
+                channelToUse = message.guild.get_channel(channel)
+            await channelToUse.send('恭喜<@{}> 等級提升至{}。'.format(message.author.id, rank))
+            
             newRole: KfpRole = RoleUtil.getKfpRoleFromLevel(message.guild.id, rank)            
             if newRole:
                 newGuildRole: Role = message.guild.get_role(newRole.role_id)
                 await message.author.add_roles(newGuildRole)
                 embed = Embed()
                 embed.description = '恭喜<@!{}> 成為 {}'.format(message.author.id, newGuildRole.name)
-                await message.channel.send(embed= embed)
-                rankup_id = self.db.get_rankup_channel_id()
-                if rankup_id != None:
-                    await message.guild.get_channel(rankup_id).send(embed= embed)
+                await channelToUse.send(embed= embed)
         self.db.increase_coin(message.guild.id, message.author.id, increaseNumber)
     
     @commands.group(name = 'profile', invoke_without_command = True)

@@ -31,8 +31,8 @@ class RoleManager(commands.Cog):
         
     @role_manager_group.command(name = 'init')
     async def initialize_roles(self, ctx:commands.Context, *argv):
-        if not await self.canUseCommand(ctx):
-            return
+        # if not await self.canUseCommand(ctx):
+        #     return
         msg = await ctx.channel.send('初始化身分組: KFP 預設...')
         for data in ROLE_DATA:
             for role_dic in data:
@@ -51,15 +51,15 @@ class RoleManager(commands.Cog):
 
     @role_manager_group.command(name = 'reset')
     async def reset_roles(self, ctx:commands.Context, *argv):
-        if not await self.canUseCommand(ctx):
-            return
+        # if not await self.canUseCommand(ctx):
+        #     return
         RoleUtil.deleteAllData()
         await ctx.channel.send('身分組資料庫清除完畢')
 
     @role_manager_group.command(name = 'list')
     async def listing_roles(self, ctx:commands.Context, *argv):
-        if not await self.canUseCommand(ctx):
-            return
+        # if not await self.canUseCommand(ctx):
+        #     return
         roleList = RoleUtil.getCurrentRoles(ctx.guild.id, Util.RoleCategory.KFP_DEFAULT)
         if len(roleList) == 0:
             await ctx.channel.send("沒有檢查到任何身份組, 請執行 `!role init`")
