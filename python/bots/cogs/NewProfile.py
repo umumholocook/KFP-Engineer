@@ -284,6 +284,33 @@ class NewProfile(commands.Cog):
             
     #         await self.updateUserKfpRoles(message, rank, channelToUse)
 
+    @profile_profile_group.command('syncAllRank')
+    @commands.check(isWhiteList)
+    async def reset_everyone_rank(self, ctx:commands.Context):
+        member_id_list = Member.select(Member.member_id)
+        for member_id in member_id_list:
+            member: Member = self.db.get_member(member_id)
+            user = await ctx.guild.fetch_member(member_id)
+            if user:
+                if member:
+                    newRole: KfpRole = RoleUtil.getKfpRoleFromLevel(ctx.guild.id, member.rank)
+                    if newRole:
+                        newGuildRole: Role = ctx.guild.get_role(newRole.role_id)
+                        if not newGuildRole in user.roles:
+                            # 用戶有新身份組 
+                            # 先移除所有不符合的身份組
+                            oldRoles: KfpRole = RoleUtil.getCurrentRoles(ctx.guild.id, Util.RoleCategory.KFP_DEFAULT)
+                            if oldRoles:
+                                oldGuildRoles = []
+                                for oldRole in oldRoles:
+                                    guildRole = ctx.guild.get_role(oldRole.role_id)
+                                    if guildRole and guildRole in user.roles:
+                                        oldGuildRoles.append(guildRole)
+                                for oldGuildRole in oldGuildRoles:
+                                    await user.remove_roles(oldGuildRole)
+                            # 添加新的身份組
+                            await user.add_roles(newGuildRole)
+                            print("adding role {} to member {} successed!".format(newGuildRole.name, user.name))
 
     @profile_profile_group.command(name = 'leaderboard')
     @commands.check(isWhiteList)
