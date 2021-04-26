@@ -52,6 +52,24 @@ class TestRoleUtil():
         assert len(roleList) == 2
         assert roleList[0] == role1
         assert roleList[1] == role2
+    
+    def test_getCurrentRolesSuccess_level(self):
+        role1 = RoleUtil.updateRole(123, 100, "first", "0x000345")
+        RoleUtil.updateKfpRoleLevel(role1, 0)
+        role2 = RoleUtil.updateRole(123, 101, "second", "0x000543")
+        RoleUtil.updateKfpRoleLevel(role2, 20)
+        role3 = RoleUtil.updateRole(123, 102, "third", "0x000543")
+        RoleUtil.updateKfpRoleLevel(role3, 40)
+        role4 = RoleUtil.updateRole(123, 103, "fourth", "0x000543")
+        RoleUtil.updateKfpRoleLevel(role4, 60)
+        role5 = RoleUtil.updateRole(123, 104, "fifth", "0x000543")
+        RoleUtil.updateKfpRoleLevel(role5, 80)
+        role6 = RoleUtil.updateRole(123, 105, "sixth", "0x000543")
+        RoleUtil.updateKfpRoleLevel(role6, 100)
+        role = RoleUtil.getKfpRoleFromLevel(123, 80)
+
+        assert role == role5
+
 
     def test_getRoleBeforeLevel(self):
         role1 = RoleUtil.updateRole(123, 321, "testing", "0x000345")
