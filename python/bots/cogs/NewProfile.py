@@ -1,5 +1,6 @@
 from discord.abc import GuildChannel
 from discord.embeds import Embed
+from discord.errors import NotFound
 from common.models.KfpRole import KfpRole
 from common.RoleUtil import RoleUtil
 from common.models.Member import Member
@@ -290,7 +291,10 @@ class NewProfile(commands.Cog):
         member_id_list = Member.select(Member.member_id)
         for member_id in member_id_list:
             member: Member = self.db.get_member(member_id)
-            user = await ctx.guild.fetch_member(member_id)
+            try:
+                user = await ctx.guild.fetch_member(member_id)
+            except NotFound as e:
+                continue
             if user:
                 if member:
                     newRole: KfpRole = RoleUtil.getKfpRoleFromLevel(ctx.guild.id, member.rank)
