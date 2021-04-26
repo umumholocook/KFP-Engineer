@@ -1,4 +1,4 @@
-from discord.abc import User
+from discord.abc import GuildChannel
 from discord.embeds import Embed
 from common.models.KfpRole import KfpRole
 from common.RoleUtil import RoleUtil
@@ -210,13 +210,7 @@ class NewProfile(commands.Cog):
                 channelToUse = message.guild.get_channel(channel)
             await channelToUse.send('恭喜<@{}> 等級提升至{}。'.format(message.author.id, rank))
             
-            newRole: KfpRole = RoleUtil.getKfpRoleFromLevel(message.guild.id, rank)            
-            if newRole:
-                newGuildRole: Role = message.guild.get_role(newRole.role_id)
-                await message.author.add_roles(newGuildRole)
-                embed = Embed()
-                embed.description = '恭喜<@!{}> 成為 {}'.format(message.author.id, newGuildRole.name)
-                await channelToUse.send(embed= embed)
+            await self.updateUserKfpRoles(message, rank, channelToUse)
         self.db.increase_coin(message.guild.id, message.author.id, increaseNumber)
     
     @commands.group(name = 'profile', invoke_without_command = True)
@@ -271,6 +265,25 @@ class NewProfile(commands.Cog):
             msg+= f"{channel.id}: {channel.name}\n"
         msg+= "```"
         await ctx.channel.send(msg)
+    
+    @profile_profile_group.command('force_set_level')
+    @commands.check(isWhiteList)
+    async def profile_force_set_level(self, ctx:commands.Context, rank=10):
+        message = ctx.message
+        member: Member = self.db.get_member(message.author.id)
+        if not member:
+            member = self.db.add_member(message.author.id)
+        if member.rank != rank:
+            self.db.force_update_rank(member.member_id, rank)
+            channel = ChannelUtil.getMessageChannelId(message.guild.id)
+            if channel == None:
+                channelToUse = message.channel
+            else:
+                channelToUse = message.guild.get_channel(channel)
+            await channelToUse.send('恭喜<@{}> 等級提升至{}。'.format(message.author.id, rank))
+            
+            await self.updateUserKfpRoles(message, rank, channelToUse)
+
 
     @profile_profile_group.command(name = 'leaderboard')
     @commands.check(isWhiteList)
@@ -295,7 +308,29 @@ class NewProfile(commands.Cog):
                 msg+= f"第{rank+1}名: {user.display_name}\n"
         msg+= "```"
         await ctx.channel.send(msg)
-        
+    
+    async def updateUserKfpRoles(self, message:Message, rank: int, channelToUse:GuildChannel):
+        newRole: KfpRole = RoleUtil.getKfpRoleFromLevel(message.guild.id, rank)
+        if newRole:
+            newGuildRole: Role = message.guild.get_role(newRole.role_id)
+            if not newGuildRole in message.author.roles:
+                # 用戶有新身份組 
+                # 先移除舊有的身份組
+                oldRoles: KfpRole = RoleUtil.getKfpRolesBeforeLevel(message.guild.id, rank)
+                if oldRoles:
+                    oldGuildRoles = []
+                    for oldRole in oldRoles:
+                        guildRole = message.guild.get_role(oldRole.role_id)
+                        if guildRole and guildRole in message.author.roles:
+                            oldGuildRoles.append(guildRole)
+                    for oldGuildRole in oldGuildRoles:
+                        await message.author.remove_roles(oldGuildRole)
+                # 添加新的身份組
+                await message.author.add_roles(newGuildRole)
+                embed = Embed()
+                embed.description = '恭喜<@!{}> 成為 {}'.format(message.author.id, newGuildRole.name)
+                await channelToUse.send(embed= embed)
+
     def populateChannels(self, message:Message, isTest: bool):
         if isTest:
             return False

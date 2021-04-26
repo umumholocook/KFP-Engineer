@@ -49,7 +49,7 @@ class KfpDb():
     
     # 增加新會員
     def add_member(self, member_id:int) -> Member:
-        MemberUtil.add_member(member_id)
+        return MemberUtil.add_member(member_id)
     
     #　增加復數會員
     def add_members(self, member_ids):
@@ -107,6 +107,12 @@ class KfpDb():
         if new_rank != member.rank:
             member.rank = new_rank
             member.save()
+        return member.rank
+
+    def force_update_rank(self, member_id:int, new_rank:int):
+        member = Member.get_by_id(member_id)
+        member.rank = new_rank
+        member.save()
         return member.rank
 
     # 會員等級排名
