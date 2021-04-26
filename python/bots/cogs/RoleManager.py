@@ -73,17 +73,17 @@ class RoleManager(commands.Cog):
                     await msg.edit(content=str(msg.content)+"\n找到{}身份組: {}".format(role_name, names))
         await ctx.channel.send("查找結束.")
 
-    @role_manager_group.command(name = 'deleteRole')
-    async def delete_role(self, ctx:commands.Context, role_name=""):
-        if len(role_name) < 1:
-            return # ignore
-        role: Role = get(ctx.guild.roles, name=role_name)
-        if role: 
-            await ctx.channel.send('{}找到, 移除中...'.format(role_name))
-            await role.delete()
-            await ctx.channel.send('{} 移除成功'.format(role_name))
-        else:
-            await ctx.channel.send('找不到{}.'.format(role_name))
+    # @role_manager_group.command(name = 'deleteRole')
+    # async def delete_role(self, ctx:commands.Context, role_name=""):
+    #     if len(role_name) < 1:
+    #         return # ignore
+    #     role: Role = get(ctx.guild.roles, name=role_name)
+    #     if role: 
+    #         await ctx.channel.send('{}找到, 移除中...'.format(role_name))
+    #         await role.delete()
+    #         await ctx.channel.send('{} 移除成功'.format(role_name))
+    #     else:
+    #         await ctx.channel.send('找不到{}.'.format(role_name))
 
     @role_manager_group.command(name = 'reset')
     async def reset_roles(self, ctx:commands.Context, *argv):
