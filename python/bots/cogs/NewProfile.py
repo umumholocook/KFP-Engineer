@@ -315,8 +315,8 @@ class NewProfile(commands.Cog):
             newGuildRole: Role = message.guild.get_role(newRole.role_id)
             if not newGuildRole in message.author.roles:
                 # 用戶有新身份組 
-                # 先移除舊有的身份組
-                oldRoles: KfpRole = RoleUtil.getKfpRolesBeforeLevel(message.guild.id, rank)
+                # 先移除所有不符合的身份組
+                oldRoles: KfpRole = RoleUtil.getCurrentRoles(message.guild.id, Util.RoleCategory.KFP_DEFAULT)
                 if oldRoles:
                     oldGuildRoles = []
                     for oldRole in oldRoles:
