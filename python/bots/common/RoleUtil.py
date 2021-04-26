@@ -1,3 +1,4 @@
+from common.KFP_DB import KfpDb
 from common.models.KfpRole import KfpRole
 from common.Util import Util
 
@@ -9,6 +10,14 @@ class RoleUtil():
             return query.get()
         return None
     
+    def getKfpRolesBeforeLevel(guild_id: int, level: int):
+        query = KfpRole.select().where(KfpRole.guild_id == guild_id, level > KfpRole.level)
+        result = []
+        if query.exists():
+            for role in query.order_by(KfpRole.level.desc()).iterator():
+                result.append(role)
+        return result
+
     def getKfpRoleFromLevel(guild_id: int, level: int):
         query = KfpRole.select().where(KfpRole.guild_id == guild_id, level >= KfpRole.level)
         if query.exists():
