@@ -1,6 +1,5 @@
 from common.MemberUtil import MemberUtil
 from common.ChannelUtil import ChannelUtil
-import datetime
 
 import common.models.BaseModel as db
 from common.models.PermissionRole import PermissionRole
