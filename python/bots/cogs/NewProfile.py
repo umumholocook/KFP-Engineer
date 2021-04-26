@@ -266,23 +266,23 @@ class NewProfile(commands.Cog):
         msg+= "```"
         await ctx.channel.send(msg)
     
-    @profile_profile_group.command('force_set_level')
-    @commands.check(isWhiteList)
-    async def profile_force_set_level(self, ctx:commands.Context, rank=10):
-        message = ctx.message
-        member: Member = self.db.get_member(message.author.id)
-        if not member:
-            member = self.db.add_member(message.author.id)
-        if member.rank != rank:
-            self.db.force_update_rank(member.member_id, rank)
-            channel = ChannelUtil.getMessageChannelId(message.guild.id)
-            if channel == None:
-                channelToUse = message.channel
-            else:
-                channelToUse = message.guild.get_channel(channel)
-            await channelToUse.send('恭喜<@{}> 等級提升至{}。'.format(message.author.id, rank))
+    # @profile_profile_group.command('force_set_level')
+    # @commands.check(isWhiteList)
+    # async def profile_force_set_level(self, ctx:commands.Context, rank=10):
+    #     message = ctx.message
+    #     member: Member = self.db.get_member(message.author.id)
+    #     if not member:
+    #         member = self.db.add_member(message.author.id)
+    #     if member.rank != rank:
+    #         self.db.force_update_rank(member.member_id, rank)
+    #         channel = ChannelUtil.getMessageChannelId(message.guild.id)
+    #         if channel == None:
+    #             channelToUse = message.channel
+    #         else:
+    #             channelToUse = message.guild.get_channel(channel)
+    #         await channelToUse.send('恭喜<@{}> 等級提升至{}。'.format(message.author.id, rank))
             
-            await self.updateUserKfpRoles(message, rank, channelToUse)
+    #         await self.updateUserKfpRoles(message, rank, channelToUse)
 
 
     @profile_profile_group.command(name = 'leaderboard')
