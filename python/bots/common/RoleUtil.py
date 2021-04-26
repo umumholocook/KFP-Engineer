@@ -55,3 +55,7 @@ class RoleUtil():
     def deleteAllData():
         KfpRole.drop_table()
 
+    def wipeDataAndKeepTable():
+        KfpRole.drop_table()
+        KfpRole.create_table()
+
