@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from discord.abc import GuildChannel, User
 from discord.embeds import Embed
 from discord.errors import NotFound
@@ -297,7 +296,7 @@ class NewProfile(commands.Cog):
                 user = await ctx.guild.fetch_member(member_id)
             except NotFound as e:
                 continue
-            await self.__updateUserRole(ctx.guild, user, member, member.rank, NULL, True)
+            await self.__updateUserRole(ctx.guild, user, member, member.rank, None, True)
 
     @profile_profile_group.command(name = 'leaderboard')
     @commands.check(isWhiteList)
