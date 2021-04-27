@@ -1,6 +1,8 @@
-from discord.abc import GuildChannel
+from asyncio.windows_events import NULL
+from discord.abc import GuildChannel, User
 from discord.embeds import Embed
 from discord.errors import NotFound
+from discord.guild import Guild
 from common.models.KfpRole import KfpRole
 from common.RoleUtil import RoleUtil
 from common.models.Member import Member
@@ -295,26 +297,7 @@ class NewProfile(commands.Cog):
                 user = await ctx.guild.fetch_member(member_id)
             except NotFound as e:
                 continue
-            if user:
-                if member:
-                    newRole: KfpRole = RoleUtil.getKfpRoleFromLevel(ctx.guild.id, member.rank)
-                    if newRole:
-                        newGuildRole: Role = ctx.guild.get_role(newRole.role_id)
-                        if not newGuildRole in user.roles:
-                            # 用戶有新身份組 
-                            # 先移除所有不符合的身份組
-                            oldRoles: KfpRole = RoleUtil.getCurrentRoles(ctx.guild.id, Util.RoleCategory.KFP_DEFAULT)
-                            if oldRoles:
-                                oldGuildRoles = []
-                                for oldRole in oldRoles:
-                                    guildRole = ctx.guild.get_role(oldRole.role_id)
-                                    if guildRole and guildRole in user.roles:
-                                        oldGuildRoles.append(guildRole)
-                                for oldGuildRole in oldGuildRoles:
-                                    await user.remove_roles(oldGuildRole)
-                            # 添加新的身份組
-                            await user.add_roles(newGuildRole)
-                            print("adding role {} to member {} successed!".format(newGuildRole.name, user.name))
+            await self.__updateUserRole(ctx.guild, user, member, member.rank, NULL, True)
 
     @profile_profile_group.command(name = 'leaderboard')
     @commands.check(isWhiteList)
@@ -341,26 +324,38 @@ class NewProfile(commands.Cog):
         await ctx.channel.send(msg)
     
     async def updateUserKfpRoles(self, message:Message, rank: int, channelToUse:GuildChannel):
-        newRole: KfpRole = RoleUtil.getKfpRoleFromLevel(message.guild.id, rank)
-        if newRole:
-            newGuildRole: Role = message.guild.get_role(newRole.role_id)
-            if not newGuildRole in message.author.roles:
-                # 用戶有新身份組 
-                # 先移除所有不符合的身份組
-                oldRoles: KfpRole = RoleUtil.getCurrentRoles(message.guild.id, Util.RoleCategory.KFP_DEFAULT)
-                if oldRoles:
-                    oldGuildRoles = []
-                    for oldRole in oldRoles:
-                        guildRole = message.guild.get_role(oldRole.role_id)
-                        if guildRole and guildRole in message.author.roles:
-                            oldGuildRoles.append(guildRole)
-                    for oldGuildRole in oldGuildRoles:
-                        await message.author.remove_roles(oldGuildRole)
-                # 添加新的身份組
-                await message.author.add_roles(newGuildRole)
-                embed = Embed()
-                embed.description = '恭喜<@!{}> 成為 {}'.format(message.author.id, newGuildRole.name)
-                await channelToUse.send(embed= embed)
+        member = Member.select().where(Member.member_id == message.author.id)
+        user = message.author
+        await self.__updateUserRole(message.guild, user, member, rank, channelToUse, False)
+    
+    async def __updateUserRole(self, guild:Guild, user:User, member: Member, rank: int, channelToUse:GuildChannel, internal: bool):
+        if user:
+            if member:
+                newRoles = RoleUtil.getKfpRolesFromLevel(guild.id, rank)
+                if len(newRoles) > 0:
+                    for newRole in newRoles:
+                        newGuildRole: Role = guild.get_role(newRole.role_id)
+                        if newGuildRole:
+                            if not newGuildRole in user.roles:
+                                # 用戶有新身份組 
+                                # 先移除所有不符合的身份組
+                                oldRoles: KfpRole = RoleUtil.getCurrentRoles(guild.id, Util.RoleCategory(newRole.category))
+                                if oldRoles:
+                                    oldGuildRoles = []
+                                    for oldRole in oldRoles:
+                                        guildRole = guild.get_role(oldRole.role_id)
+                                        if guildRole and guildRole in user.roles:
+                                            oldGuildRoles.append(guildRole)
+                                    for oldGuildRole in oldGuildRoles:
+                                        await user.remove_roles(oldGuildRole)
+                                # 添加新的身份組
+                                await user.add_roles(newGuildRole)
+                                if internal:
+                                    print("adding role {} to member {} successed!".format(newGuildRole.name, user.name))
+                                else:
+                                    embed = Embed()
+                                    embed.description = '恭喜<@!{}> 成為 {}'.format(user.id, newGuildRole.name)
+                                    await channelToUse.send(embed= embed)
 
     def populateChannels(self, message:Message, isTest: bool):
         if isTest:
