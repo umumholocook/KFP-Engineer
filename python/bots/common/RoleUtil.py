@@ -18,6 +18,15 @@ class RoleUtil():
                 result.append(role)
         return result
 
+    def getKfpRolesFromLevel(guild_id: int, level: int):
+        query = KfpRole.select().where(KfpRole.guild_id == guild_id, level >= KfpRole.level)
+        roles = {}
+        if query.exists():
+            for role in query.order_by(KfpRole.level.desc()).iterator():
+                if role.category not in roles:
+                    roles[role.category] = role
+        return list(roles.values())
+
     def getKfpRoleFromLevel(guild_id: int, level: int):
         query = KfpRole.select().where(KfpRole.guild_id == guild_id, level >= KfpRole.level)
         if query.exists():

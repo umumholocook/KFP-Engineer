@@ -24,6 +24,7 @@ class Util:
     class RoleCategory(IntEnum):
         NONE = 0 # 其他
         KFP_DEFAULT = 1 # KFP預設 (雞蛋, 小雞... 等)
+        KFP_LEWD = 2
     
     # 賭盤狀態
     class GamblingStatus(IntEnum):
@@ -55,6 +56,13 @@ class Util:
         OMIKUJI = 0
         LUNGSHAN = 1
         YI = 2
+        # 只能新添Type, 不要刪除舊有的
+
+    # 點選反應來增加身分組
+    class ReactionType(IntEnum):
+        UNKNOWN = 0
+        LEWD = 1
+        COLOR = 2
         # 只能新添Type, 不要刪除舊有的
 
     # 升級為next_rank所需的經驗值

@@ -5,10 +5,11 @@ from discord import Color, Permissions, Role
 from discord.ext import commands
 from discord.utils import get
 from data.DefaultRoleData import KFP_DEFAULT
+from data.LEWDRoleData import KFP_LEWD
 from main import bot
 from common.Util import Util
 
-ROLE_DATA = [KFP_DEFAULT]
+ROLE_DATA = [KFP_DEFAULT, KFP_LEWD]
 
 
 class RoleManager(commands.Cog):
@@ -53,7 +54,8 @@ class RoleManager(commands.Cog):
                     await msg.edit(content=str(msg.content)+"\n創建身分組{}... ".format(role_name))
                     role = await ctx.guild.create_role(name=role_name, permissions= Permissions(permissions=0) ,colour= Color(role_dic['color']), mentionable= False, hoist=False)
                     await msg.edit(content=str(msg.content)+"完成".format(role_name))
-                role = roles[0]
+                if len(roles) > 0:
+                    role = roles[0]
                 kfpRole: KfpRole = RoleUtil.updateRole(ctx.guild.id, role.id, role.name, role.color, role_dic["category"])
                 RoleUtil.updateKfpRoleLevel(kfpRole, role_dic['level'])
 
