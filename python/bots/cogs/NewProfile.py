@@ -288,8 +288,8 @@ class NewProfile(commands.Cog):
 
     @profile_profile_group.command('syncAllRank')
     @commands.check(isWhiteList)
-    async def reset_everyone_rank(self, ctx:commands.Context):
-        member_id_list = Member.select(Member.member_id)
+    async def reset_everyone_rank(self, ctx:commands.Context, rank=0):
+        member_id_list = Member.select(Member.member_id).where(Member.rank >= rank)
         for member_id in member_id_list:
             member: Member = self.db.get_member(member_id)
             try:
