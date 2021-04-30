@@ -9,7 +9,7 @@ from common.KFP_DB import KfpDb
 from common.ChannelUtil import ChannelUtil
 from common.ReactionRoleUtil import ReactionRoleUtil
 
-VERSION = "0.6.14"
+VERSION = "0.6.15"
 TOKEN=os.environ['KFP_TOKEN']
 intents = discord.Intents.default()
 intents.members = True
