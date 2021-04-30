@@ -54,17 +54,17 @@ class TestRoleUtil():
         assert roleList[1] == role2
     
     def test_getCurrentRolesSuccess_level(self):
-        role1 = RoleUtil.updateRole(123, 100, "first", "0x000345")
+        role1 = RoleUtil.updateRole(123, 100, "first", "0x000345", Util.RoleCategory.KFP_DEFAULT)
         RoleUtil.updateKfpRoleLevel(role1, 0)
-        role2 = RoleUtil.updateRole(123, 101, "second", "0x000543")
+        role2 = RoleUtil.updateRole(123, 101, "second", "0x000543", Util.RoleCategory.KFP_DEFAULT)
         RoleUtil.updateKfpRoleLevel(role2, 20)
-        role3 = RoleUtil.updateRole(123, 102, "third", "0x000543")
+        role3 = RoleUtil.updateRole(123, 102, "third", "0x000543", Util.RoleCategory.KFP_DEFAULT)
         RoleUtil.updateKfpRoleLevel(role3, 40)
-        role4 = RoleUtil.updateRole(123, 103, "fourth", "0x000543")
+        role4 = RoleUtil.updateRole(123, 103, "fourth", "0x000543", Util.RoleCategory.KFP_DEFAULT)
         RoleUtil.updateKfpRoleLevel(role4, 60)
-        role5 = RoleUtil.updateRole(123, 104, "fifth", "0x000543")
+        role5 = RoleUtil.updateRole(123, 104, "fifth", "0x000543", Util.RoleCategory.KFP_DEFAULT)
         RoleUtil.updateKfpRoleLevel(role5, 80)
-        role6 = RoleUtil.updateRole(123, 105, "sixth", "0x000543")
+        role6 = RoleUtil.updateRole(123, 105, "sixth", "0x000543", Util.RoleCategory.KFP_DEFAULT)
         RoleUtil.updateKfpRoleLevel(role6, 100)
         role = RoleUtil.getKfpRoleFromLevel(123, 80)
 
@@ -72,9 +72,9 @@ class TestRoleUtil():
 
 
     def test_getRoleBeforeLevel(self):
-        role1 = RoleUtil.updateRole(123, 321, "testing", "0x000345")
+        role1 = RoleUtil.updateRole(123, 321, "testing", "0x000345", Util.RoleCategory.KFP_DEFAULT)
         RoleUtil.updateKfpRoleLevel(role1, 10)
-        role2 = RoleUtil.updateRole(123, 123, "onetwothree", "0x000543")
+        role2 = RoleUtil.updateRole(123, 123, "onetwothree", "0x000543", Util.RoleCategory.KFP_DEFAULT)
         RoleUtil.updateKfpRoleLevel(role2, 20)
 
         role = RoleUtil.getKfpRolesBeforeLevel(123, 9)
@@ -88,9 +88,11 @@ class TestRoleUtil():
         assert role[1] == role1
 
     def test_getRoleFromLevel(self):
-        role1 = RoleUtil.updateRole(123, 321, "testing", "0x000345")
+        role0 = RoleUtil.updateRole(123, 100, "other roles", "0x000345")
+        RoleUtil.updateKfpRoleLevel(role0, 0)
+        role1 = RoleUtil.updateRole(123, 321, "testing", "0x000345", Util.RoleCategory.KFP_DEFAULT)
         RoleUtil.updateKfpRoleLevel(role1, 10)
-        role2 = RoleUtil.updateRole(123, 123, "onetwothree", "0x000543")
+        role2 = RoleUtil.updateRole(123, 123, "onetwothree", "0x000543", Util.RoleCategory.KFP_DEFAULT)
         RoleUtil.updateKfpRoleLevel(role2, 20)
 
         role = RoleUtil.getKfpRoleFromLevel(123, 9)
