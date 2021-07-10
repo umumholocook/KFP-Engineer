@@ -14,7 +14,7 @@ class Kuji(commands.Cog):
     def __init__(self, client):
         self.bot = client
     
-    __RATE = 2
+    __RATE = 10
 
     @commands.group(name = 'kuji', invoke_without_command = True)
     async def kuji_group(self, ctx:commands.Context, *attr):
