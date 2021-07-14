@@ -90,7 +90,7 @@ class RockPaperScissorsUtil():
         "哈哈, 我太強了不好意思哈",
         "哈哈, 我又贏了, 需要我降低難度嗎？",
         "你輸了！",
-        "渺小的人類居然妄想戰勝我"
+        "渺小的人類居然妄想戰勝我?"
     ]
     WIN_WEIGHT = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, DEFAULT_MAIN_RESPONSE_WEIGHT]
     LOSE_DIALOG = [
