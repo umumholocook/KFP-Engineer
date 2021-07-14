@@ -34,9 +34,6 @@ class RockPaperScissorsUtil():
         "冷卻時間剩下{:.2f}秒",
         "哎哎 同學你太快了, 稍微冷靜一下. 等個{:.2f}秒好嗎?"
     ]
-    TOO_FAST_WEIGHT = [
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, DEFAULT_MAIN_RESPONSE_WEIGHT]
-
     TIE_DIALOG = [
         "居然一樣耶, 說不定我們很有默契哦",
         "居然一樣耶, 說不定我們很合得來哦",
@@ -61,7 +58,6 @@ class RockPaperScissorsUtil():
         "看來是旗鼓相當的對手呢",
         "這就是命中注定的巧合...嗎",
     ]
-    TIE_WEIGHT = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, DEFAULT_MAIN_RESPONSE_WEIGHT]
     WIN_DIALOG = [
         # simply winning
         "哈哈, 我贏了！",
@@ -92,7 +88,6 @@ class RockPaperScissorsUtil():
         "你輸了！",
         "渺小的人類居然妄想戰勝我?"
     ]
-    WIN_WEIGHT = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, DEFAULT_MAIN_RESPONSE_WEIGHT]
     LOSE_DIALOG = [
         # lost questioning
         "我輸了？這場不算啦！",
@@ -147,15 +142,22 @@ class RockPaperScissorsUtil():
         "Azu萬歲！！"
         "大...大總管才沒有輸呢...!"
     ]
-    LOSE_WEIGHT = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, DEFAULT_MAIN_RESPONSE_WEIGHT]
     def getTooFastDialog() -> str:
-        return choices(population = RockPaperScissorsUtil.TOO_FAST, weights=RockPaperScissorsUtil.TOO_FAST_WEIGHT)[0]
+        weight = [1] * len(RockPaperScissorsUtil.TOO_FAST)
+        weight[0] = RockPaperScissorsUtil.DEFAULT_MAIN_RESPONSE_WEIGHT
+        return choices(population = RockPaperScissorsUtil.TOO_FAST, weights=weight)[0]
 
     def getTieDialog() -> str:
-        return choices(population = RockPaperScissorsUtil.TIE_DIALOG, weights=RockPaperScissorsUtil.TIE_WEIGHT)[0]
+        weight = [1] * len(RockPaperScissorsUtil.TIE_DIALOG)
+        weight[0] = RockPaperScissorsUtil.DEFAULT_MAIN_RESPONSE_WEIGHT
+        return choices(population = RockPaperScissorsUtil.TIE_DIALOG, weights=weight)[0]
 
     def getBotWinDialog() -> str:
-        return choices(population = RockPaperScissorsUtil.WIN_DIALOG, weights=RockPaperScissorsUtil.WIN_WEIGHT)[0]
+        weight = [1] * len(RockPaperScissorsUtil.WIN_DIALOG)
+        weight[0] = RockPaperScissorsUtil.DEFAULT_MAIN_RESPONSE_WEIGHT
+        return choices(population = RockPaperScissorsUtil.WIN_DIALOG, weights=weight)[0]
 
     def getBotLossDialog() -> str:
-        return choices(population = RockPaperScissorsUtil.LOSE_DIALOG, weights=RockPaperScissorsUtil.LOSE_WEIGHT)[0]
+        weight = [1] * len(RockPaperScissorsUtil.LOSE_DIALOG)
+        weight[0] = RockPaperScissorsUtil.DEFAULT_MAIN_RESPONSE_WEIGHT
+        return choices(population = RockPaperScissorsUtil.LOSE_DIALOG, weights=weight)[0]
