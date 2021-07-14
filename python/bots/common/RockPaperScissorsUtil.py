@@ -92,7 +92,7 @@ class RockPaperScissorsUtil():
         "你輸了！",
         "渺小的人類居然妄想戰勝我?"
     ]
-    WIN_WEIGHT = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, DEFAULT_MAIN_RESPONSE_WEIGHT]
+    WIN_WEIGHT = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, DEFAULT_MAIN_RESPONSE_WEIGHT]
     LOSE_DIALOG = [
         # lost questioning
         "我輸了？這場不算啦！",
