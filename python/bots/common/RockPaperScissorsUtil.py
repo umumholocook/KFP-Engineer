@@ -35,7 +35,7 @@ class RockPaperScissorsUtil():
         "哎哎 同學你太快了, 稍微冷靜一下. 等個{:.2f}秒好嗎?"
     ]
     TOO_FAST_WEIGHT = [
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, DEFAULT_MAIN_RESPONSE_WEIGHT]
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, DEFAULT_MAIN_RESPONSE_WEIGHT]
 
     TIE_DIALOG = [
         "居然一樣耶, 說不定我們很有默契哦",
@@ -57,9 +57,11 @@ class RockPaperScissorsUtil():
         "討厭, 我們居然出同樣的",
         "討厭, 平手了",
         "討厭, 又是平手",
-        "我們平手！"
+        "我們平手！",
+        "看來是旗鼓相當的對手呢",
+        "這就是命中注定的巧合...嗎",
     ]
-    TIE_WEIGHT = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, DEFAULT_MAIN_RESPONSE_WEIGHT]
+    TIE_WEIGHT = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, DEFAULT_MAIN_RESPONSE_WEIGHT]
     WIN_DIALOG = [
         # simply winning
         "哈哈, 我贏了！",
@@ -87,9 +89,10 @@ class RockPaperScissorsUtil():
         "哈哈, 小兒科啊",
         "哈哈, 我太強了不好意思哈",
         "哈哈, 我又贏了, 需要我降低難度嗎？",
-        "你輸了！"
+        "你輸了！",
+        "渺小的人類居然妄想戰勝我"
     ]
-    WIN_WEIGHT = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, DEFAULT_MAIN_RESPONSE_WEIGHT]
+    WIN_WEIGHT = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, DEFAULT_MAIN_RESPONSE_WEIGHT]
     LOSE_DIALOG = [
         # lost questioning
         "我輸了？這場不算啦！",
@@ -140,7 +143,9 @@ class RockPaperScissorsUtil():
         "輸了又如何, 贏了又如何？這是你的雞腿",
         "輸了又如何, 贏了又如何？為什麼大家都想要雞腿？",
         "輸了又如何, 贏了又如何？拿走雞腿吧",
-        "你贏了！"
+        "你贏了！",
+        "Azu萬歲！！"
+        "大...大總管才沒有輸呢...!"
     ]
     LOSE_WEIGHT = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, DEFAULT_MAIN_RESPONSE_WEIGHT]
     def getTooFastDialog() -> str:
