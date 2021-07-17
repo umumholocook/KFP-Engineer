@@ -6,8 +6,8 @@ from discord.ext import commands
 from discord.utils import get
 from data.DefaultRoleData import KFP_DEFAULT
 from data.LEWDRoleData import KFP_LEWD
-from main import bot
 from common.Util import Util
+from typing import List
 
 ROLE_DATA = [KFP_DEFAULT, KFP_LEWD]
 
@@ -16,18 +16,13 @@ class RoleManager(commands.Cog):
     def __init__(self, client):
         self.bot = client
 
-    @bot.event
-    async def on_guild_role_update(before: Role, after: Role):
-        RoleUtil.updateRole(before.guild.id, before.id, after.name, after.color)
-        print(f"updating role with new name {after.name} and color {after.color}")
-
     async def canUseCommand(self, ctx:commands.Context):
         if ctx.author.id != ctx.guild.owner.id:
             await ctx.channel.send('本功能只有群主可以使用')
             return False
         return True
 
-    def findRole(self, roles: list[Role], name: str):
+    def findRole(self, roles: List[Role], name: str):
         result = []
         for role in roles:
             if name in role.name:
