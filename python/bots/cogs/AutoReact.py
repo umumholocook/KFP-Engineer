@@ -14,7 +14,8 @@ class AutoReact(commands.Cog):
             theGuild = await self.bot.fetch_guild(message.guild.id)
             if theGuild.emojis:
                 for emoji in theGuild.emojis:
-                    if "name" in emoji.name:
+                    print(emoji)
+                    if "w_wake" in emoji.name:
                         await message.add_reactions(emoji)
     
     def shouldReact(self, msg: str):
