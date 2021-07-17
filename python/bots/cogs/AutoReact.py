@@ -16,7 +16,7 @@ class AutoReact(commands.Cog):
                 for emoji in theGuild.emojis:
                     print(emoji)
                     if "w_wake" in emoji.name:
-                        await message.add_reactions(emoji)
+                        await message.add_reaction(emoji)
     
     def shouldReact(self, msg: str):
         if "我婆" in msg or "我老婆" in msg or "我老公" in msg:
