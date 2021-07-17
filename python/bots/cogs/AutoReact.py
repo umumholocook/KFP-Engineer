@@ -14,13 +14,18 @@ class AutoReact(commands.Cog):
             theGuild = await self.bot.fetch_guild(message.guild.id)
             if theGuild.emojis:
                 for emoji in theGuild.emojis:
-                    print(emoji)
                     if "w_wake" in emoji.name:
                         await message.add_reaction(emoji)
     
     def shouldReact(self, msg: str):
-        if "我婆" in msg or "我老婆" in msg or "我老公" in msg:
+        if self.hasSubString(msg, "我婆") or self.hasSubString(msg, "我老婆") or self.hasSubString(msg, "我老公"):
             return True 
         return False
+    
+    def hasSubString(self, msg: str, substring: str):
+        if substring in msg and len(msg) > len(substring):
+            return True
+        return False
+
 def setup(bot):
     bot.add_cog(AutoReact(bot))
