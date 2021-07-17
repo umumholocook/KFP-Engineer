@@ -34,7 +34,7 @@ class PoliceControl(commands.Cog):
         currentType = PoliceUtil.getCurrentPoliceType(guild_id=message.guild.id, user_id=message.author.id)
         if len(currentType) > 0:
             user_name = await NicknameUtil.get_user_nickname_or_default(guild=message.guild, user=message.author)
-            msg = PoliceResponseUtil.getResponse().format_map({'name': user_name,'action': PoliceUtil.getPoliceTypeChineseName(currentType)})
+            msg = PoliceResponseUtil.getResponse(currentType).format_map({'name': user_name,'action': PoliceUtil.getPoliceTypeChineseName(currentType)})
             await message.reply(msg)
     
     @police.command(name = "set")
