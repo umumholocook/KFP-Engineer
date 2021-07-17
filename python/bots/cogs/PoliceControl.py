@@ -1,6 +1,9 @@
+from common.RoleUtil import RoleUtil
+from cogs.RoleManager import RoleManager
 from common.PoliceResponseUtil import PoliceResponseUtil
 from common.NicknameUtil import NicknameUtil
 from common.PoliceUtil import PoliceUtil
+from common.Util import Util
 from discord.ext import commands 
 from discord import User, Message
 
@@ -30,18 +33,21 @@ class PoliceControl(commands.Cog):
             return # 無視機器人的消息
         currentType = PoliceUtil.getCurrentPoliceType(guild_id=message.guild.id, user_id=message.author.id)
         if len(currentType) > 0:
-            user_name = NicknameUtil.get_user_nickname_or_default(guild_id=message.guild.id, user=message.author)
+            user_name = await NicknameUtil.get_user_nickname_or_default(guild=message.guild, user=message.author)
             msg = PoliceResponseUtil.getResponse().format_map({'name': user_name,'action': PoliceUtil.getPoliceTypeChineseName(currentType)})
             await message.reply(msg)
     
     @police.command(name = "set")
     async def set_police(self, ctx:commands.Context, type: str, user: User):
+        if not await self.canRunCommand(ctx, ctx.author):
+            await ctx.channel.send(f"你不是警察, 無法執行這個指令")
+            return
         if not PoliceUtil.isProperType(type):
             await ctx.channel.send(f"'{type}' 不是正確的警察類型, 請重新輸入")
             return
         guild_id = ctx.guild.id
         currentType = PoliceUtil.getCurrentPoliceType(guild_id=guild_id, user_id=user.id)
-        user_name = NicknameUtil.get_user_nickname_or_default(guild_id, user)
+        user_name = await NicknameUtil.get_user_nickname_or_default(ctx.guild, user)
         if len(currentType) > 0:
             await ctx.channel.send(f"{user_name}已經被{PoliceUtil.getPoliceTypeChineseName(currentType)}警察監視了, 無法增加更多警力!!")
             return    
@@ -50,9 +56,12 @@ class PoliceControl(commands.Cog):
 
     @police.command(name = "lookup")
     async def lookup_police(self, ctx:commands.Context, user: User):
+        if not await self.canRunCommand(ctx, ctx.author):
+            await ctx.channel.send(f"你不是警察, 無法執行這個指令")
+            return
         guild_id = ctx.guild.id
         currentType = PoliceUtil.getCurrentPoliceType(guild_id=guild_id, user_id=user.id)
-        user_name = NicknameUtil.get_user_nickname_or_default(guild_id=guild_id, user=user)
+        user_name = await NicknameUtil.get_user_nickname_or_default(guild=ctx.guild, user=user)
         if len(currentType) > 0:
             await ctx.channel.send(f"{user_name}現在被{PoliceUtil.getPoliceTypeChineseName(currentType)}警察監視中!!")
         else:
@@ -60,12 +69,24 @@ class PoliceControl(commands.Cog):
     
     @police.command(name = "clear")
     async def clear_police(self, ctx:commands.Context, user: User):
+        if not await self.canRunCommand(ctx, ctx.author):
+            await ctx.channel.send(f"你不是警察, 無法執行這個指令")
+            return
         guild_id = ctx.guild.id
-        user_name = NicknameUtil.get_user_nickname_or_default(guild_id, user)
+        user_name = await NicknameUtil.get_user_nickname_or_default(ctx.guild, user)
         if PoliceUtil.stopPolice(guild_id=guild_id, user_id=user.id):
             await ctx.channel.send(f"已經停止對{user_name}的監視")
         else:
             await ctx.channel.send(f"我們沒有在監視{user_name}啊... 還是說你想...?")
+
+    async def canRunCommand(self, ctx: commands.Context, user: User):
+        roleId = RoleUtil.getCategoryRole(guild_id=ctx.guild.id, category=Util.RoleCategory.KFP_UTIL)
+        for role in ctx.guild.roles:
+            if role.id == roleId:
+                for member in role.members:
+                    if user.id == member.id:
+                        return True
+        return False
 
 def setup(bot):
     bot.add_cog(PoliceControl(bot))

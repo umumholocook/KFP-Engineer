@@ -10,7 +10,7 @@ from common.ChannelUtil import ChannelUtil
 from discord import Role
 from common.RoleUtil import RoleUtil
 
-VERSION = "0.6.20"
+VERSION = "0.6.22"
 TOKEN=os.environ['KFP_TOKEN']
 intents = discord.Intents.default()
 intents.members = True
