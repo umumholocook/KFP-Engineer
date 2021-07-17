@@ -1,8 +1,18 @@
-from common.KFP_DB import KfpDb
 from common.models.KfpRole import KfpRole
 from common.Util import Util
+from typing import List
+from discord import Role
 
 class RoleUtil():
+
+    def getCategoryRole(guild_id: int, category: Util.RoleCategory):
+        query = KfpRole.select().where(
+            KfpRole.guild_id == guild_id,
+            KfpRole.category == category)
+        if query.exists():
+            role: KfpRole = query.get()
+            return role.role_id
+        return ""
 
     def getRole(guild_id: int, role_id: int):
         query = KfpRole.select().where(KfpRole.guild_id==guild_id, KfpRole.role_id==role_id)

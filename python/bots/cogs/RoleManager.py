@@ -1,3 +1,4 @@
+from data.UtilRoleData import KFP_UTIL
 from operator import contains
 from common.models.KfpRole import KfpRole
 from common.RoleUtil import RoleUtil
@@ -6,10 +7,11 @@ from discord.ext import commands
 from discord.utils import get
 from data.DefaultRoleData import KFP_DEFAULT
 from data.LEWDRoleData import KFP_LEWD
+from data.UtilRoleData import KFP_UTIL
 from common.Util import Util
 from typing import List
 
-ROLE_DATA = [KFP_DEFAULT, KFP_LEWD]
+ROLE_DATA = [KFP_DEFAULT, KFP_LEWD, KFP_UTIL]
 
 
 class RoleManager(commands.Cog):
@@ -93,17 +95,28 @@ class RoleManager(commands.Cog):
     async def listing_roles(self, ctx:commands.Context, *argv):
         # if not await self.canUseCommand(ctx):
         #     return
-        roleList = RoleUtil.getCurrentRoles(ctx.guild.id, Util.RoleCategory.KFP_DEFAULT)
-        if len(roleList) == 0:
-            await ctx.channel.send("沒有檢查到任何身份組, 請執行 `!role init`")
-            return
-        msg = ""
-        for role in roleList:
-            msg += f"{role.role_name}\n"
-            msg += f"  id: {role.role_id}\n"
-            msg += f"  顏色: {role.color}\n"
-            msg += f"  等級: {role.level}\n\n"
+        msg = RoleManager.listRole(ctx, Util.RoleCategory.KFP_DEFAULT)
         await ctx.channel.send(msg)
+    
+    @role_manager_group.command(name = "list_all")
+    async def list_role_detail(self, ctx:commands.Context, *argv):
+        msg = ""
+        for roleList in [Util.RoleCategory.KFP_DEFAULT, Util.RoleCategory.KFP_LEWD, Util.RoleCategory.KFP_UTIL]:
+            msg += RoleManager.listRole(ctx, roleList)
+        await ctx.channel.send(msg)
+
+    def listRole(ctx:commands.Context, category: Util.RoleCategory):
+        roleList = RoleUtil.getCurrentRoles(ctx.guild.id, category)
+        if len(roleList) == 0:
+            return f"{category}沒有檢查到任何身份組, 請執行 `!role init`\n"
+        else:
+            msg = ""
+            for role in roleList:
+                msg += f"{role.role_name}\n"
+                msg += f"  id: {role.role_id}\n"
+                msg += f"  顏色: {role.color}\n"
+                msg += f"  等級: {role.level}\n\n"
+            return msg
         
                 
 def setup(client):

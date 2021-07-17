@@ -25,6 +25,7 @@ class Util:
         NONE = 0 # 其他
         KFP_DEFAULT = 1 # KFP預設 (雞蛋, 小雞... 等)
         KFP_LEWD = 2
+        KFP_UTIL = 3
     
     # 賭盤狀態
     class GamblingStatus(IntEnum):
