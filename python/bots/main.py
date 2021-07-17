@@ -7,9 +7,10 @@ from subprocess import Popen
 from discord.ext import commands
 from common.KFP_DB import KfpDb
 from common.ChannelUtil import ChannelUtil
-from common.ReactionRoleUtil import ReactionRoleUtil
+from discord import Role
+from common.RoleUtil import RoleUtil
 
-VERSION = "0.6.18"
+VERSION = "0.6.19"
 TOKEN=os.environ['KFP_TOKEN']
 intents = discord.Intents.default()
 intents.members = True
@@ -56,6 +57,11 @@ async def on_message(message):
 async def on_command_completion(ctx):
     print('on_command_completion Command {0.name} completion'.format(ctx.command))
     #await ctx.message.delete()
+
+@bot.event
+async def on_guild_role_update(before: Role, after: Role):
+    RoleUtil.updateRole(before.guild.id, before.id, after.name, after.color)
+    print(f"updating role with new name {after.name} and color {after.color}")
 
 # @bot.event
 # async def on_raw_raction_add(payload: RawReactionActionEvent):
