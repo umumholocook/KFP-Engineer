@@ -1,5 +1,4 @@
 from common.NicknameUtil import NicknameUtil
-from common.models.NicknameModel import NicknameModel
 from common.KFP_DB import KfpDb
 
 class TestNicknameUtil():

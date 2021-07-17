@@ -1,4 +1,6 @@
+import random
 from common.models.NicknameModel import NicknameModel
+from discord import User
 
 class NicknameUtil():
     def set_nickname(guild_id: int, user_id: int, nickname: str):
@@ -21,4 +23,10 @@ class NicknameUtil():
             for nickname in query.iterator():
                 result.append(nickname.nick_name)
         return result
-        
+    
+    def get_user_nickname_or_default(guild_id:int, user: User):
+        nicknames = NicknameUtil.get_all_nicknames(guild_id=guild_id, user_id=user.id)
+        if len(nicknames) < 1:
+            return user.name
+        else:
+            return random.choice(nicknames)
