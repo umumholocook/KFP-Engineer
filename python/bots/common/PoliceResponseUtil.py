@@ -114,6 +114,8 @@ class PoliceResponseUtil():
             return []
 
     def getResponse(type: str):
+        if "BIRTHDAY" == type:
+            return random.choice(PoliceResponseUtil.BIRTHDAY) 
         return random.choice(PoliceResponseUtil.GENERAL + PoliceResponseUtil.__getSpecific(type))
 
     
