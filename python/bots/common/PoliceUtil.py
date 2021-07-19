@@ -11,6 +11,7 @@ class PoliceUtil():
             "SHOWER": "洗澡",
             "STUDY": "讀書",
             "HOMEWORK": "寫作業",
+            "BIRTHDAY": "生日",
         }
 
     def getPoliceTypeChineseName(type: str):
@@ -48,7 +49,10 @@ class PoliceUtil():
         return True
 
     def createNewPolice(guild_id: int, user_id: int, type: str):
-        return PoliceUtil.createNewPoliceWithDuration(guild_id=guild_id, user_id=user_id, duration_min=PoliceUtil.default_time, type=type)
+        expireTime = PoliceUtil.default_time
+        if "BIRTHDAY" == type:
+            expireTime = 1440
+        return PoliceUtil.createNewPoliceWithDuration(guild_id=guild_id, user_id=user_id, duration_min=expireTime, type=type)
     
     def stopPolice(guild_id: int, user_id: int):
         expire = datetime.now() - timedelta(minutes=PoliceUtil.default_time)
