@@ -42,6 +42,13 @@ class SusMeme(commands.Cog):
         await ctx.send(msg)
 
     async def startSusVoting(self, ctx:commands.Context, user: User, withAvatar: bool):
+        if user.bot:
+            user_name = await NicknameUtil.get_user_nickname_or_default(ctx.guild, ctx.message.author)
+            bot_name = await NicknameUtil.get_user_nickname_or_default(ctx.guild, user)
+            await self.createSusMeme(ctx, user_name, ctx.message.author, True)
+            await ctx.send(f"由於{user_name}意圖流放{bot_name}, 現已被流放")
+            return
+
         user_name = await NicknameUtil.get_user_nickname_or_default(ctx.guild, user)
 
         newMsg = await ctx.send(f"要把{user_name}扔到宇宙裡嗎?")
