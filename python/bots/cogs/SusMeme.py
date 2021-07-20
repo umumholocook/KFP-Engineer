@@ -7,10 +7,10 @@ from discord.ext import commands
 from discord import User, File, Embed
 
 class SusMeme(commands.Cog):
-    # YAH = ":kiara_correct:"
-    # NAY = ":kiara_false:"
-    YAH = "👀"
-    NAY = "💯"
+    YAH = ":kiara_correct:"
+    NAY = ":kiara_false:"
+    # YAH = "👀"
+    # NAY = "💯"
 
     def __init__(self, bot):
         self.bot = bot
