@@ -1,4 +1,5 @@
 from enum import IntEnum
+
 # 工具類 methods
 class Util:
     # 預設database 位置
@@ -69,6 +70,14 @@ class Util:
     # 升級為next_rank所需的經驗值
     def get_rank_exp(next_rank:int):
         return round(5 / 6 * next_rank * (2 * next_rank * next_rank + 27 * next_rank + 91), 2)
-        
+    
+    async def find_emoji_with_name(bot, guild_id:int, emoji_name: str):
+        guild = await bot.fetch_guild(guild_id)
+        print(guild.emojis)
+        for emoji in guild.emojis:
+            if emoji_name == emoji.name:
+                return emoji
+        return emoji_name
+
 
     
