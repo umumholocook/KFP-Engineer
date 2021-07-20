@@ -17,8 +17,22 @@ class Nickname(commands.Cog):
 
     @nickname.command(name = "set")
     async def set_nickname(self, ctx:commands.Context, user: User, name:str):
-        NicknameUtil.set_nickname(ctx.guild.id, user.id, name)
-        await ctx.channel.send(f"新增用戶'{user.name}'新暱稱: {name} 成功!", )
+        result = NicknameUtil.set_nickname(ctx.guild.id, user.id, name)
+        if result:
+            await ctx.channel.send(f"新增用戶'{user.name}'新暱稱: {name} 成功!", )
+        else:
+            await ctx.channel.send(f"用戶暱稱'{name}'已經存在.")
+    
+    @nickname.command(name = "list")
+    async def get_all_nickname(self, ctx:commands.Context, user: User):
+        nicknames = NicknameUtil.get_all_nicknames(ctx.guild.id, user.id)
+        if len(nicknames) < 1:
+            await ctx.channel.send(f"{user.name}沒有任何暱稱.")
+            return
+        result = f"{user.name}有以下暱稱:\n"
+        for index, nickname in enumerate(nicknames):
+            result += f"  {index + 1}.{nickname}"
+        await ctx.channel.send(result)
     
     @nickname.command(name = "clear")
     async def clear_nickname(self, ctx:commands.Context, user: User):

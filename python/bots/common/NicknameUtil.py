@@ -4,8 +4,17 @@ from discord import User, Guild
 
 class NicknameUtil():
     def set_nickname(guild_id: int, user_id: int, nickname: str):
+        if NicknameUtil.has_nickname(guild_id, user_id, nickname):
+            return False
         NicknameModel.insert(guild_id=guild_id, member_id=user_id, nick_name=nickname).execute()
         return True
+
+    def has_nickname(guild_id: int, user_id: int, nickname: str):
+        query = NicknameModel.select().where(
+            NicknameModel.guild_id == guild_id, 
+            NicknameModel.member_id == user_id,
+            NicknameModel.nick_name == nickname)
+        return query.exists()
 
     def clear_nickname(guild_id: int, user_id: int):
         query = NicknameModel.select().where(NicknameModel.guild_id == guild_id, NicknameModel.member_id == user_id)
