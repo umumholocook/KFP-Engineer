@@ -2,6 +2,7 @@ import io, asyncio, requests
 from typing import List
 from common.NicknameUtil import NicknameUtil
 from common.SusMemeGenerator import SusMemeGenerator
+from common.Util import Util
 from PIL import Image
 from discord.ext import commands
 from discord import User, File, Embed
@@ -44,8 +45,10 @@ class SusMeme(commands.Cog):
         user_name = await NicknameUtil.get_user_nickname_or_default(ctx.guild, user)
 
         newMsg = await ctx.send(f"要把{user_name}扔到宇宙裡嗎?")
-        await newMsg.add_reaction(SusMeme.YAH)
-        await newMsg.add_reaction(SusMeme.NAY)
+        yEmoji = await Util.find_emoji_with_name(self.bot, ctx.guild.id, SusMeme.YAH)
+        nEmoji = await Util.find_emoji_with_name(self.bot, ctx.guild.id, SusMeme.NAY)
+        await newMsg.add_reaction(yEmoji)
+        await newMsg.add_reaction(nEmoji)
 
         for countDown in range(0, 10):
             count = 10 - countDown
