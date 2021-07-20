@@ -73,7 +73,6 @@ class Util:
     
     async def find_emoji_with_name(bot, guild_id:int, emoji_name: str):
         guild = await bot.fetch_guild(guild_id)
-        print(guild.emojis)
         for emoji in guild.emojis:
             if emoji_name == emoji.name:
                 return emoji
