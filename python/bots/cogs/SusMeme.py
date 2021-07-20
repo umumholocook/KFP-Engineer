@@ -36,8 +36,8 @@ class SusMeme(commands.Cog):
     @sus_group.command(name = "help")
     async def show_help_message(self, ctx:commands.Command):
         msg = "如何使用sus\n"
-        msg+= "!sus <@用戶名> 生成一個用戶名或著用戶暱稱的被票圖"
-        msg+= "!sus no_icon <@用戶名> 生成一個不使用頭像的被票圖"
+        msg+= "!sus <@用戶名> 生成一個用戶名或著用戶暱稱的被票圖\n"
+        msg+= "!sus no_icon <@用戶名> 生成一個不使用頭像的被票圖\n"
 
         await ctx.send(msg)
 
