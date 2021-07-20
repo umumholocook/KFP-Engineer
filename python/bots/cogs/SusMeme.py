@@ -60,10 +60,11 @@ class SusMeme(commands.Cog):
         yah_count = 0
         nay_count = 0
         for reaction in newMsg.reactions:
-            if SusMeme.YAH in reaction.emoji.name:
-                yah_count = reaction.emoji.count
-            if SusMeme.NAY in reaction.emoji.name:
-                nay_count = reaction.emoji.count
+            print(reaction)
+            if SusMeme.YAH == reaction.emoji.name:
+                yah_count = reaction.count
+            if SusMeme.NAY == reaction.emoji.name:
+                nay_count = reaction.count
         
         if yah_count > nay_count:
             await ctx.send(f"投票結果, 流放{user_name}")
