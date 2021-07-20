@@ -8,8 +8,8 @@ from discord.ext import commands
 from discord import User, File, Embed
 
 class SusMeme(commands.Cog):
-    YAH = ":kiara_correct:"
-    NAY = ":kiara_false:"
+    YAH = "kiara_correct"
+    NAY = "kiara_false"
     # YAH = "👀"
     # NAY = "💯"
 
