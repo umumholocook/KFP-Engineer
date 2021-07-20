@@ -60,9 +60,9 @@ class SusMeme(commands.Cog):
         yah_count = 0
         nay_count = 0
         for reaction in newMsg.reactions:
-            if reaction.emoji == SusMeme.YAH:
+            if SusMeme.YAH in reaction.emoji:
                 yah_count = reaction.count
-            if reaction.emoji == SusMeme.NAY:
+            if SusMeme.NAY in reaction.emoji:
                 nay_count = reaction.count
         
         if yah_count > nay_count:
