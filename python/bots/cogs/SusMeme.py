@@ -60,11 +60,17 @@ class SusMeme(commands.Cog):
         yah_count = 0
         nay_count = 0
         for reaction in newMsg.reactions:
-            if SusMeme.YAH == reaction.emoji.name:
-                yah_count = reaction.count
-            if SusMeme.NAY == reaction.emoji.name:
-                nay_count = reaction.count
-        
+            if isinstance(reaction.emoji, str):
+                if SusMeme.YAH == reaction.emoji:
+                    yah_count = reaction.count
+                if SusMeme.NAY == reaction.emoji:
+                    nay_count = reaction.count
+            else:
+                if SusMeme.YAH == reaction.emoji.name:
+                    yah_count = reaction.count
+                if SusMeme.NAY == reaction.emoji.name:
+                    nay_count = reaction.count
+
         if yah_count > nay_count:
             await ctx.send(f"投票結果, 流放{user_name}")
             await self.createSusMeme(ctx, user_name, user, withAvatar)
@@ -85,8 +91,8 @@ class SusMeme(commands.Cog):
         embedMsg.set_image(url='attachment://sus.gif')
 
         img = File(imagePath, filename="sus.gif")
-        await msg.delete()
         await ctx.send(file=img, embed=embedMsg)
+        await msg.delete()
 
     def downloadUserAvatar(self, user: User):
         avatar_url = user.avatar_url

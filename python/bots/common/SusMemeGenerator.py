@@ -1,12 +1,11 @@
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 from numpy import asarray
-import random
-import imageio
-import os, tempfile
-
+import os, tempfile, random, imageio
+import numpy as np
 
 class SusMemeGenerator():
 
+    _avatar_size = 97
     _nameLimit = 15
     _crewmateNameList = [
         "black.png",
@@ -38,9 +37,10 @@ class SusMemeGenerator():
             filenames.append(os.sep.join((os.getcwd(), "resource", "image", "sky", f"{index}.png")))
         text = SusMemeGenerator._getStatusText(user_name)
         crewmate_path = SusMemeGenerator._getRandomCrewmateImagePath()
+        createmate_image = SusMemeGenerator._createCrewmate(crewmate_path, avatar)
         images = []
         for i, filename in enumerate(filenames):
-            imageWithCrewmate = SusMemeGenerator._renderCrewmate(filename, crewmate_path, avatar, i, len(filenames))
+            imageWithCrewmate = SusMemeGenerator._renderCrewmate(filename, createmate_image, i, len(filenames))
             imageWithText = SusMemeGenerator._renderText(text, imageWithCrewmate, i, len(filenames))
             images.append(imageWithText)
         imageio.mimsave(SusMemeGenerator.getMemePath(), images, duration=0.03)
@@ -53,21 +53,29 @@ class SusMemeGenerator():
             real_name = f"{name[0:SusMemeGenerator._nameLimit]}..."
         return f"{real_name} was ejected."
     
-    def _renderCrewmate(image_path: str, crewmate_path: str, avatar: Image, index: int, total: int):
+    def _createCrewmate(crewmate_path: str, avatar: Image):
+        crewmate_original = Image.open(crewmate_path)
+        
+        if avatar:
+            mask = Image.open(SusMemeGenerator._getMaskImagePath()).resize((SusMemeGenerator._avatar_size, SusMemeGenerator._avatar_size))
+            img = avatar.resize((SusMemeGenerator._avatar_size, SusMemeGenerator._avatar_size))
+            crewmate_original.paste(img, (crewmate_original.size[0] - 95, 0), mask)
+        return crewmate_original
+
+    def _renderCrewmate(image_path: str, crewmate: Image, index: int, total: int):
         fly_over_speed = 1.8 # 2 is half of the screen width
         degree = index * 360 / total * -1
         image = Image.open(image_path)
-        crewmate_original = Image.open(crewmate_path)
-        c_w, c_h = crewmate_original.size
-        if avatar:
-            avatar_resized = avatar.resize((97, 71))
-            crewmate_original.paste(avatar_resized, (c_w - 97, 0))
-        crewmate = crewmate_original.rotate(degree, expand=True)
+        c_w, c_h = crewmate.size
+        crewmate_rotated = crewmate.rotate(degree, expand=True)
         sky_w, sky_h = image.size
         x_offset = -1 * c_w + index * sky_w // total * fly_over_speed
         offset = (int(x_offset), (sky_h - c_h) // 2)
-        image.paste(crewmate, offset)
+        image.paste(crewmate_rotated, offset)
         return image
+
+    def _getMaskImagePath():
+        return os.sep.join((os.getcwd(), "resource", "image", "crewmates", "mask.png"))
     
     def _getRandomCrewmateImagePath():
         return os.sep.join((os.getcwd(), "resource", "image", "crewmates", random.choice(SusMemeGenerator._crewmateNameList)))
