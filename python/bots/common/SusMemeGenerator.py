@@ -8,27 +8,27 @@ class SusMemeGenerator():
     _avatar_size = 97
     _nameLimit = 15
     _crewmateNameList = [
-        "black.png",
-        "blue.png",
-        "brown.png",
-        "green.png",
-        "light_green.png",
-        "navy_blue.png",
-        "orange.png",
-        "pink.png",
-        "purple.png",
-        "red.png",
-        "white.png",
-        "yellow.png"
+        "BLACK.png",
+        "BLUE.png",
+        "BROWN.png",
+        "CYAN.png",
+        "GREE.png",
+        "LIME.png",
+        "ORANGE.png",
+        "PINK.png",
+        "PURPLE.png",
+        "RED.png",
+        "WHITE.png",
+        "YELLOW.png",
     ]
 
     def getMemePath():
         return os.sep.join((tempfile.gettempdir(), "sus.gif"))
 
-    def createGifWithoutAvatar(user_name: str):
-        return SusMemeGenerator.createGif(user_name, None)
+    def createGifWithoutAvatar(user_name: str, crewmate_color: str = "random"):
+        return SusMemeGenerator.createGif(user_name, None, crewmate_color=crewmate_color)
 
-    def createGif(user_name: str, avatar: Image):
+    def createGif(user_name: str, avatar: Image, crewmate_color: str = "random"):
         if os.path.exists(SusMemeGenerator.getMemePath()):
             os.remove(SusMemeGenerator.getMemePath())
         filenames = []
@@ -36,7 +36,7 @@ class SusMemeGenerator():
         for index in range(1, 154):
             filenames.append(os.sep.join((os.getcwd(), "resource", "image", "sky", f"{index}.png")))
         text = SusMemeGenerator._getStatusText(user_name)
-        crewmate_path = SusMemeGenerator._getRandomCrewmateImagePath()
+        crewmate_path = SusMemeGenerator._getCrewmateImagePath(crewmate_color)
         createmate_image = SusMemeGenerator._createCrewmate(crewmate_path, avatar)
         images = []
         for i, filename in enumerate(filenames):
@@ -77,8 +77,11 @@ class SusMemeGenerator():
     def _getMaskImagePath():
         return os.sep.join((os.getcwd(), "resource", "image", "crewmates", "mask.png"))
     
-    def _getRandomCrewmateImagePath():
-        return os.sep.join((os.getcwd(), "resource", "image", "crewmates", random.choice(SusMemeGenerator._crewmateNameList)))
+    def _getCrewmateImagePath(crewmate_color: str):
+        if "RANDOM" == crewmate_color:
+            return os.sep.join((os.getcwd(), "resource", "image", "crewmates", random.choice(SusMemeGenerator._crewmateNameList)))
+        else:
+            return os.sep.join((os.getcwd(), "resource", "image", "crewmates", f"{crewmate_color}.png")) 
     
     def _getCurrentText(original: str, index: int, total: int):
         text_end = min(len(original) * max(index - total / 3, 0) * 3 // total, len(original))

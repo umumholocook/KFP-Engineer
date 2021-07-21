@@ -13,13 +13,29 @@ class SusMeme(commands.Cog):
     # YAH = "👀"
     # NAY = "💯"
 
+    COLOR = [
+        "BLACK",
+        "BLUE",
+        "BROWN",
+        "CYAN",
+        "GREEN",
+        "LIME",
+        "ORANGE",
+        "PINK",
+        "PURPLE",
+        "RED",
+        "WHITE",
+        "YELLOW",
+        "RANDOM",
+    ]
+
     def __init__(self, bot):
         self.bot = bot
 
     @commands.group(name = 'sus', invoke_without_command=True)
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    async def sus_group(self, ctx:commands.Context, user:User):
-        await self.startSusVoting(ctx, user, True)
+    async def sus_group(self, ctx:commands.Context, user:User, crewmate_color:str = "random"):
+        await self.startSusVoting(ctx, user, True, crewmate_color.upper())
     
     @sus_group.error
     async def sus_error(self, ctx:commands.Context, error):
@@ -30,8 +46,8 @@ class SusMeme(commands.Cog):
             raise error
     
     @sus_group.command(name = "no_icon")
-    async def eject(self, ctx:commands.Command, user:User):
-        await self.startSusVoting(ctx, user, False)
+    async def eject(self, ctx:commands.Command, user:User, crewmate_color:str = "random"):
+        await self.startSusVoting(ctx, user, False, crewmate_color.upper())
     
     @sus_group.command(name = "help")
     async def show_help_message(self, ctx:commands.Command):
@@ -41,7 +57,25 @@ class SusMeme(commands.Cog):
 
         await ctx.send(msg)
 
-    async def startSusVoting(self, ctx:commands.Context, user: User, withAvatar: bool):
+    async def startSusVoting(self, ctx:commands.Context, user: User, withAvatar: bool, crewmate_color: str):
+        if not crewmate_color in SusMeme.COLOR:
+            msg = f"顏色{crewmate_color}錯誤, 請重新輸入\n"
+            msg+= "顏色種類:\n"
+            msg+= "BLACK\n"
+            msg+= "BLUE\n"
+            msg+= "BROWN\n"
+            msg+= "CYAN\n"
+            msg+= "GREEN\n"
+            msg+= "LIME\n"
+            msg+= "ORANGE\n"
+            msg+= "PINK\n"
+            msg+= "PURPLE\n"
+            msg+= "RED\n"
+            msg+= "WHITE\n"
+            msg+= "YELLOW\n"
+            await ctx.send(msg)
+            return
+
         if user.bot:
             user_name = await NicknameUtil.get_user_nickname_or_default(ctx.guild, ctx.message.author)
             bot_name = await NicknameUtil.get_user_nickname_or_default(ctx.guild, user)
@@ -80,19 +114,19 @@ class SusMeme(commands.Cog):
 
         if yah_count > nay_count:
             await ctx.send(f"投票結果, 流放{user_name}")
-            await self.createSusMeme(ctx, user_name, user, withAvatar)
+            await self.createSusMeme(ctx, user_name, user, withAvatar, crewmate_color)
         else:
             await ctx.send(f"投票結果, 不流放{user_name}")
 
     
-    async def createSusMeme(self, ctx:commands.Context, user_name: str, user:User, withAvatar: bool):
+    async def createSusMeme(self, ctx:commands.Context, user_name: str, user:User, withAvatar: bool, crewmate_color: str):
         msg = await ctx.send("流放中...")
 
         if withAvatar:
             avatar = self.downloadUserAvatar(user)
-            imagePath = SusMemeGenerator.createGif(user_name, avatar)
+            imagePath = SusMemeGenerator.createGif(user_name, avatar, crewmate_color)
         else:
-            imagePath = SusMemeGenerator.createGifWithoutAvatar(user_name)
+            imagePath = SusMemeGenerator.createGifWithoutAvatar(user_name, crewmate_color)
         
         embedMsg = Embed()
         embedMsg.set_image(url='attachment://sus.gif')

@@ -5,6 +5,7 @@ class Shop(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
+    @commands.group(name = 'shop', invoke_without_command=True)
     async def shop_group(self, ctx:commands.Context, *attr):
         msg = "歡迎來到KFP炸機店小賣部\n"
         msg+= "本小賣部一律使用雞腿來購買商品"
@@ -23,3 +24,6 @@ class Shop(commands.Cog):
     @shop_group.command(name = "exchange")
     async def exchange_token(self, ctx:commands.Command):
         await ctx.send("不好意思, 小賣部正在籌備中...")
+
+def setup(client):
+    client.add_cog(Shop(client))
