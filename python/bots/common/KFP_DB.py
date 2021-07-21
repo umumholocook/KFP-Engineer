@@ -16,11 +16,13 @@ from common.models.KujiRecord import KujiRecord
 from common.database.KfpMigrator import KfpMigrator
 from common.models.NicknameModel import NicknameModel
 from common.models.Police import Police
+from common.models.InventoryRecord import InventoryRecord
+from common.models.InventoryRecord import Item
 
 from discord.guild import Guild, Role
 from peewee import SqliteDatabase
 
-MODULES = [Channel, Forward, GamblingBet, GamblingGame, 
+MODULES = [Channel, Forward, GamblingBet, GamblingGame, InventoryRecord, Item,
 KfpRole, KujiRecord, Member, NicknameModel, PermissionRole, Police]
 
 class KfpDb():

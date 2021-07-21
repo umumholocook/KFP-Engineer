@@ -146,7 +146,7 @@ class TestNewProfile():
     @pytest.mark.asyncio
     async def test_profile_data_no_banner_and_not_bind(self):
         fakecontext = FakeContext(client= self.fake_guild, author = self.fake_member, channel= self.fake_guild.channels[0])
-        await self.target.profile_profile_group(self.target, fakecontext)
+        await self.target.profile_group(self.target, fakecontext)
         with open(r'./tests/NewProfile/test_image1.PNG', 'rb') as fp:
             assert self.fake_guild.messageLast != None ,'did not send image right.'
             # assert self.fake_guild.messageLast.file.fp.read() == fp.read()
@@ -161,7 +161,7 @@ class TestNewProfile():
             bannerAsset = FakeAsset(fp.read())
             fp.close()
         self.fake_guild.banner_url = bannerAsset
-        await self.target.profile_profile_group(self.target, fakecontext)
+        await self.target.profile_group(self.target, fakecontext)
         with open(r'./tests/NewProfile/test_image2.PNG', 'rb') as fp:
             # assert self.fake_guild.messageLast.file.fp.read() == fp.read(), 'figrue is not same'
             assert self.fake_guild.messageLast.channel.id == self.fake_guild.channels[0].id
@@ -170,7 +170,7 @@ class TestNewProfile():
     @pytest.mark.asyncio
     async def test_profile_command_on_privateChannel(self):
         fakecontext = FakeContext(author = self.fake_member)
-        await self.target.profile_profile_group(self.target, fakecontext)
+        await self.target.profile_group(self.target, fakecontext)
         assert self.fake_guild.messageLast == None
 
     @pytest.mark.asyncio

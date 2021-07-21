@@ -216,7 +216,7 @@ class NewProfile(commands.Cog):
         self.db.increase_coin(message.guild.id, message.author.id, increaseNumber)
     
     @commands.group(name = 'profile', invoke_without_command = True)
-    async def profile_profile_group(self, ctx:commands.Context, *attr):
+    async def profile_group(self, ctx:commands.Context, *attr):
         if not isWhiteList(ctx):
             if ctx.guild:
                 print("{} is not on white list, if you are a developer, add your server to the white list".format(ctx.guild.id))
@@ -251,14 +251,18 @@ class NewProfile(commands.Cog):
         await ctx.channel.send(file= discordFile)
         
 
-    @profile_profile_group.command(name= 'bind')
+    @profile_group.command(name= 'bind')
     @commands.check(isWhiteList)
     async def profile_group_bind_command(self, ctx:commands.Context, *arg):
         channel = ctx.channel
         ChannelUtil.setRankupChannel(ctx.guild.id, channel.id)
         await channel.send('<@!{}> 設定升級訊息將會於此。'.format(ctx.author.id))
 
-    @profile_profile_group.command(name = 'allowed')
+    @profile_group.command(name= 'items')
+    async def profile_show_items_command(self, ctx:commands.Context):
+        msg = ""
+
+    @profile_group.command(name = 'allowed')
     async def profile_allowed_channels_command(self, ctx:commands.Context, *arg):
         msg = "```"
         msg+= "allowed channel list:\n"
@@ -268,7 +272,7 @@ class NewProfile(commands.Cog):
         msg+= "```"
         await ctx.channel.send(msg)
     
-    # @profile_profile_group.command('force_set_level')
+    # @profile_group.command('force_set_level')
     # @commands.check(isWhiteList)
     # async def profile_force_set_level(self, ctx:commands.Context, rank=10):
     #     message = ctx.message
@@ -286,7 +290,9 @@ class NewProfile(commands.Cog):
             
     #         await self.updateUserKfpRoles(message, rank, channelToUse)
 
-    @profile_profile_group.command('syncAllRank')
+    
+
+    @profile_group.command('syncAllRank')
     @commands.check(isWhiteList)
     async def reset_everyone_rank(self, ctx:commands.Context, rank=0):
         member_id_list = Member.select(Member.member_id).where(Member.rank >= rank)
@@ -298,7 +304,7 @@ class NewProfile(commands.Cog):
                 continue
             await self.__updateUserRole(ctx.guild, user, member, member.rank, None, True)
 
-    @profile_profile_group.command(name = 'leaderboard')
+    @profile_group.command(name = 'leaderboard')
     @commands.check(isWhiteList)
     async def profile_leaderboard(self, ctx:commands.Context, limit=10):
         max_limit = 25
