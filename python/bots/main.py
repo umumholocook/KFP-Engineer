@@ -1,16 +1,14 @@
-from discord.raw_models import RawReactionActionEvent
+import discord, os, signal, tempfile
 from common.models.Channel import Channel
-import discord
-import os, signal, tempfile
 from pathlib import Path
-from subprocess import Popen
+from subprocess import Popen, PIPE, check_output
 from discord.ext import commands
 from common.KFP_DB import KfpDb
 from common.ChannelUtil import ChannelUtil
 from discord import Role
 from common.RoleUtil import RoleUtil
 
-VERSION = "0.6.40"
+VERSION = "0.6"
 TOKEN=os.environ['KFP_TOKEN']
 intents = discord.Intents.default()
 intents.members = True
@@ -44,7 +42,7 @@ async def on_ready():
         db = KfpDb()
         channel: Channel = ChannelUtil.getRebootMessageChannel(guild_id)
         if channel:
-            await bot.get_channel(channel.channel_id).send("更新結束, 現在版本 {}".format(VERSION))
+            await bot.get_channel(channel.channel_id).send("更新結束, 現在版本 {}".format(get_version()))
 
 @bot.event
 async def on_message(message):
@@ -88,7 +86,7 @@ async def command_restart(ctx, *attr):
 
 @bot.command(name = 'version',invoke_without_command = True)
 async def command_get_version(ctx, *attr):
-    await ctx.send(VERSION)
+    await ctx.send(get_version())
 
 @bot.group(name = 'cogs', invoke_without_command = True)
 async def cogs_group(ctx, *attr):
@@ -114,6 +112,12 @@ async def cogs_reload(ctx, extention):
     bot.unload_extension(f'cogs.{extention}')
     bot.load_extension(f'cogs.{extention}')
     ctx.send('reload cog {}'.format(extention))
+
+def get_version():
+    git_count = check_output(['git', 'rev-list', '--all', '--count'])
+    count = int(git_count) - 282
+    return f"{VERSION}.{count}"
+
 
 #preload cogs
 temp = 'load cogs:\n'
