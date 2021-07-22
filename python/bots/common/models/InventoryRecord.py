@@ -8,7 +8,6 @@ class Item(BaseModel):
     role_id = IntegerField() # any kind of role associate with this item
     token_required = IntegerField() # the token required to buy this item
     level_required = IntegerField() # the level required to buy this item
-    hidden = BooleanField() # whether or not to hide this item
 
 class InventoryRecord(BaseModel):
     id = AutoField() # record id
@@ -17,4 +16,10 @@ class InventoryRecord(BaseModel):
     item = ForeignKeyField(Item, backref='InventoryRecord')
     amount = IntegerField() # item amount
 
-    
+# this is for shop to keep track of items
+class ShopItem(BaseModel):
+    id = AutoField()
+    guild_id = IntegerField() # guild id
+    item = ForeignKeyField(Item, backref='InventoryRecord') # number of item in shop
+    amount = IntegerField() # number of item in shop, -1 is infinite
+    hidden = BooleanField() # whether or not to hide this item

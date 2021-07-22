@@ -1,3 +1,5 @@
+from common.models.InventoryRecord import InventoryRecord
+from common.InventoryUtil import InventoryUtil
 from discord.abc import GuildChannel, User
 from discord.embeds import Embed
 from discord.errors import NotFound
@@ -191,6 +193,8 @@ class NewProfile(commands.Cog):
 
     @commands.Cog.listener('on_message')
     async def profile_on_message(self, message:Message):
+        if message.author.bot:
+            return
         if message.channel == None or not message.channel.guild.id in whitelist or message.author.bot:
             return
         if self.populateChannels(message, self.isTest):
@@ -258,10 +262,6 @@ class NewProfile(commands.Cog):
         ChannelUtil.setRankupChannel(ctx.guild.id, channel.id)
         await channel.send('<@!{}> 設定升級訊息將會於此。'.format(ctx.author.id))
 
-    @profile_group.command(name= 'items')
-    async def profile_show_items_command(self, ctx:commands.Context):
-        msg = ""
-
     @profile_group.command(name = 'allowed')
     async def profile_allowed_channels_command(self, ctx:commands.Context, *arg):
         msg = "```"
@@ -290,7 +290,21 @@ class NewProfile(commands.Cog):
             
     #         await self.updateUserKfpRoles(message, rank, channelToUse)
 
-    
+    @profile_group.command('items')
+    async def show_items_command(self, ctx:commands.Context):
+        if ctx.author.bot:
+            return # ignore bot
+        records = InventoryUtil.getAllItemsBelongToUser(ctx.guild.id, ctx.author.id)
+        msg = ""
+        if len(records) > 0:
+            msg+= "你現在有以下物品:\n"
+            record : InventoryRecord
+            for record in records:
+                msg += f"{record.item.name} x {record.amount}\n"
+        else:
+            msg +="你目前沒有任何物品"
+
+        await ctx.author.send(msg)
 
     @profile_group.command('syncAllRank')
     @commands.check(isWhiteList)

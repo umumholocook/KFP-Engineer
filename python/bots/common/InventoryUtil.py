@@ -1,8 +1,17 @@
 from operator import le
-from common.models.InventoryRecord import InventoryRecord
+from common.models.InventoryRecord import InventoryRecord, ShopItem
 from common.models.InventoryRecord import Item
 
 class InventoryUtil():
+
+    def addItemToShop(guild_id: int, item_name: str, amount: int = 1, hidden=False):
+        item = InventoryUtil.createItem(guild_id=guild_id, item_name=item_name)
+        ShopItem.create(
+            guild_id=guild_id,
+            item=item,
+            amount=amount,
+            hidden=hidden,
+        )
 
     def createItem(guild_id: int, item_name: str, level_required: int = 10, price: int = 10, role_id: int = -1, hidden: bool = False):
         return Item.create(
@@ -13,8 +22,16 @@ class InventoryUtil():
             level_required = level_required,
             hidden = hidden,
         )
+    
+    def createInventory(guild_id: int, user_id: int, item: Item, amount: int):
+        return InventoryRecord.create(
+            guild_id = guild_id,
+            user_id=user_id,
+            item=item,
+            amount=amount
+        )
 
-    def addItemToInventory(guild_id: int, user_id: int, item_id: int, count: int):
+    def addItemToUserInventory(guild_id: int, user_id: int, item_id: int, count: int):
         itemRecord:InventoryRecord = InventoryUtil.findItemRecord(guild_id=guild_id, user_id=user_id, item_id=item_id)
         if not itemRecord:    
             itemRecord.amount += count

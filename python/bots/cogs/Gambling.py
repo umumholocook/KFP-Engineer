@@ -1,4 +1,6 @@
 import asyncio
+
+from discord.channel import DMChannel
 from common.models.GamblingBet import GamblingBet
 from ui.gambling.GamblingEmbed import GamblingEmbed
 from common.GamblingUtil import GamblingUtil
@@ -21,6 +23,8 @@ class Gambling(commands.Cog):
 
     @commands.Cog.listener('on_message')
     async def profile_on_message(self, message:Message):
+        if isinstance(message.channel, DMChannel):
+            return
         if self.database.is_channel_auto_clear(message.guild.id, message.channel.id) and not message.author.bot:
             await message.delete()
     
