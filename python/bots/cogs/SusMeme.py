@@ -119,7 +119,7 @@ class SusMeme(commands.Cog):
             await ctx.send(f"投票結果, 不流放{user_name}")
 
     
-    async def createSusMeme(self, ctx:commands.Context, user_name: str, user:User, withAvatar: bool, crewmate_color: str):
+    async def createSusMeme(self, ctx:commands.Context, user_name: str, user:User, withAvatar: bool, crewmate_color: str = "RANDOM"):
         msg = await ctx.send("流放中...")
 
         if withAvatar:

@@ -1,5 +1,4 @@
 from common.RoleUtil import RoleUtil
-from cogs.RoleManager import RoleManager
 from common.PoliceResponseUtil import PoliceResponseUtil
 from common.NicknameUtil import NicknameUtil
 from common.PoliceUtil import PoliceUtil

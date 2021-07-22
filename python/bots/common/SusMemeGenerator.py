@@ -1,7 +1,7 @@
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont
 from numpy import asarray
-import os, tempfile, random, imageio
-import numpy as np
+import os, tempfile, random, imageio, asyncio
+
 
 class SusMemeGenerator():
 
@@ -12,7 +12,7 @@ class SusMemeGenerator():
         "BLUE.png",
         "BROWN.png",
         "CYAN.png",
-        "GREE.png",
+        "GREEN.png",
         "LIME.png",
         "ORANGE.png",
         "PINK.png",
@@ -44,6 +44,7 @@ class SusMemeGenerator():
             imageWithText = SusMemeGenerator._renderText(text, imageWithCrewmate, i, len(filenames))
             images.append(imageWithText)
         imageio.mimsave(SusMemeGenerator.getMemePath(), images, duration=0.03)
+
 
         return SusMemeGenerator.getMemePath()
 
