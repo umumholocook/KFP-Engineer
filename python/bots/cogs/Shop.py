@@ -8,10 +8,13 @@ class Shop(commands.Cog):
     @commands.group(name = 'shop', invoke_without_command=True)
     async def shop_group(self, ctx:commands.Context, *attr):
         msg = "歡迎來到KFP炸機店小賣部\n"
-        msg+= "本小賣部一律使用雞腿來購買商品"
+        msg+= "本小賣部一律使用雞腿來購買商品\n"
+        msg+= "```"
         msg+= "!shop buy <商品號碼> 購買指定的商品號碼\n"
         msg+= "!shop list 展示目前販賣中的商品\n"
         msg+= "!shop exchange <雞腿數量> 兌換雞腿\n"
+        msg+= "```"
+        await ctx.send(msg)
 
     @shop_group.command(name = "buy")
     async def buy_item(self, ctx:commands.Command, item_index:int):
