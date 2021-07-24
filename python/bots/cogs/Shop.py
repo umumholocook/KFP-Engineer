@@ -68,36 +68,36 @@ class Shop(commands.Cog):
         except:
             await ctx.send(item_name + '新增失敗!請確認指令是否輸入錯誤!')
 
-    @shop_group.command(name="deleteItem")
-    async def delete_all_item(self, ctx: commands.Command):
-        result = InventoryUtil.deleteItem(ctx.guild.id)
-        if result > 0:
-            await ctx.send("刪除成功!")
-        else:
-            await ctx.send("刪除失敗!")
-
-    @shop_group.command(name="deleteMenu")
-    async def delete_Menu(self, ctx: commands.Command):
-        result = InventoryUtil.deleteMenu(ctx.guild.id)
-        if result > 0:
-            await ctx.send("刪除成功!")
-        else:
-            await ctx.send("刪除失敗!")
-
-    @shop_group.command(name="listItem")
-    async def list_item(self, ctx: commands.Command):
-        result = InventoryUtil.ListAllItem(ctx.guild.id)
-        if len(result) < 1:
-            await ctx.send('目前沒有商品')
-        else:
-            msg = "```"
-            for products in result:
-                msg += "\tIndex: " + str(products)
-                msg += "\tName: " + products.name
-                msg += "\tLevel required: " + str(products.level_required)
-                msg += "\tPrice: " + str(products.token_required) + "\n"
-            msg += "```"
-            await ctx.send(msg)
+    # @shop_group.command(name="deleteItem")
+    # async def delete_all_item(self, ctx: commands.Command):
+    #     result = InventoryUtil.deleteItem(ctx.guild.id)
+    #     if result > 0:
+    #         await ctx.send("刪除成功!")
+    #     else:
+    #         await ctx.send("刪除失敗!")
+    #
+    # @shop_group.command(name="deleteMenu")
+    # async def delete_Menu(self, ctx: commands.Command):
+    #     result = InventoryUtil.deleteMenu(ctx.guild.id)
+    #     if result > 0:
+    #         await ctx.send("刪除成功!")
+    #     else:
+    #         await ctx.send("刪除失敗!")
+    #
+    # @shop_group.command(name="listItem")
+    # async def list_item(self, ctx: commands.Command):
+    #     result = InventoryUtil.ListAllItem(ctx.guild.id)
+    #     if len(result) < 1:
+    #         await ctx.send('目前沒有商品')
+    #     else:
+    #         msg = "```"
+    #         for products in result:
+    #             msg += "\tIndex: " + str(products)
+    #             msg += "\tName: " + products.name
+    #             msg += "\tLevel required: " + str(products.level_required)
+    #             msg += "\tPrice: " + str(products.token_required) + "\n"
+    #         msg += "```"
+    #         await ctx.send(msg)
 
 
 def setup(client):
