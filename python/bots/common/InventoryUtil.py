@@ -136,5 +136,3 @@ class InventoryUtil():
                 result.append(record)
         return result
 
-    def exchangeCoinToToken(guild_id: int,user_id: int):
-        member = MemberUtil.get_member(user_id)
