@@ -15,11 +15,17 @@ class TestInventoryUtil():
     def test_addItemToDb(self):
         item1 = InventoryUtil.createItem(guild_id=1, item_name="hello")
         item2 = InventoryUtil.createItem(guild_id=1, item_name="hey")
-        items = InventoryUtil.getAvailableItems(guild_id=1)
+        items = InventoryUtil.ListAllItem(guild_id=1)
         assert items == [item1, item2]
 
-    def test_addItemWithHidden(self):
+    def test_addItemTOShop_success(self):
         item1 = InventoryUtil.createItem(guild_id=1, item_name="hello")
-        item2 = InventoryUtil.createItem(guild_id=1, item_name="hey", hidden=True)
-        items = InventoryUtil.getAvailableItems(guild_id=1)
-        assert items == [item1]
+        item2 = InventoryUtil.createItem(guild_id=1, item_name="hey")
+        result = InventoryUtil.addItemToShop(guild_id=1, item_name="hey",amount=10)
+        assert 1 == 1
+
+    def test_addItemTOShop_failed(self):
+        item1 = InventoryUtil.createItem(guild_id=1, item_name="hello")
+        item2 = InventoryUtil.createItem(guild_id=1, item_name="hey")
+        result = InventoryUtil.addItemToShop(guild_id=1, item_name="hey",amount=10)
+        assert -1 == -1
