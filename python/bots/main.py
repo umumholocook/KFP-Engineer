@@ -9,8 +9,7 @@ from discord import Role
 from common.RoleUtil import RoleUtil
 
 VERSION = "0.6"
-#TOKEN=os.environ['KFP_TOKEN']
-TOKEN='ODI1MDExNjMzMDgzNTE0OTYw.YF3t9Q.0s3RTGkD3XqB_LRjFeZ15p93if0'
+TOKEN=os.environ['KFP_TOKEN']
 intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix = '!',intents = intents)
