@@ -27,15 +27,19 @@ class Shop(commands.Cog):
         else:
             msg = "==================商品價目表==================\n"
             for products in result:
-                msg += "\tIndex: " + str(products)
+                msg += "\tIndex: " + str(products.item.id)
                 msg += "\tName: " + products.item.name
                 msg += "\tLevel required: " + str(products.item.level_required)
                 msg += "\tPrice: " + str(products.item.token_required) + "\n"
             await ctx.send(msg)
 
     @shop_group.command(name="buy")
-    async def buy_item(self, ctx: commands.Command, item_index: int):
-        await ctx.send("不好意思, 小賣部正在籌備中...")
+    async def buy_item(self, ctx: commands.Command, item_index: int, count: int):
+        result = InventoryUtil.buyItem(ctx.guild_id, ctx.author.id, item_index, count)
+        if result == 1:
+            await ctx.send("購買成功!")
+        elif result == 0:
+            await ctx.send("購買失敗!請確認")
 
     # 管理員用
     @shop_group.command(name="secrete")
@@ -62,42 +66,30 @@ class Shop(commands.Cog):
 
     @shop_group.command(name="create")
     async def create_item(self, ctx: commands.Command, item_name: str, level_required: int, price: int):
-        try:
-            InventoryUtil.createItem(ctx.guild.id, item_name, level_required, price)
-            await ctx.send(item_name + '新增成功!')
-        except:
-            await ctx.send(item_name + '新增失敗!請確認指令是否輸入錯誤!')
+        result = InventoryUtil.createItem(ctx.guild.id, item_name, level_required, price)
+        if result == -1:
+            await ctx.send(item_name + ' 已經存在!')
+        elif result == -2:
+            await ctx.send(item_name + ' 新增失敗!請確認指令是否輸入錯誤!')
+        else:
+            await ctx.send(item_name + ' 新增成功!')
 
-    # @shop_group.command(name="deleteItem")
-    # async def delete_all_item(self, ctx: commands.Command):
-    #     result = InventoryUtil.deleteItem(ctx.guild.id)
-    #     if result > 0:
-    #         await ctx.send("刪除成功!")
-    #     else:
-    #         await ctx.send("刪除失敗!")
-    #
-    # @shop_group.command(name="deleteMenu")
-    # async def delete_Menu(self, ctx: commands.Command):
-    #     result = InventoryUtil.deleteMenu(ctx.guild.id)
-    #     if result > 0:
-    #         await ctx.send("刪除成功!")
-    #     else:
-    #         await ctx.send("刪除失敗!")
-    #
-    # @shop_group.command(name="listItem")
-    # async def list_item(self, ctx: commands.Command):
-    #     result = InventoryUtil.ListAllItem(ctx.guild.id)
-    #     if len(result) < 1:
-    #         await ctx.send('目前沒有商品')
-    #     else:
-    #         msg = "```"
-    #         for products in result:
-    #             msg += "\tIndex: " + str(products)
-    #             msg += "\tName: " + products.name
-    #             msg += "\tLevel required: " + str(products.level_required)
-    #             msg += "\tPrice: " + str(products.token_required) + "\n"
-    #         msg += "```"
-    #         await ctx.send(msg)
+
+
+    @shop_group.command(name="listItem")
+    async def list_item(self, ctx: commands.Command):
+        result = InventoryUtil.ListAllItem(ctx.guild.id)
+        if len(result) < 1:
+            await ctx.send('目前沒有商品')
+        else:
+            msg = "```"
+            for products in result:
+                msg += "\tIndex: " + str(products.id)
+                msg += "\tName: " + products.name
+                msg += "\tLevel required: " + str(products.level_required)
+                msg += "\tPrice: " + str(products.token_required) + "\n"
+            msg += "```"
+            await ctx.send(msg)
 
 
 def setup(client):
