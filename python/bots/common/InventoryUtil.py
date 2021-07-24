@@ -8,15 +8,15 @@ class InventoryUtil():
     def addItemToShop(guild_id: int, item_name: str, amount: int = 1, hidden=False):
         try:
             item = InventoryUtil.searchItem(guild_id=guild_id, item_name=item_name)
-            ShopItem.create(
+            return ShopItem.create(
                 guild_id=guild_id,
                 item=item,
                 amount=amount,
                 hidden=hidden,
             )
-            return 1
         except:
             return -1
+
 
     def searchItem(guild_id: int, item_name: str):
         query = Item.select().where(
@@ -86,25 +86,25 @@ class InventoryUtil():
             return itemRecord
         return None
 
-    def deleteItem(guild_id: int):
-        try:
-            query = Item.delete().where(
-                Item.guild_id == guild_id
-            )
-            query.execute()
-            return 1
-        except:
-            return -1
-
-    def deleteMenu(guild_id: int):
-        try:
-            query = ShopItem.delete().where(
-                ShopItem.guild_id == guild_id
-            )
-            query.execute()
-            return 1
-        except:
-            return -1
+    # def deleteItem(guild_id: int):
+    #     try:
+    #         query = Item.delete().where(
+    #             Item.guild_id == guild_id
+    #         )
+    #         query.execute()
+    #         return 1
+    #     except:
+    #         return -1
+    #
+    # def deleteMenu(guild_id: int):
+    #     try:
+    #         query = ShopItem.delete().where(
+    #             ShopItem.guild_id == guild_id
+    #         )
+    #         query.execute()
+    #         return 1
+    #     except:
+    #         return -1
 
     def ListAllItem(guild_id: int):
         result = []
