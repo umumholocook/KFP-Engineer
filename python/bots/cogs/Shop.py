@@ -55,7 +55,7 @@ class Shop(commands.Cog):
     @shop_group.command(name="add")
     async def add_item(self, ctx: commands.Command, item_name: str, item_count: int = 1):
         result = InventoryUtil.addItemToShop(ctx.guild.id, item_name)
-        if result > 0:
+        if result != -1:
             await ctx.send(item_name + " 上架成功!")
         else:
             await ctx.send(item_name + " 上架失敗!請確認名字是否正確!")
