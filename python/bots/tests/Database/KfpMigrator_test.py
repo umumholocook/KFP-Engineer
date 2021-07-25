@@ -4,6 +4,12 @@ import os, shutil
 from common.KFP_DB import KfpDb
 
 class TestKfpMigrator():
+    def setup_method(self, method):
+        pass
+        
+    def teardown_method(self, method):
+        pass
+    
     def test_memberTokenMigration(self):
         oldDbPath = os.sep.join((os.getcwd(), "tests", "Database", "old.db"))
         testDbPath = os.sep.join((os.getcwd(), "tests", "Database", "test.db"))

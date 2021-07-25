@@ -74,7 +74,7 @@ async def command_invite_link(ctx, *attr):
 async def command_restart(ctx, *attr):
     db = KfpDb()
     ChannelUtil.setRebootMessageChannel(guild_id= ctx.guild.id, channel_id=ctx.channel.id)
-    await ctx.send("現在版本 {}, 檢查更新中...".format(VERSION))
+    await ctx.send("現在版本 {}, 檢查更新中...".format(get_version()))
     tmpFile = getTempFile()
     tmpFile.touch()
     f = open(tmpFile, "a")
