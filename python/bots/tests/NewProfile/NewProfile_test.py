@@ -127,21 +127,27 @@ class FakeClient():
 
 class TestNewProfile():
     def setup_method(self, method):
-        self.client = FakeClient(1)
-        self.fake_guild = self.client._create_fake_guild(786612294762889247)
-        self.fake_guild._create_channel(2)
-        self.fake_guild._create_channel(3)
+        if method == TestNewProfile.test_profile_cog_setUp:
+            pass
+        else:
+            self.client = FakeClient(1)
+            self.fake_guild = self.client._create_fake_guild(786612294762889247)
+            self.fake_guild._create_channel(2)
+            self.fake_guild._create_channel(3)
 
-        self.target = NewProfile.NewProfile(self.fake_guild, ':memory:', True)
-        
-        self.fake_member = FakeMember(member_id= 123, member_name='test name', guild= self.fake_guild, nick_name='test nick name')
-        with open(r'./tests/NewProfile/test_icon.jpg', 'rb') as fp:
-            self.fake_member._icon_data = fp.read()
-            fp.close()
-        self.fake_guild._add_member(self.fake_member)
+            self.target = NewProfile.NewProfile(self.fake_guild, ':memory:', True)
+            
+            self.fake_member = FakeMember(member_id= 123, member_name='test name', guild= self.fake_guild, nick_name='test nick name')
+            with open(r'./tests/NewProfile/test_icon.jpg', 'rb') as fp:
+                self.fake_member._icon_data = fp.read()
+                fp.close()
+            self.fake_guild._add_member(self.fake_member)
 
     def teardown_method(self, method):
-        self.target.db.teardown()
+        if method == TestNewProfile.test_profile_cog_setUp:
+            pass
+        else:
+            self.target.db.teardown()
     
     @pytest.mark.asyncio
     async def test_profile_data_no_banner_and_not_bind(self):

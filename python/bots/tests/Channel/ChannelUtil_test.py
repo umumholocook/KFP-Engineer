@@ -1,6 +1,5 @@
 from common.models.Channel import Channel
 from common.ChannelUtil import ChannelUtil
-import pytest
 from common.KFP_DB import KfpDb
 from common.Util import Util
 

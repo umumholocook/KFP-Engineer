@@ -1,5 +1,6 @@
 import sqlite3 
 from enum import IntEnum, Enum
+from common.LevelUtil import LevelUtil
 
 Data_base = r"./common/KFP_bot.db"
 
@@ -26,9 +27,6 @@ def sort_rank_num(guild_id:int, target_xp:int):
         if c[0] > target_xp:
             rank+=1
     return rank
-
-def calcuelate_xp(next_rank:int):
-    return 5 / 6 * next_rank * (2 * next_rank * next_rank + 27 * next_rank + 91)
 
 def get_table_list():
     sq = sqlite3.connect(Data_base)
@@ -70,7 +68,7 @@ def _check_rank_and_update(guild_id:int, member_id:int, cu:sqlite3.Cursor):
         xp, rank = fetch_
     else:
         return False
-    if xp >= int(calcuelate_xp(rank+1)):
+    if xp >= int(LevelUtil.calculateXPRequiredForLevel(desire_level=(rank+1))):
         cu.execute('UPDATE server_{} SET rank={} WHERE member_id=(?)'.format(guild_id, rank+1), (member_id,))
         cu.execute('SELECT rank FROM server_{} WHERE member_id=(?);'.format(guild_id), (member_id,))
         return cu.fetchone()

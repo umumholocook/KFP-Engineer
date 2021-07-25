@@ -5,7 +5,7 @@ from common.KFP_DB import KfpDb
 
 class TestKujiUtil():
     def setup_method(self):
-        self.database = KfpDb()
+        self.database = KfpDb(":memory:")
         
     def teardown_method(self):
         self.database.teardown()
