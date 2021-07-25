@@ -11,8 +11,18 @@ class TestKfpMigrator():
         pass
     
     def test_memberTokenMigration(self):
-        oldDbPath = os.sep.join((os.getcwd(), "tests", "Database", "old.db"))
-        testDbPath = os.sep.join((os.getcwd(), "tests", "Database", "test.db"))
+        oldDbPath = getDBPath("old.db")
+        testDbPath = getDBPath("test.db")
+        shutil.copyfile(oldDbPath, testDbPath)
+
+        database = KfpDb(testDbPath)
+        assert KfpMigrator.KfpMigrate(database.sqliteDb)
+        database.teardown()
+        os.remove(testDbPath)
+    
+    def test_itemDropHiddenMigration(self):
+        oldDbPath = getDBPath("item_has_hidden.db")
+        testDbPath = getDBPath("test.db")
         shutil.copyfile(oldDbPath, testDbPath)
 
         database = KfpDb(testDbPath)
@@ -26,3 +36,6 @@ class TestKfpMigrator():
         database.add_member(1)
         member: Member = database.get_member(1)
         assert member
+
+def getDBPath(dbName: str):
+    return os.sep.join((os.getcwd(), "tests", "Database", dbName))
