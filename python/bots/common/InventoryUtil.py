@@ -2,7 +2,13 @@ from operator import le
 from common.models.InventoryRecord import InventoryRecord, ShopItem
 from common.models.InventoryRecord import Item
 from common.MemberUtil import MemberUtil
+from enum import Enum
 
+class ErrorCode(Enum):
+    CannotFindProduct = -1
+    LevelDoesNotReach = -2
+    TokenDoesNotEnough = -3
+    SupplyDoesNotEnough = -4
 
 
 class InventoryUtil():
@@ -62,25 +68,27 @@ class InventoryUtil():
             amount=amount
         ).execute()
 
+
+
     def buyItem(guild_id: int, user_id: int, item_id: int, count: int):
         shopItem = InventoryUtil.findShopItem(guild_id=guild_id, item_id=item_id)
 
         # Cannot find products
         if shopItem is None:
-            return -1
+            return ErrorCode.CannotFindProduct
         member = MemberUtil.get_member(user_id)
 
         # level does not reach the restrictions
         if member.rank < shopItem.item.level_required:
-            return -2
+            return ErrorCode.LevelDoesNotReach
 
         # Token is less then price
         if member.token < (shopItem.item.token_required * count):
-            return -3
+            return ErrorCode.TokenDoesNotEnough
 
         # Transaction part
         if shopItem.amount < count:
-            return -4
+            return ErrorCode.SupplyDoesNotEnough
         # shopItem is unlimited supply
         elif shopItem.amount != -1:
             shopItem.amount -= count

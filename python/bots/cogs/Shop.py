@@ -1,4 +1,4 @@
-from common.InventoryUtil import InventoryUtil
+from common.InventoryUtil import InventoryUtil, ErrorCode
 from discord.ext import commands
 from common.MemberUtil import MemberUtil
 from common.GamblingUtil import GamblingUtil
@@ -15,7 +15,7 @@ class Shop(commands.Cog):
         msg += "```"
         msg += "!shop buy <商品號碼> 購買指定的商品號碼\n"
         msg += "!shop menu 展示目前販賣中的商品\n"
-        msg += "!shop exchange <雞腿數量> 用coin兌換雞腿\n"
+        msg += "!shop exchange <雞腿數量> 用硬幣兌換雞腿\n"
         msg += "!shop token 顯示目前擁有的雞腿數量\n"
         msg += "```"
         await ctx.send(msg)
@@ -32,19 +32,21 @@ class Shop(commands.Cog):
                 msg += "\tIndex: " + str(products.item.id)
                 msg += "\tName: " + products.item.name
                 msg += "\tLevel required: " + str(products.item.level_required)
-                msg += "\tPrice: " + str(products.item.token_required) + "\n"
+                msg += "\tPrice: " + str(products.item.token_required)
+                msg += f"\tAmount: {products.amount}\n"
+            msg += f"(備註:Amount為-1時代表商品無限量供應)\n"
             await ctx.send(msg)
 
     @shop_group.command(name="buy")
     async def buy_item(self, ctx: commands.Command, item_index: int, count: int):
         result = InventoryUtil.buyItem(ctx.guild_id, ctx.author.id, item_index, count)
-        if result == -1:
+        if result == ErrorCode.CannotFindProduct:
             await ctx.send("沒有該項商品，請確認!")
-        elif result == -2:
+        elif result == ErrorCode.LevelDoesNotReach:
             await ctx.send("等級不夠，無法購買!")
-        elif result == -3:
+        elif result == ErrorCode.TokenDoesNotEnough:
             await ctx.send("雞腿不夠，無法購買!")
-        elif result == -4:
+        elif result == ErrorCode.SupplyDoesNotEnough:
             await ctx.send("商品數量不足，無法購買!")
         else:
             await ctx.send(f"{count}個{result} 購買成功!")
@@ -84,7 +86,7 @@ class Shop(commands.Cog):
         if item_count == 0:
             await ctx.send(f"新增數量為0?那你新增幹嘛?浪費我的時間")
         elif item_count < -1:
-            await ctx.send(f"購買數量不合法，請重新輸入!")
+            await ctx.send(f"購買數量不能為負數，請重新輸入!")
         result = InventoryUtil.addItemToShop(ctx.guild.id, item_name)
         if result == -1:
             await ctx.send(f"{item_name} 上架失敗!請確認商品名字是否正確!")

@@ -1,4 +1,4 @@
-from common.InventoryUtil import InventoryUtil
+from common.InventoryUtil import InventoryUtil, ErrorCode
 from common.KFP_DB import KfpDb
 from common.MemberUtil import MemberUtil
 
@@ -124,7 +124,15 @@ class TestInventoryUtil():
         InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=10)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         result = InventoryUtil.buyItem(guild_id=1, user_id=123, item_id=5, count=2)
-        assert result == -1
+        assert result == ErrorCode.CannotFindProduct
+
+    def test_buyItem_failed_levelDoesNotRequired(self):
+        MemberUtil.add_member(member_id=123)
+        MemberUtil.add_token(member_id=123, amount=10)
+        InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=100, price=100)
+        shopItem1 = InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
+        result = InventoryUtil.buyItem(guild_id=1, user_id=123, item_id=shopItem1.id, count=2)
+        assert result == ErrorCode.LevelDoesNotReach
 
     def test_buyItem_failed_noMoney(self):
         MemberUtil.add_member(member_id=123)
@@ -132,7 +140,7 @@ class TestInventoryUtil():
         InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=100)
         shopItem1 = InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         result = InventoryUtil.buyItem(guild_id=1, user_id=123, item_id=shopItem1.id, count=2)
-        assert result == -3
+        assert result == ErrorCode.TokenDoesNotEnough
 
     def test_buyItem_failed_notEnoughSupply(self):
         MemberUtil.add_member(member_id=123)
@@ -140,7 +148,7 @@ class TestInventoryUtil():
         InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=10)
         shopItem1 = InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=1)
         result = InventoryUtil.buyItem(guild_id=1, user_id=123, item_id=shopItem1.id, count=2)
-        assert result == -4
+        assert result == ErrorCode.SupplyDoesNotEnough
 
     def test_return_user_token_empty(self):
         MemberUtil.add_member(member_id=123)
