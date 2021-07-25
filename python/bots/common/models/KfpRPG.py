@@ -1,23 +1,19 @@
 from common.models.BaseModel import BaseModel
 from common.models.Member import Member
-from common.models.InventoryRecord import Item
 from peewee import *
 
 class Character(BaseModel):
-    id = AutoField()
-    character = ForeignKeyField(Member, backref='characters')
+    id = AutoField()                                            # PRIMARY KEY AUTO-INCREMENT
+    character = ForeignKeyField(Member, backref='characters')   # FOREIGN KEY REFERENCES class Member
+    
+    hp_current = IntegerField()                                 # Current hit-points
+    hp_max = IntegerField()                                     # Maximum hit-points
 
-    hp_current = IntegerField()
-    hp_max = IntegerField()
-    mp_current = IntegerField()
-    mp_max = IntegerField()
-    attack_basic = IntegerField()
-    # attack_bonus = ForeignKeyField()
-    defense_basic = IntegerField()
-    # defense_bonus = ForeignKeyField()
+    mp_current = IntegerField()                                 # Current magic-points
+    mp_max = IntegerField()                                     # Maximum magic-points
 
-class GearParts(Item):
-    pass
+    attack_basic = IntegerField()                               # Basic attack points
+    # attack_bonus = ForeignKeyField()                          # Additional attack points affected by gears, etc.
 
-class Gear(GearParts):
-    pass
+    defense_basic = IntegerField()                              # Basic defense points
+    # defense_bonus = ForeignKeyField()                         # Additional defense points affected by gears, etc.
