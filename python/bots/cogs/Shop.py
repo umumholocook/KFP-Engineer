@@ -56,10 +56,11 @@ class Shop(commands.Cog):
     async def list_items(self, ctx: commands.Command):
         msg = "```"
         msg += "如何新增?\n"
-        msg += "先create再把item add上架販售\n"
-        msg += "!shop create <商品名稱> <等級限制> <價錢>\n"
-        msg += "!shop add <商品名稱> <數量> \n"
-        msg += "!shop change <商品名稱> <新的供應數量>\n"
+        msg += "先create再把item add上架販售\n\n"
+        msg += "!shop create <商品名稱> <等級限制> <價錢> 新增一個Item\n"
+        msg += "!shop listItem 將目前創建好的Item列出\n"
+        msg += "!shop add <商品名稱> <數量> 上架item成為shopitem，若已存在則會增加供應量\n"
+        msg += "!shop change <商品名稱> <新的供應數量> 更改shopitem的供應量\n\n"
         msg += "請注意:change指令會直接改動目前供應數量，適用時機為\n"
         msg += "1.將無限量供應商品修正為有限供應，或\n"
         msg += "2.強制改動供應數量\n"
@@ -86,17 +87,20 @@ class Shop(commands.Cog):
         if item_count == 0:
             await ctx.send(f"新增數量為0?那你新增幹嘛?浪費我的時間")
         elif item_count < -1:
-            await ctx.send(f"購買數量不能為負數，請重新輸入!")
-        result = InventoryUtil.addItemToShop(ctx.guild.id, item_name)
-        if result == -1:
-            await ctx.send(f"{item_name} 上架失敗!請確認商品名字是否正確!")
-        elif result == -2:
-            await ctx.send(f"{item_name} 上架失敗!該物品目前無限量供應!")
+            await ctx.send(f"新增不能為負數，請重新輸入!")
         else:
-            if result.amount != item_count:
-                await ctx.send(f"{item_name}已存在，已更新提供數量至{result.amount}個!")
+            result = InventoryUtil.addItemToShop(ctx.guild.id, item_name, item_count)
+            if result == -1:
+                await ctx.send(f"{item_name}上架失敗!請確認商品名字是否正確!")
+            elif result == -2:
+                await ctx.send(f"{item_name}上架失敗!該物品目前無限量供應!")
+            elif result == -3:
+                await ctx.send(f"{item_name}目前限量存在，若需更改為無限量供應，請使用!shop change指令")
             else:
-                await ctx.send(f"{item_count}個{item_name} 商品上架成功!")
+                if result.amount != item_count:
+                    await ctx.send(f"{item_name}已存在{result.amount - item_count}個，已更新提供數量至{result.amount}個!")
+                else:
+                    await ctx.send(f"{item_count}個{item_name} 商品上架成功!")
 
     @shop_group.command(name="create")
     async def create_item(self, ctx: commands.Command, item_name: str, level_required: int, price: int):
@@ -105,8 +109,6 @@ class Shop(commands.Cog):
         result = InventoryUtil.createItem(ctx.guild.id, item_name, level_required, price)
         if result == -1:
             await ctx.send(item_name + ' 已經存在!')
-        elif result == -2:
-            await ctx.send(item_name + ' 新增失敗!請確認指令是否輸入錯誤!')
         else:
             await ctx.send(item_name + ' 新增成功!')
 
@@ -129,14 +131,24 @@ class Shop(commands.Cog):
 
     @shop_group.command(name="token")
     async def get_user_token(self, ctx: commands.Command):
-        result = InventoryUtil.getUserToken(ctx.guild_id, ctx.author.id)
-        assert ctx.send(f"你目前擁有{result}個雞腿")
+        member = MemberUtil.get_member(ctx.author.id)
+        if member is None:
+            await ctx.send(f"你目前擁有0個雞腿")
+        else:
+            await ctx.send(f"你目前擁有{member.token}個雞腿")
 
     @shop_group.command(name="change")
     async def change_shopitem_amount(self, ctx: commands.Command, item_name: str, amount: int):
-        result = InventoryUtil.changeSupplyAmount(ctx.guild_id, item_name, amount)
-        if result == -1:
-            await ctx.send("查無此項目，請確認商品名稱是否輸入錯誤!")
+        if amount == 0:
+            await ctx.send("數量為0，建議下架商品實在點")
+        elif amount < -1:
+            await ctx.send("商品供應數量不能為負數!")
+        else:
+            result = InventoryUtil.changeSupplyAmount(ctx.guild.id, item_name, amount)
+            if result == -1:
+                await ctx.send("查無此項目，請確認商品名稱是否輸入錯誤!")
+            else:
+                await ctx.send(f"修改成功! 目前{item_name}供給數量已改成{result.amount}")
 
 
 

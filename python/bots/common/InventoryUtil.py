@@ -25,9 +25,12 @@ class InventoryUtil():
             if shopitem.amount == -1:
                 return -2
             else:
-                shopitem.amount += amount
-                shopitem.save()
-                return shopitem
+                if amount == -1:
+                    return -3
+                else:
+                    shopitem.amount += amount
+                    shopitem.save()
+                    return shopitem
         elif item != -1:
             return ShopItem.create(
                 guild_id=guild_id,
@@ -158,9 +161,12 @@ class InventoryUtil():
 
     def getUserToken(guild_id: int, user_id: int):
         member = MemberUtil.get_member(user_id)
-        return member.token
+        if member is None:
+            return 0
+        else:
+            return member.token
 
-    def changeSupplyAmount(guild_id: int,item_name: str, newAmount: int = 1):
+    def changeSupplyAmount(guild_id: int, item_name: str, newAmount: int = 1):
         item: Item = InventoryUtil.searchItem(guild_id=guild_id, item_name=item_name)
         # does not exist item
         if item is None:
@@ -168,6 +174,7 @@ class InventoryUtil():
         shopitem: ShopItem = InventoryUtil.findShopItem(guild_id=guild_id, item_id=item.id)
         if shopitem is not None:
             shopitem.amount = newAmount
+            shopitem.save()
             return shopitem
         else:
             return -1
