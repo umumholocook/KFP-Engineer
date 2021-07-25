@@ -79,27 +79,31 @@ class InventoryUtil():
         # Cannot find products
         if shopItem is None:
             return ErrorCode.CannotFindProduct
-        member = MemberUtil.get_member(user_id)
-
+        member = MemberUtil.get_or_add_member(user_id)
         # level does not reach the restrictions
         if member.rank < shopItem.item.level_required:
             return ErrorCode.LevelDoesNotReach
-
         # Token is less then price
         if member.token < (shopItem.item.token_required * count):
             return ErrorCode.TokenDoesNotEnough
-
         # Transaction part
         if shopItem.amount < count:
             return ErrorCode.SupplyDoesNotEnough
         # shopItem is unlimited supply
         elif shopItem.amount != -1:
             shopItem.amount -= count
+            shopItem.save()
         # Reduce member's token
         spend = shopItem.item.token_required * count * -1
         MemberUtil.add_token(member_id=user_id, amount=spend)
         InventoryUtil.addItemToUserInventory(guild_id, user_id, item_id, count)
-        return shopItem.item.name
+        return shopItem
+
+    def checkZeroAmount(guild_id: int):
+        result = InventoryUtil.ShopMenu(guild_id)
+        for product in result:
+            if product.amount == 0:
+                InventoryUtil.changeItemHiddenStatus(guild_id, product.item.name, True)
 
     def findShopItem(guild_id: int, item_id: int):
         query = ShopItem.select().where(
@@ -149,22 +153,33 @@ class InventoryUtil():
         if query.exists():
             for record in query.iterator():
                 result.append(record)
+            for i in range(len(result)):
+                for j in range(i,len(result)):
+                    if result[i].id > result[j].id:
+                        tmp = result[i]
+                        result[i] = result[j]
+                        result[j] = tmp
         return result
 
     def ShopMenu(guild_id: int):
         result = []
-        query = ShopItem.select()
+        query = ShopItem.select().where(
+            ShopItem.hidden == False,
+        )
         if query.exists():
             for record in query.iterator():
                 result.append(record)
+            for i in range(len(result)):
+                for j in range(i, len(result)):
+                    if result[i].item.id > result[j].item.id:
+                        tmp = result[i]
+                        result[i] = result[j]
+                        result[j] = tmp
         return result
 
     def getUserToken(guild_id: int, user_id: int):
-        member = MemberUtil.get_member(user_id)
-        if member is None:
-            return 0
-        else:
-            return member.token
+        member = MemberUtil.get_or_add_member(user_id)
+        return member.token
 
     def changeSupplyAmount(guild_id: int, item_name: str, newAmount: int = 1):
         item: Item = InventoryUtil.searchItem(guild_id=guild_id, item_name=item_name)
@@ -177,4 +192,28 @@ class InventoryUtil():
             shopitem.save()
             return shopitem
         else:
+            return -2
+
+    def changeItemHiddenStatus(guild_id: int, item_name: str, hidden: bool):
+        item: Item = InventoryUtil.searchItem(guild_id=guild_id, item_name=item_name)
+        # does not exist item
+        if item is None:
             return -1
+        shopitem: ShopItem = InventoryUtil.findShopItem(guild_id=guild_id, item_id=item.id)
+        if shopitem is not None:
+            shopitem.hidden = hidden
+            shopitem.save()
+            return shopitem
+        else:
+            return -2
+
+    def checkItemStatus(guild_id: int, item_name: str):
+        item: Item = InventoryUtil.searchItem(guild_id=guild_id, item_name=item_name)
+        # does not exist item
+        if item is None:
+            return -1
+        shopitem: ShopItem = InventoryUtil.findShopItem(guild_id=guild_id, item_id=item.id)
+        if shopitem is not None:
+            return shopitem
+        else:
+            return -2

@@ -3,6 +3,7 @@ from discord.ext import commands
 from common.MemberUtil import MemberUtil
 from common.GamblingUtil import GamblingUtil
 
+
 class Shop(commands.Cog):
 
     def __init__(self, bot):
@@ -39,7 +40,8 @@ class Shop(commands.Cog):
 
     @shop_group.command(name="buy")
     async def buy_item(self, ctx: commands.Command, item_index: int, count: int):
-        result = InventoryUtil.buyItem(ctx.guild_id, ctx.author.id, item_index, count)
+        result = InventoryUtil.buyItem(ctx.guild.id, ctx.author.id, item_index, count)
+        InventoryUtil.checkZeroAmount(ctx.guild.id)
         if result == ErrorCode.CannotFindProduct:
             await ctx.send("沒有該項商品，請確認!")
         elif result == ErrorCode.LevelDoesNotReach:
@@ -49,7 +51,7 @@ class Shop(commands.Cog):
         elif result == ErrorCode.SupplyDoesNotEnough:
             await ctx.send("商品數量不足，無法購買!")
         else:
-            await ctx.send(f"{count}個{result} 購買成功!")
+            await ctx.send(f"{count}個{result.item.name} 購買成功!")
 
     # 管理員用
     @shop_group.command(name="secrete")
@@ -58,29 +60,34 @@ class Shop(commands.Cog):
         msg += "如何新增?\n"
         msg += "先create再把item add上架販售\n\n"
         msg += "!shop create <商品名稱> <等級限制> <價錢> 新增一個Item\n"
-        msg += "!shop listItem 將目前創建好的Item列出\n"
+        msg += "!shop listItem 將目前創建好的item列出\n"
         msg += "!shop add <商品名稱> <數量> 上架item成為shopitem，若已存在則會增加供應量\n"
-        msg += "!shop change <商品名稱> <新的供應數量> 更改shopitem的供應量\n\n"
-        msg += "請注意:change指令會直接改動目前供應數量，適用時機為\n"
-        msg += "1.將無限量供應商品修正為有限供應，或\n"
+        msg += "!shop change <商品名稱> <新的供應數量> 更改shopitem的供應量\n"
+        msg += "!shop hidden <商品名稱> <商品隱藏與否(True為隱藏/False為顯示)>\n"
+        msg += "!shop itemStatus <商品名稱> 確認item是否上架(或上架但隱藏)"
+        msg += "\n\n註1:change指令會直接改動目前供應數量，適用時機為"
+        msg += "1.將無限量供應商品修正為有限供應，或"
         msg += "2.強制改動供應數量\n"
+        msg += "註2:若add商品數量後menu中仍未發現商品，可使用itemStatus確認商品是否為隱藏狀態，若是則使用shop hidden顯示該項商品\n"
         msg += "```"
         await ctx.send(msg)
 
     @shop_group.command(name="exchange")
     async def exchange_token(self, ctx: commands.Command, need_token: int):
         member = MemberUtil.get_member(ctx.author.id)
-        coinspertoken = GamblingUtil.get_token_rate()
-        spend = need_token * coinspertoken
-        if member.coin > spend:
-            MemberUtil.add_coin(member_id=member.id, amount=-spend)
-            MemberUtil.add_token(member_id=member.id, amount=need_token)
-            await ctx.send(f"成功兌換{need_token}個雞腿，目前剩下{member.coin}coins")
+        if member is None:
+            await ctx.send("沒硬幣還想換雞腿，真是笑死人了")
         else:
-            msg = f"兌換失敗!不足{need_token * coinspertoken - coinspertoken}coins"
-            msg += f"目前匯率為 一隻雞腿需要{coinspertoken}coins"
-            await ctx.send(msg)
-
+            coinspertoken = GamblingUtil.get_token_rate()
+            spend = need_token * coinspertoken
+            if member.coin > spend:
+                MemberUtil.add_coin(member_id=member.id, amount=-spend)
+                MemberUtil.add_token(member_id=member.id, amount=need_token)
+                await ctx.send(f"成功兌換{need_token}個雞腿，目前剩下{member.coin}coins")
+            else:
+                msg = f"兌換失敗!不足{need_token * coinspertoken - coinspertoken}coins"
+                msg += f"目前匯率為 一隻雞腿需要{coinspertoken}coins"
+                await ctx.send(msg)
 
     @shop_group.command(name="add")
     async def add_item(self, ctx: commands.Command, item_name: str, item_count: int = 1):
@@ -112,8 +119,6 @@ class Shop(commands.Cog):
         else:
             await ctx.send(item_name + ' 新增成功!')
 
-
-
     @shop_group.command(name="listItem")
     async def list_item(self, ctx: commands.Command):
         result = InventoryUtil.ListAllItem(ctx.guild.id)
@@ -131,7 +136,7 @@ class Shop(commands.Cog):
 
     @shop_group.command(name="token")
     async def get_user_token(self, ctx: commands.Command):
-        member = MemberUtil.get_member(ctx.author.id)
+        member = MemberUtil.get_or_add_member(ctx.author.id)
         if member is None:
             await ctx.send(f"你目前擁有0個雞腿")
         else:
@@ -139,17 +144,44 @@ class Shop(commands.Cog):
 
     @shop_group.command(name="change")
     async def change_shopitem_amount(self, ctx: commands.Command, item_name: str, amount: int):
-        if amount == 0:
-            await ctx.send("數量為0，建議下架商品實在點")
-        elif amount < -1:
+        if amount < -1:
             await ctx.send("商品供應數量不能為負數!")
         else:
             result = InventoryUtil.changeSupplyAmount(ctx.guild.id, item_name, amount)
             if result == -1:
                 await ctx.send("查無此項目，請確認商品名稱是否輸入錯誤!")
+            elif result == -2:
+                await ctx.send("該商品存在但尚未上架!")
             else:
-                await ctx.send(f"修改成功! 目前{item_name}供給數量已改成{result.amount}")
+                if amount == 0:
+                    await ctx.send("數量為0，建議下架商品實在點")
+                else:
+                    await ctx.send(f"修改成功! 目前{item_name}供給數量已改成{result.amount}")
 
+    @shop_group.command(name="hidden")
+    async def change_itemHidden_status(self, ctx: commands.Command, item_name: str, hidden: bool):
+        result = InventoryUtil.changeItemHiddenStatus(ctx.guild.id, item_name, hidden)
+        if result == -1:
+            await ctx.send("查無此項目，請確認商品名稱是否輸入錯誤!")
+        elif result == -2:
+            await ctx.send("該商品存在但尚未上架!")
+        else:
+            await ctx.send(f"修改成功! 目前{item_name}供給數量為{result.amount}")
+
+    @shop_group.command(name="itemStatus")
+    async def checkItemStatuss(self, ctx: commands.Command, item_name: str):
+        result = InventoryUtil.checkItemStatus(ctx.guild.id, item_name)
+        if result == -1:
+            await ctx.send("查無此項目，請確認商品名稱是否輸入錯誤!")
+        elif result == -2:
+            await ctx.send(f"{item_name}存在但尚未上架!")
+        else:
+            msg = f"{item_name}已上架，狀態為"
+            if result.hidden is True:
+                msg += "隱藏"
+            else:
+                msg += "顯示"
+            await ctx.send(msg)
 
 
 def setup(client):

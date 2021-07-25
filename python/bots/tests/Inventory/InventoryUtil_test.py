@@ -184,7 +184,7 @@ class TestInventoryUtil():
         shopItem2 =InventoryUtil.changeSupplyAmount(guild_id=1, item_name="hello", newAmount=-1)
         assert shopItem2.amount == -1
 
-    def test_changeSupplyAmount_failed_noItem(self):
+    def test_changeSupplyAmount_failed(self):
         InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=10)
         InventoryUtil.createItem(guild_id=1, item_name="hey", level_required=0, price=10)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
@@ -193,4 +193,52 @@ class TestInventoryUtil():
         assert result1 == -1
         # shopitem cannot find
         result2 =InventoryUtil.changeSupplyAmount(guild_id=1, item_name="hey", newAmount=-1)
-        assert result2 == -1
+        assert result2 == -2
+
+    def test_changeItemHiddenStatus_success(self):
+        InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=10)
+        InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
+        result = InventoryUtil.changeItemHiddenStatus(guild_id=1, item_name="hello", hidden=True)
+        assert result.hidden == True
+        result2 = InventoryUtil.ShopMenu(guild_id=1)
+        assert len(result2) == 0
+        result3 = InventoryUtil.changeItemHiddenStatus(guild_id=1, item_name="hello", hidden=False)
+        assert result3.hidden == False
+
+    def test_changeItemHiddenStatus_failed_noitem(self):
+        InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=10)
+        InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
+        result = InventoryUtil.changeItemHiddenStatus(guild_id=1, item_name="he", hidden=True)
+        assert result == -1
+
+    def test_changeItemHiddenStatus_failed_noShopitem(self):
+        InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=10)
+        InventoryUtil.createItem(guild_id=1, item_name="hey", level_required=0, price=10)
+        InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
+        result = InventoryUtil.changeItemHiddenStatus(guild_id=1, item_name="hey", hidden=True)
+        assert result == -2
+
+    def test_checkItemStatus_success(self):
+        InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=10)
+        InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
+        result = InventoryUtil.checkItemStatus(guild_id=1, item_name="hello")
+        assert result.hidden == False
+
+    def test_checkItemStatus_failed(self):
+        # no item
+        result1 = InventoryUtil.checkItemStatus(guild_id=1, item_name="hello")
+        assert result1 == -1
+        # no shopitem
+        InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=10)
+        result2 = InventoryUtil.checkItemStatus(guild_id=1, item_name="hello")
+        assert result2 == -2
+
+    def test_buyitem_success_shopItemchangeHidden(self):
+        MemberUtil.add_member(member_id=123)
+        MemberUtil.add_token(member_id=123, amount=500)
+        InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=1)
+        shopItem1 = InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
+        InventoryUtil.buyItem(guild_id=1, user_id=123, item_id=shopItem1.id, count=10)
+        InventoryUtil.checkZeroAmount(guild_id=1)
+        result = InventoryUtil.ShopMenu(guild_id=1)
+        assert len(result) == 0 and result == []
