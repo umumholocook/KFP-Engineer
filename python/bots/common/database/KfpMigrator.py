@@ -24,6 +24,12 @@ class KfpMigrator():
                     migrator.add_column('channel', 'channel_guild_id', guildIdField),
                     migrator.rename_column('channel', 'channel_discord_id', 'channel_id'),
                 )
+        if "item" in tables:
+            columns = database.get_columns("item")
+            if KfpMigrator.hasColumn("hidden", columns):
+                migrate(
+                    migrator.drop_column('item', 'hidden')
+                )
         return True
 
     def hasColumn(columnName: str, columns):
