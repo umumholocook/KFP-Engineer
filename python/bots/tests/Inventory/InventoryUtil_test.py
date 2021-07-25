@@ -1,10 +1,10 @@
-from common.InventoryUtil import InventoryUtil
+from common.InventoryUtil import InventoryUtil, ErrorCode
 from common.KFP_DB import KfpDb
 from common.MemberUtil import MemberUtil
 
 class TestInventoryUtil():
     def setup_method(self, method):
-        self.database = KfpDb()
+        self.database = KfpDb(":memory:")
     
     def teardown_method(self, method):
         self.database.teardown()
@@ -68,6 +68,13 @@ class TestInventoryUtil():
         result = InventoryUtil.ShopMenu(guild_id=1)
         assert result == []
 
+    def test_addItemTOShop_failed_unlimitedSupply(self):
+        InventoryUtil.createItem(guild_id=1, item_name="hello")
+        InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=-1)
+        InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
+        result = InventoryUtil.ShopMenu(guild_id=1)
+        assert result[0].amount == -1
+
     def test_findShopItem_success(self):
         InventoryUtil.createItem(guild_id=1, item_name="hello")
         InventoryUtil.createItem(guild_id=1, item_name="hey")
@@ -101,13 +108,13 @@ class TestInventoryUtil():
 
     def test_buyItems_success(self):
         MemberUtil.add_member(member_id=123)
-        MemberUtil.add_token(member_id=123, amount=100)
+        MemberUtil.add_token(member_id=123, amount=500)
         InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=10)
-        InventoryUtil.createItem(guild_id=1, item_name="hey")
+        InventoryUtil.createItem(guild_id=1, item_name="hey", level_required=0, price=10)
         shopItem1 = InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         shopItem2 = InventoryUtil.addItemToShop(guild_id=1, item_name="hey", amount=10)
-        InventoryUtil.buyItem(guild_id=1, user_id=123, item_id=shopItem1.id, count=2)
-        InventoryUtil.buyItem(guild_id=1, user_id=123, item_id=shopItem2.id, count=4)
+        result1 = InventoryUtil.buyItem(guild_id=1, user_id=123, item_id=shopItem1.id, count=2)
+        result2 =InventoryUtil.buyItem(guild_id=1, user_id=123, item_id=shopItem2.id, count=4)
         itemList = InventoryUtil.getAllItemsBelongToUser(guild_id=1, user_id=123)
         assert len(itemList) == 2
 
@@ -117,7 +124,15 @@ class TestInventoryUtil():
         InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=10)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         result = InventoryUtil.buyItem(guild_id=1, user_id=123, item_id=5, count=2)
-        assert result == -1
+        assert result == ErrorCode.CannotFindProduct
+
+    def test_buyItem_failed_levelDoesNotRequired(self):
+        MemberUtil.add_member(member_id=123)
+        MemberUtil.add_token(member_id=123, amount=10)
+        InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=100, price=100)
+        shopItem1 = InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
+        result = InventoryUtil.buyItem(guild_id=1, user_id=123, item_id=shopItem1.id, count=2)
+        assert result == ErrorCode.LevelDoesNotReach
 
     def test_buyItem_failed_noMoney(self):
         MemberUtil.add_member(member_id=123)
@@ -125,7 +140,7 @@ class TestInventoryUtil():
         InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=100)
         shopItem1 = InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         result = InventoryUtil.buyItem(guild_id=1, user_id=123, item_id=shopItem1.id, count=2)
-        assert result == -2
+        assert result == ErrorCode.TokenDoesNotEnough
 
     def test_buyItem_failed_notEnoughSupply(self):
         MemberUtil.add_member(member_id=123)
@@ -133,7 +148,7 @@ class TestInventoryUtil():
         InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=10)
         shopItem1 = InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=1)
         result = InventoryUtil.buyItem(guild_id=1, user_id=123, item_id=shopItem1.id, count=2)
-        assert result == -3
+        assert result == ErrorCode.SupplyDoesNotEnough
 
     def test_return_user_token_empty(self):
         MemberUtil.add_member(member_id=123)
@@ -146,3 +161,11 @@ class TestInventoryUtil():
         MemberUtil.add_member(member_id=123)
         result = InventoryUtil.getUserToken(guild_id=1, user_id=123)
         assert result == 100
+
+    def test_changeSupplyAmount_success(self):
+        InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=10)
+        shopItem1 = InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=-1)
+        assert shopItem1.amount == -1
+
+        shopItem2 =InventoryUtil.changeSupplyAmount(guild_id=1, item_name="hello", newAmount=10)
+        assert shopItem2.amount == 10

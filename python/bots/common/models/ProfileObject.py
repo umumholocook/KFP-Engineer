@@ -1,5 +1,5 @@
 import io
-import common.database_API as database_API
+from common.LevelUtil import LevelUtil
 from PIL import Image, ImageEnhance, ImageFont, ImageDraw
 
 class ProfileObject():
@@ -92,7 +92,7 @@ class ProfileObject():
         
         text_list_1 = ('硬幣:', str(self.coin_num))
         text_list_fill_1 = ('#E1E100', '#F9F900')[::-1]
-        text_list_2 = (str(self.xp_num), '/', str(database_API.calcuelate_xp(self.rank_ + 1)), 'XP')
+        text_list_2 = (str(self.xp_num), '/', str(LevelUtil.calculateXPRequiredForLevel(desire_level=(self.rank_+ 1))), 'XP')
         text_list_fill_2 = ('#FFFFFF', '#ADADAD', '#ADADAD', '#ADADAD')[::-1]
 
         x_base = 934 - 60 - 30

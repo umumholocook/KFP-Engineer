@@ -3,7 +3,7 @@ from common.KFP_DB import KfpDb
 
 class TestPoliceUtil():
     def setup_method(self, method):
-        self.database = KfpDb()
+        self.database = KfpDb(":memory:")
     
     def teardown_method(self, method):
         self.database.teardown()

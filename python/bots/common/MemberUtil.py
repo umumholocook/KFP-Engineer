@@ -34,6 +34,15 @@ class MemberUtil():
         member.token += amount
         member.save()
 
+    def add_coin(member_id: int, amount: int):
+        query = Member.select().where(Member.member_id == member_id)
+        if query.exists():
+            member = query.get()
+        else:
+            member = MemberUtil.add_member(member_id)
+        member.coin += amount
+        member.save()
+
     def get_member(member_id:int):
         query = Member.select().where(Member.member_id == member_id)
         if query.exists():
