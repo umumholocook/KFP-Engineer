@@ -42,5 +42,3 @@ class TestMemberUtil():
         self.database.add_coin(321, 100)
 
         assert MemberUtil.get_total_coin() == 200
-
-

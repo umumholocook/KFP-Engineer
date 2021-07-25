@@ -2,7 +2,7 @@ from operator import le
 from common.models.InventoryRecord import InventoryRecord, ShopItem
 from common.models.InventoryRecord import Item
 from common.MemberUtil import MemberUtil
-from common.GamblingUtil import GamblingUtil
+
 
 
 class InventoryUtil():
@@ -12,12 +12,16 @@ class InventoryUtil():
         # does not exist item
         if item is None:
             return -1
-        shopItem: ShopItem = InventoryUtil.findShopItem(guild_id=guild_id, item_id=item.id)
+        shopitem: ShopItem = InventoryUtil.findShopItem(guild_id=guild_id, item_id=item.id)
         # if exists, add amount
-        if shopItem is not None:
-            shopItem.amount += amount
-            shopItem.save()
-            return shopItem
+        if shopitem is not None:
+            # if is Unlimited supply, failed
+            if shopitem.amount == -1:
+                return -2
+            else:
+                shopitem.amount += amount
+                shopitem.save()
+                return shopitem
         elif item != -1:
             return ShopItem.create(
                 guild_id=guild_id,
@@ -67,14 +71,16 @@ class InventoryUtil():
         member = MemberUtil.get_member(user_id)
 
         # level does not reach the restrictions
+        if member.rank < shopItem.item.level_required:
+            return -2
 
         # Token is less then price
         if member.token < (shopItem.item.token_required * count):
-            return -2
+            return -3
 
         # Transaction part
         if shopItem.amount < count:
-            return -3
+            return -4
         # shopItem is unlimited supply
         elif shopItem.amount != -1:
             shopItem.amount -= count
@@ -145,3 +151,15 @@ class InventoryUtil():
     def getUserToken(guild_id: int, user_id: int):
         member = MemberUtil.get_member(user_id)
         return member.token
+
+    def changeSupplyAmount(guild_id: int,item_name: str, newAmount: int = 1):
+        item: Item = InventoryUtil.searchItem(guild_id=guild_id, item_name=item_name)
+        # does not exist item
+        if item is None:
+            return -1
+        shopitem: ShopItem = InventoryUtil.findShopItem(guild_id=guild_id, item_id=item.id)
+        if shopitem is not None:
+            shopitem.amount = newAmount
+            return shopitem
+        else:
+            return -1
