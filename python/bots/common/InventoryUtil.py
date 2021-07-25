@@ -2,6 +2,7 @@ from operator import le
 from common.models.InventoryRecord import InventoryRecord, ShopItem
 from common.models.InventoryRecord import Item
 from common.MemberUtil import MemberUtil
+from common.GamblingUtil import GamblingUtil
 
 
 class InventoryUtil():
@@ -11,7 +12,7 @@ class InventoryUtil():
         # does not exist item
         if item is None:
             return -1
-        shopItem: ShopItem = InventoryUtil.findShopItem(guild_id=guild_id, item_id=item)
+        shopItem: ShopItem = InventoryUtil.findShopItem(guild_id=guild_id, item_id=item.id)
         # if exists, add amount
         if shopItem is not None:
             shopItem.amount += amount
@@ -144,4 +145,3 @@ class InventoryUtil():
     def getUserToken(guild_id: int, user_id: int):
         member = MemberUtil.get_member(user_id)
         return member.token
-
