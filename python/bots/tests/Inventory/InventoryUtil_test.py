@@ -18,13 +18,23 @@ class TestInventoryUtil():
         result = InventoryUtil.searchItem(guild_id=1, item_name="hello")
         assert result == item1
 
-    def test_addItemToDb_success(self):
+    def test_findItem_success(self):
+        item1 = InventoryUtil.createItem(guild_id=1, item_name="hello")
+        result = InventoryUtil.searchItem(guild_id=1, item_name="hello")
+        assert result == item1
+
+    def test_findItem_fail(self):
+        InventoryUtil.createItem(guild_id=1, item_name="hello")
+        result = InventoryUtil.searchItem(guild_id=1, item_name="he")
+        assert result == None
+
+    def test_addItemToItemdb_success(self):
         item1 = InventoryUtil.createItem(guild_id=1, item_name="hello")
         item2 = InventoryUtil.createItem(guild_id=1, item_name="hey")
         items = InventoryUtil.ListAllItem(guild_id=1)
         assert items == [item1, item2]
 
-    def test_addItemToDb_failed_samename(self):
+    def test_addItemToItemdb_failed_samename(self):
         item1 =InventoryUtil.createItem(guild_id=1, item_name="hello")
         item2 = InventoryUtil.createItem(guild_id=1, item_name="hello")
         items = InventoryUtil.ListAllItem(guild_id=1)
@@ -51,6 +61,13 @@ class TestInventoryUtil():
         result = InventoryUtil.ShopMenu(guild_id=1)
         assert result[0].amount == 20 and len(result) == 1
 
+    def test_addItemTOShop_failed_addAmount(self):
+        InventoryUtil.createItem(guild_id=1, item_name="hello")
+        InventoryUtil.addItemToShop(guild_id=1, item_name="he", amount=10)
+        InventoryUtil.addItemToShop(guild_id=1, item_name="he", amount=10)
+        result = InventoryUtil.ShopMenu(guild_id=1)
+        assert result == []
+
     def test_findShopItem_success(self):
         InventoryUtil.createItem(guild_id=1, item_name="hello")
         InventoryUtil.createItem(guild_id=1, item_name="hey")
@@ -63,9 +80,9 @@ class TestInventoryUtil():
         InventoryUtil.createItem(guild_id=1, item_name="hey")
         InventoryUtil.addItemToShop(guild_id=1, item_name="hey", amount=10)
         result = InventoryUtil.findShopItem(guild_id=1, item_id=5)
-        assert result == -1
+        assert result == None
 
-    def test_buyItem_empty(self):
+    def test_getAllItemsBelongToUser_empty(self):
         MemberUtil.add_member(member_id=123)
         MemberUtil.add_token(member_id=123, amount=100)
         itemList = InventoryUtil.getAllItemsBelongToUser(guild_id=1, user_id=123)
@@ -117,3 +134,15 @@ class TestInventoryUtil():
         shopItem1 = InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=1)
         result = InventoryUtil.buyItem(guild_id=1, user_id=123, item_id=shopItem1.id, count=2)
         assert result == -3
+
+    def test_return_user_token_empty(self):
+        MemberUtil.add_member(member_id=123)
+        MemberUtil.add_token(member_id=123, amount=-100)
+        result = InventoryUtil.getUserToken(guild_id=1, user_id=123)
+        assert result == 0
+
+
+    def test_return_user_token(self):
+        MemberUtil.add_member(member_id=123)
+        result = InventoryUtil.getUserToken(guild_id=1, user_id=123)
+        assert result == 100

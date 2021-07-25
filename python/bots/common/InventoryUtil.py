@@ -8,10 +8,15 @@ class InventoryUtil():
 
     def addItemToShop(guild_id: int, item_name: str, amount: int = 1, hidden=False):
         item: Item = InventoryUtil.searchItem(guild_id=guild_id, item_name=item_name)
+        # does not exist item
+        if item is None:
+            return -1
         shopItem: ShopItem = InventoryUtil.findShopItem(guild_id=guild_id, item_id=item)
-        if shopItem != -1:
+        # if exists, add amount
+        if shopItem is not None:
             shopItem.amount += amount
             shopItem.save()
+            return shopItem
         elif item != -1:
             return ShopItem.create(
                 guild_id=guild_id,
@@ -19,7 +24,6 @@ class InventoryUtil():
                 amount=amount,
                 hidden=hidden,
             )
-        return -1
 
     def searchItem(guild_id: int, item_name: str):
         query = Item.select().where(
@@ -29,11 +33,12 @@ class InventoryUtil():
         if query.exists():
             item: Item = query.get()
             return item
-        return -1
+        return None
 
     def createItem(guild_id: int, item_name: str, level_required: int = 10, price: int = 10, role_id: int = -1):
         item = InventoryUtil.searchItem(guild_id=guild_id, item_name=item_name)
-        if item != -1:
+        # item exist
+        if item is not None:
             return -1
         return Item.create(
             guild_id=guild_id,
@@ -56,9 +61,11 @@ class InventoryUtil():
         shopItem = InventoryUtil.findShopItem(guild_id=guild_id, item_id=item_id)
 
         # Cannot find products
-        if shopItem == -1:
+        if shopItem is None:
             return -1
         member = MemberUtil.get_member(user_id)
+
+        # level does not reach the restrictions
 
         # Token is less then price
         if member.token < (shopItem.item.token_required * count):
@@ -70,13 +77,11 @@ class InventoryUtil():
         # shopItem is unlimited supply
         elif shopItem.amount != -1:
             shopItem.amount -= count
-        else:
-            pass
         # Reduce member's token
         spend = shopItem.item.token_required * count * -1
         MemberUtil.add_token(member_id=user_id, amount=spend)
         InventoryUtil.addItemToUserInventory(guild_id, user_id, item_id, count)
-        return 1
+        return shopItem.item.name
 
     def findShopItem(guild_id: int, item_id: int):
         query = ShopItem.select().where(
@@ -86,7 +91,7 @@ class InventoryUtil():
         if query.exists():
             shopItem: ShopItem = query.get()
             return shopItem
-        return -1
+        return None
 
     def addItemToUserInventory(guild_id: int, user_id: int, item_id: int, count: int):
         itemRecord: InventoryRecord = InventoryUtil.findItemRecord(guild_id=guild_id, user_id=user_id, item_id=item_id)
@@ -135,4 +140,8 @@ class InventoryUtil():
             for record in query.iterator():
                 result.append(record)
         return result
+
+    def getUserToken(guild_id: int, user_id: int):
+        member = MemberUtil.get_member(user_id)
+        return member.token
 

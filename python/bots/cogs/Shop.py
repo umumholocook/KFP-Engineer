@@ -15,6 +15,7 @@ class Shop(commands.Cog):
         msg += "!shop buy <商品號碼> 購買指定的商品號碼\n"
         msg += "!shop menu 展示目前販賣中的商品\n"
         msg += "!shop exchange <雞腿數量> 兌換雞腿\n"
+        msg += "!shop token 顯示目前擁有的雞腿數量\n"
         msg += "```"
         await ctx.send(msg)
 
@@ -36,10 +37,14 @@ class Shop(commands.Cog):
     @shop_group.command(name="buy")
     async def buy_item(self, ctx: commands.Command, item_index: int, count: int):
         result = InventoryUtil.buyItem(ctx.guild_id, ctx.author.id, item_index, count)
-        if result == 1:
-            await ctx.send("購買成功!")
-        elif result == 0:
-            await ctx.send("購買失敗!請確認")
+        if result == -1:
+            await ctx.send("沒有該項商品，請確認!")
+        elif result == -2:
+            await ctx.send("雞腿不夠，無法購買!")
+        elif result == -3:
+            await ctx.send("商品數量不足，無法購買!")
+        else:
+            await ctx.send(f"{count}個{result} 購買成功!")
 
     # 管理員用
     @shop_group.command(name="secrete")
@@ -59,10 +64,13 @@ class Shop(commands.Cog):
     @shop_group.command(name="add")
     async def add_item(self, ctx: commands.Command, item_name: str, item_count: int = 1):
         result = InventoryUtil.addItemToShop(ctx.guild.id, item_name)
-        if result != -1:
-            await ctx.send(item_name + " 上架成功!")
+        if result == -1:
+            await ctx.send(f"{item_name} 上架失敗!請確認商品名字是否正確!")
         else:
-            await ctx.send(item_name + " 上架失敗!請確認名字是否正確!")
+            if result.amount != item_count:
+                await ctx.send(f"{item_name}已存在，已更新提供數量至{result.amount}個!")
+            else:
+                await ctx.send(f"{item_count}個{item_name} 商品上架成功!")
 
     @shop_group.command(name="create")
     async def create_item(self, ctx: commands.Command, item_name: str, level_required: int, price: int):
@@ -90,6 +98,11 @@ class Shop(commands.Cog):
                 msg += "\tPrice: " + str(products.token_required) + "\n"
             msg += "```"
             await ctx.send(msg)
+
+    @shop_group.command(name="token")
+    async def get_user_token(self, ctx: commands.Command):
+        result = InventoryUtil.getUserToken(ctx.guild_id, ctx.author.id)
+        assert ctx.send(f"你目前擁有{result}個雞腿")
 
 
 def setup(client):
