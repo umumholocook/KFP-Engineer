@@ -3,3 +3,6 @@
 **/.vscode/**
 **/*.db
 !python/bots/tests/Database/*.db
+**/.idea/
+/shelf/
+/workspace.xml
