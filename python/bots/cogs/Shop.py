@@ -54,20 +54,24 @@ class Shop(commands.Cog):
             await ctx.send(f"{count}個{result.item.name} 購買成功!")
 
     # 管理員用
-    @shop_group.command(name="secrete")
+    @shop_group.command(name="secret")
     async def list_items(self, ctx: commands.Command):
         msg = "```"
         msg += "如何新增?\n"
-        msg += "先create再把item add上架販售\n\n"
-        msg += "!shop create <商品名稱> <等級限制> <價錢> 新增一個Item\n"
-        msg += "!shop listItem 將目前創建好的item列出\n"
+        msg += "\t1.先使用create來創立商品\n"
+        msg += "\t2.把新建立的商品使用add上架販售\n"
+        msg += "\n"
+        msg += "指令集:\n"
         msg += "!shop add <商品名稱> <數量> 上架item成為shopitem，若已存在則會增加供應量\n"
+        msg += "!shop create <商品名稱> <等級限制> <價錢> 新增一個Item\n"
         msg += "!shop change <商品名稱> <新的供應數量> 更改shopitem的供應量\n"
         msg += "!shop hidden <商品名稱> <商品隱藏與否(True為隱藏/False為顯示)>\n"
         msg += "!shop itemStatus <商品名稱> 確認item是否上架(或上架但隱藏)"
-        msg += "\n\n註1:change指令會直接改動目前供應數量，適用時機為"
-        msg += "1.將無限量供應商品修正為有限供應，或"
-        msg += "2.強制改動供應數量\n"
+        msg += "!shop listItem 將目前創建好的item列出\n"
+        msg += "\n\n"
+        msg += "註1:change指令會直接改動目前供應數量，適用時機為\n"
+        msg += "\t1.將無限量供應商品修正為有限供應，或\n"
+        msg += "\t2.強制改動供應數量\n"
         msg += "註2:若add商品數量後menu中仍未發現商品，可使用itemStatus確認商品是否為隱藏狀態，若是則使用shop hidden顯示該項商品\n"
         msg += "```"
         await ctx.send(msg)

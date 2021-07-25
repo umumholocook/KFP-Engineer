@@ -10,7 +10,6 @@ class ErrorCode(Enum):
     TokenDoesNotEnough = -3
     SupplyDoesNotEnough = -4
 
-
 class InventoryUtil():
 
     def addItemToShop(guild_id: int, item_name: str, amount: int = 1, hidden=False):
