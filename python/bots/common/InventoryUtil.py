@@ -216,3 +216,32 @@ class InventoryUtil():
             return shopitem
         else:
             return -2
+
+    def deleteItem(guild_id: int, item_name: str):
+        item = InventoryUtil.searchItem(guild_id=guild_id, item_name=item_name)
+        # does not exist item
+        if item is None:
+            return -1
+        Item.delete().where(
+            Item.name == item_name
+        ).execute()
+
+    def deleteItems(guild_id: int):
+        Item.delete().execute()
+
+    def listHiddenShopItem(guild_id: int):
+        result = []
+        query = ShopItem.select().where(
+            ShopItem.guild_id == guild_id,
+            ShopItem.hidden == True,
+        )
+        if query.exists():
+            for record in query.iterator():
+                result.append(record)
+            for i in range(len(result)):
+                for j in range(i, len(result)):
+                    if result[i].item.id > result[j].item.id:
+                        tmp = result[i]
+                        result[i] = result[j]
+                        result[j] = tmp
+        return result
