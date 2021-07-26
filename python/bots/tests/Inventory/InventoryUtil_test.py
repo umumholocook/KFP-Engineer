@@ -4,7 +4,7 @@ from common.MemberUtil import MemberUtil
 
 class TestInventoryUtil():
     def setup_method(self, method):
-        self.database = KfpDb()
+        self.database = KfpDb(":memory:")
     
     def teardown_method(self, method):
         self.database.teardown()
