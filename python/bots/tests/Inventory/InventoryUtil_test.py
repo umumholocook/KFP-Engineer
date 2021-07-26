@@ -242,3 +242,38 @@ class TestInventoryUtil():
         InventoryUtil.checkZeroAmount(guild_id=1)
         result = InventoryUtil.ShopMenu(guild_id=1)
         assert len(result) == 0 and result == []
+
+    def test_deleteItem_success(self):
+        InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=1)
+        InventoryUtil.deleteItem(guild_id=1, item_name="hello")
+        result = InventoryUtil.ListAllItem(guild_id=1)
+        assert result == []
+
+
+    def test_deleteItem_failed_noItem(self):
+        InventoryUtil.deleteItem(guild_id=1, item_name="hello")
+        result = InventoryUtil.ListAllItem(guild_id=1)
+        assert result == []
+
+    def test_deleteItems_success(self):
+        InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=1)
+        InventoryUtil.createItem(guild_id=1, item_name="hey", level_required=0, price=1)
+        InventoryUtil.createItem(guild_id=1, item_name="heap", level_required=0, price=1)
+        InventoryUtil.createItem(guild_id=1, item_name="hot", level_required=0, price=1)
+        InventoryUtil.deleteItems(guild_id=1)
+        result = InventoryUtil.ListAllItem(guild_id=1)
+        assert result == []
+
+    def test_listHiddenitem_success(self):
+        InventoryUtil.createItem(guild_id=1, item_name="hello", level_required=0, price=1)
+        InventoryUtil.createItem(guild_id=1, item_name="hey", level_required=0, price=1)
+        InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
+        InventoryUtil.addItemToShop(guild_id=1, item_name="hey", amount=10)
+        InventoryUtil.changeItemHiddenStatus(guild_id=1, item_name="hello", hidden=True)
+        result = InventoryUtil.listHiddenShopItem(guild_id=1)
+        assert len(result) == 1
+
+        # items
+        InventoryUtil.changeItemHiddenStatus(guild_id=1, item_name="hey", hidden=True)
+        result = InventoryUtil.listHiddenShopItem(guild_id=1)
+        assert len(result) == 2
