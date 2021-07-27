@@ -36,7 +36,26 @@ class NicknameUtil():
             nickname.delete_instance()
             return True
         return False
+
+    def remove_nickname_id(guild_id: int, user_id: int, name_id: int):
+        query = NicknameModel.select().where(
+            NicknameModel.id == name_id,
+            NicknameModel.guild_id == guild_id, 
+            NicknameModel.member_id == user_id)
+        if query.exists():
+            nickname: NicknameModel = query.get()
+            nickname.delete_instance()
+            return True
+        return False
     
+    def get_all_nicknames_detail(guild_id: int, user_id: int):
+        result = []
+        query = NicknameModel.select().where(NicknameModel.guild_id == guild_id, NicknameModel.member_id == user_id)
+        if query.exists():
+            for nickname in query.iterator():
+                result.append(nickname)
+        return result
+
     def get_all_nicknames(guild_id:int, user_id: int):
         result = []
         query = NicknameModel.select().where(NicknameModel.guild_id == guild_id, NicknameModel.member_id == user_id)
