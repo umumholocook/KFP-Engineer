@@ -27,8 +27,14 @@ class KfpMigrator():
         if "item" in tables:
             columns = database.get_columns("item")
             if KfpMigrator.hasColumn("hidden", columns):
+                typeField = IntegerField(default=0)
+                buff_type = IntegerField(default=0)
+                buff_value = IntegerField(default=0)
                 migrate(
-                    migrator.drop_column('item', 'hidden')
+                    migrator.drop_column('item', 'hidden'),
+                    migrator.add_column('item', 'type', typeField),
+                    migrator.add_column('item', 'buff_type', buff_type),
+                    migrator.add_column('item', 'buff_value', buff_value)
                 )
         return True
 

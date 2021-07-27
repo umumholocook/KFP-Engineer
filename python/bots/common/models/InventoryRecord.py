@@ -8,6 +8,9 @@ class Item(BaseModel):
     role_id = IntegerField() # any kind of role associate with this item
     token_required = IntegerField() # the token required to buy this item
     level_required = IntegerField() # the level required to buy this item
+    type = IntegerField() # type of item
+    buff_type = IntegerField() # type of side effect
+    buff_value = IntegerField() # actual side effect value
 
 class InventoryRecord(BaseModel):
     id = AutoField() # record id

@@ -17,6 +17,9 @@ class Nickname(commands.Cog):
 
     @nickname.command(name = "set")
     async def set_nickname(self, ctx:commands.Context, user: User, name:str):
+        if str(self.bot.user.id) in name:
+            await ctx.channel.send(f"{name}不能當成暱稱使用")
+            return
         result = NicknameUtil.set_nickname(ctx.guild.id, user.id, name)
         if result:
             await ctx.channel.send(f"新增用戶'{user.name}'新暱稱: {name} 成功!", )
@@ -33,6 +36,17 @@ class Nickname(commands.Cog):
         for index, nickname in enumerate(nicknames):
             result += f"  {index + 1}.{nickname}"
         await ctx.channel.send(result)
+
+    @nickname.command(name = "remove")
+    async def remove_nickname(self, ctx:commands.Context, user: User, name: str):
+        nicknames = NicknameUtil.get_all_nicknames(ctx.guild.id, user.id)
+        if len(nicknames) < 1:
+            await ctx.channel.send(f"{user.name}沒有任何暱稱.")
+            return
+        if not NicknameUtil.remove_nickname(ctx.guild.id, user.id, name):
+            await ctx.channel.send(f"{name} 並不是 {user.name}的暱稱, 因此無法刪除.")
+            return
+        await ctx.channel.send(f"{user.name}的暱稱{name}刪除成功.")
     
     @nickname.command(name = "clear")
     async def clear_nickname(self, ctx:commands.Context, user: User):
