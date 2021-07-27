@@ -14,7 +14,7 @@ class Shop(commands.Cog):
         msg = "歡迎來到KFP炸機店小賣部\n"
         msg += "本小賣部一律使用雞腿來購買商品\n"
         msg += "```"
-        msg += "!shop buy <商品號碼> 購買指定的商品號碼\n"
+        msg += "!shop buy <購買ID> <購買數量> 購買指定數量的商品\n"
         msg += "!shop menu 展示目前販賣中的商品\n"
         msg += "!shop exchange <雞腿數量> 用硬幣兌換雞腿\n"
         msg += "!shop token 顯示目前擁有的雞腿數量\n"
@@ -28,18 +28,21 @@ class Shop(commands.Cog):
         if len(result) < 1:
             await ctx.send('目前商品都被買光了!')
         else:
-            msg = "==================商品價目表==================\n"
+            msg = "```\n"
+            msg += "{:^63}".format("===商品價目表===")
+            msg += "\n"
             for products in result:
-                msg += "\tIndex: " + str(products.item.id)
-                msg += "\tName: " + products.item.name
-                msg += "\tLevel required: " + str(products.item.level_required)
-                msg += "\tPrice: " + str(products.item.token_required)
-                msg += f"\tAmount: {products.amount}\n"
-            msg += f"(備註:Amount為-1時代表商品無限量供應)\n"
+                msg += " 購買ID: {}".format(str(products.item.id).ljust(3, " "))
+                msg += " 商品名稱: {}".format(products.item.name).ljust(15, " ")
+                msg += " 等級限制: {}".format(str(products.item.level_required).ljust(3, " "))
+                msg += " 價格: {}".format(str(products.item.token_required).ljust(3, " "))
+                msg += " 供應數量: {}\n".format(str(products.item.token_required).ljust(3, " ")
+                                            if type(products.item.token_required) is int else "無限".ljust(3, " "))
+            msg += "```"
             await ctx.send(msg)
 
     @shop_group.command(name="buy")
-    async def buy_item(self, ctx: commands.Command, item_index: int, count: int):
+    async def buy_item(self, ctx: commands.Command, count: int, item_index: int):
         result = InventoryUtil.buyItem(ctx.guild.id, ctx.author.id, item_index, count)
         InventoryUtil.checkZeroAmount(ctx.guild.id)
         if result == ErrorCode.CannotFindProduct:
@@ -94,7 +97,7 @@ class Shop(commands.Cog):
                 await ctx.send(msg)
 
     @shop_group.command(name="add")
-    async def add_item(self, ctx: commands.Command, item_name: str, item_count: int = 1):
+    async def add_item(self, ctx: commands.Command, item_count: int, item_name: str):
         if item_count == 0:
             await ctx.send(f"新增數量為0?那你新增幹嘛?浪費我的時間")
         elif item_count < -1:
@@ -115,13 +118,16 @@ class Shop(commands.Cog):
 
     @shop_group.command(name="create")
     async def create_item(self, ctx: commands.Command, item_name: str, level_required: int, price: int):
-        if price < 0:
+        if len(item_name) > 15:
+            await ctx.send(f"名稱不可超過15個中英字元!")
+        elif price < 0:
             await ctx.send(f"價錢不可為負!請重新輸入!")
-        result = InventoryUtil.createItem(ctx.guild.id, item_name, level_required, price)
-        if result == -1:
-            await ctx.send(item_name + ' 已經存在!')
         else:
-            await ctx.send(item_name + ' 新增成功!')
+            result = InventoryUtil.createItem(ctx.guild.id, item_name, level_required, price)
+            if result == -1:
+                await ctx.send(item_name + ' 已經存在!')
+            else:
+                await ctx.send(item_name + ' 新增成功!')
 
     @shop_group.command(name="listItem")
     async def list_item(self, ctx: commands.Command):
@@ -131,10 +137,10 @@ class Shop(commands.Cog):
         else:
             msg = "```"
             for products in result:
-                msg += "\tIndex: " + str(products.id)
-                msg += "\tName: " + products.name
-                msg += "\tLevel required: " + str(products.level_required)
-                msg += "\tPrice: " + str(products.token_required) + "\n"
+                msg += " 購買ID: {}".format(str(products.id).ljust(3, " "))
+                msg += " 商品名稱: {}".format(products.name).ljust(15, " ")
+                msg += " 等級限制: {}".format(str(products.level_required).ljust(3, " "))
+                msg += " 價格: {}\n".format(str(products.token_required).ljust(3, " "))
             msg += "```"
             await ctx.send(msg)
 
@@ -147,7 +153,7 @@ class Shop(commands.Cog):
             await ctx.send(f"你目前擁有{member.token}個雞腿")
 
     @shop_group.command(name="change")
-    async def change_shopitem_amount(self, ctx: commands.Command, item_name: str, amount: int):
+    async def change_shopitem_amount(self, ctx: commands.Command, amount: int, item_name: str):
         if amount < -1:
             await ctx.send("商品供應數量不能為負數!")
         else:
@@ -170,10 +176,13 @@ class Shop(commands.Cog):
         elif result == -2:
             await ctx.send("該商品存在但尚未上架!")
         else:
-            await ctx.send(f"修改成功! 目前{item_name}供給數量為{result.amount}")
+            if hidden == True:
+                await ctx.send(f"修改成功! 目前{item_name}狀態改為隱藏")
+            else:
+                await ctx.send(f"修改成功! 目前{item_name}供給數量為{result.amount}")
 
     @shop_group.command(name="itemStatus")
-    async def checkItemStatuss(self, ctx: commands.Command, item_name: str):
+    async def check_item_status(self, ctx: commands.Command, item_name: str):
         result = InventoryUtil.checkItemStatus(ctx.guild.id, item_name)
         if result == -1:
             await ctx.send("查無此項目，請確認商品名稱是否輸入錯誤!")
@@ -185,6 +194,31 @@ class Shop(commands.Cog):
                 msg += "隱藏"
             else:
                 msg += "顯示"
+            await ctx.send(msg)
+
+    @shop_group.command(name="deleteItem")
+    async def delete_item(self, ctx: commands.Command, item_name: str):
+        result = InventoryUtil.deleteItem(ctx.guild.id, item_name)
+        if result == -1:
+            await ctx.send("找不到該item，請確認名稱是否輸入錯誤!")
+        else:
+            await ctx.send(f"{item_name} 已被成功刪除!")
+
+    @shop_group.command(name="deleteItems")
+    async def delete_items(self, ctx: commands.Command, item_name: str):
+        InventoryUtil.deleteItems(ctx.guild.id)
+        await ctx.send("所有item已被成功刪除!")
+
+    @shop_group.command(name="listHidden")
+    async def list_hidden_shopItem(self, ctx: commands.Command):
+        result = InventoryUtil.listHiddenShopItem(ctx.guild.id)
+        if len(result) < 1:
+            await ctx.send("沒有任何商品隱藏")
+        else:
+            msg = "```\n"
+            for product in result:
+                msg += product.item.name + "\n"
+            msg += "```"
             await ctx.send(msg)
 
 
