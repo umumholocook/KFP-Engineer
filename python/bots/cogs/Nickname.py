@@ -1,7 +1,7 @@
 from common.models.NicknameModel import NicknameModel
 import random
 from common.NicknameUtil import NicknameUtil
-from discord import User
+from discord import User, Member
 from discord.ext import commands
 
 class Nickname(commands.Cog):
@@ -23,6 +23,21 @@ class Nickname(commands.Cog):
         if str(self.bot.user.id) in name:
             await ctx.channel.send(f"{name}不能當成暱稱使用")
             return
+        result = NicknameUtil.set_nickname(ctx.guild.id, user.id, name)
+        if result:
+            await ctx.channel.send(f"新增用戶'{user.name}'新暱稱: {name} 成功!", )
+        else:
+            await ctx.channel.send(f"用戶暱稱'{name}'已經存在.")
+
+    @nickname.command(name = "secret_set")
+    async def secret_set_nickname(self, ctx:commands.Context, user_name: str, name:str):
+        if str(self.bot.user.id) in name:
+            await ctx.channel.send(f"{name}不能當成暱稱使用")
+            return
+        user = self.findUserByName(user_name)
+        if not user:
+            await ctx.channel.send(f"找不到{name}")
+            return        
         result = NicknameUtil.set_nickname(ctx.guild.id, user.id, name)
         if result:
             await ctx.channel.send(f"新增用戶'{user.name}'新暱稱: {name} 成功!", )
@@ -87,6 +102,14 @@ class Nickname(commands.Cog):
             await ctx.channel.send(nickname_to_use)
         else:
             await ctx.channel.send(f"用戶'{user.name}'沒有任何暱稱.")
+
+    def findUserByName(self, user_name: str):
+        members = self.bot.get_all_members()
+        member: Member
+        for member in members:
+            if user_name in member.display_name:
+                return self.bot.get_user(member.id)
+        return None
 
 def setup(bot):
     bot.add_cog(Nickname(bot))
