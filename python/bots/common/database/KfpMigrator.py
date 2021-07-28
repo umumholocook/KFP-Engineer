@@ -1,5 +1,6 @@
+from common.customField.BuffField import BuffField
 from common.models.Member import Member
-from peewee import SqliteDatabase
+from peewee import SqliteDatabase, CharField
 from peewee import BigIntegerField, IntegerField
 from playhouse.migrate import SqliteMigrator
 from playhouse.migrate import migrate
@@ -28,13 +29,15 @@ class KfpMigrator():
             columns = database.get_columns("item")
             if KfpMigrator.hasColumn("hidden", columns):
                 typeField = IntegerField(default=0)
-                buff_type = IntegerField(default=0)
-                buff_value = IntegerField(default=0)
+                buff = BuffField(default="")
+                description = CharField(default="")
                 migrate(
                     migrator.drop_column('item', 'hidden'),
                     migrator.add_column('item', 'type', typeField),
-                    migrator.add_column('item', 'buff_type', buff_type),
-                    migrator.add_column('item', 'buff_value', buff_value)
+                    migrator.drop_column('item', 'buff_type'),
+                    migrator.drop_column('item', 'buff_value'),
+                    migrator.add_column('item', 'buff', buff),
+                    migrator.add_column('item', 'description', description),
                 )
         return True
 
