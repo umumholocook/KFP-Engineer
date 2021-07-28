@@ -1,5 +1,5 @@
 from common.models.InventoryRecord import InventoryRecord
-from common.InventoryUtil import InventoryUtil
+from common.RPGUtil.InventoryUtil import InventoryUtil
 from discord.abc import GuildChannel, User
 from discord.embeds import Embed
 from discord.errors import NotFound

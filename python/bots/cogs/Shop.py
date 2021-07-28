@@ -1,4 +1,5 @@
-from common.InventoryUtil import InventoryUtil, ErrorCode
+from common.RPGUtil.InventoryUtil import InventoryUtil, ErrorCode
+from common.RPGUtil.ItemUtil import ItemUtil
 from discord.ext import commands
 from common.MemberUtil import MemberUtil
 from common.GamblingUtil import GamblingUtil
@@ -14,10 +15,11 @@ class Shop(commands.Cog):
         msg = "歡迎來到KFP炸機店小賣部\n"
         msg += "本小賣部一律使用雞腿來購買商品\n"
         msg += "```"
-        msg += "!shop buy <購買ID> <購買數量> 購買指定數量的商品\n"
+        msg += "!shop buy <購買數量> <商品名稱> 購買指定數量的商品\n"
         msg += "!shop menu 展示目前販賣中的商品\n"
         msg += "!shop exchange <雞腿數量> 用硬幣兌換雞腿\n"
         msg += "!shop token 顯示目前擁有的雞腿數量\n"
+        msg += "!shop detail <商品名稱> 列出商品詳細資料\n"
         msg += "```"
         await ctx.send(msg)
 
@@ -36,15 +38,14 @@ class Shop(commands.Cog):
                 msg += " 商品名稱: {}".format(products.item.name).ljust(15, " ")
                 msg += " 等級限制: {}".format(str(products.item.level_required).ljust(3, " "))
                 msg += " 價格: {}".format(str(products.item.token_required).ljust(3, " "))
-                msg += " 供應數量: {}\n".format(str(products.item.token_required).ljust(3, " ")
-                                            if type(products.item.token_required) is int else "無限".ljust(3, " "))
+                msg += " 供應數量: {}\n".format(str(products.amount).ljust(3, " ")
+                                            if products.amount > 0 else "無限".ljust(3, " "))
             msg += "```"
             await ctx.send(msg)
 
     @shop_group.command(name="buy")
-    async def buy_item(self, ctx: commands.Command, count: int, item_index: int):
-        result = InventoryUtil.buyItem(ctx.guild.id, ctx.author.id, item_index, count)
-        InventoryUtil.checkZeroAmount(ctx.guild.id)
+    async def buy_item(self, ctx: commands.Command, count: int, item_name: str):
+        result = InventoryUtil.buyShopitem(ctx.guild.id, ctx.author.id, item_name, count)
         if result == ErrorCode.CannotFindProduct:
             await ctx.send("沒有該項商品，請確認!")
         elif result == ErrorCode.LevelDoesNotReach:
@@ -55,6 +56,7 @@ class Shop(commands.Cog):
             await ctx.send("商品數量不足，無法購買!")
         else:
             await ctx.send(f"{count}個{result.item.name} 購買成功!")
+        InventoryUtil.checkZeroAmount(ctx.guild.id)
 
     # 管理員用
     @shop_group.command(name="secret")
@@ -66,13 +68,15 @@ class Shop(commands.Cog):
         msg += "\n"
         msg += "指令集:\n"
         msg += "!shop add <商品名稱> <數量> 上架item成為shopitem，若已存在則會增加供應量\n"
-        msg += "!shop create <商品名稱> <等級限制> <價錢> 新增一個Item\n"
+        msg += "!shop create <商品名稱> <道具類型> <增幅類型> <增幅數值> <增幅持續時間> <等級限制> <價錢> <商品描述> 新增一個Item\n"
+        msg += "道具類型(1~4): 1.攻擊道具 2.防禦道具 3.恢復道具 4.狀態道具\n"
+        msg += "增幅類型(1~4): 1.攻擊力 2.防禦力 3.魔法力 4.生命力\n"
         msg += "!shop change <商品名稱> <新的供應數量> 更改shopitem的供應量\n"
         msg += "!shop hidden <商品名稱> <商品隱藏與否(True為隱藏/False為顯示)>\n"
         msg += "!shop itemStatus <商品名稱> 確認item是否上架(或上架但隱藏)"
         msg += "!shop listItem 將目前創建好的item列出\n"
-        msg += "!shop deleteItem <商品名稱> 將特定item刪除\n"
-        msg += "!shop deleteItems 將全部item刪除\n"
+        msg += "!shop deleteItem <商品名稱> 刪除特定item\n"
+        msg += "!shop deleteItems 將目前創建好的所有item刪除\n"
         msg += "!shop listHidden 顯示隱藏狀態的商品\n"
         msg += "\n\n"
         msg += "註1:change指令會直接改動目前供應數量，適用時機為\n"
@@ -86,17 +90,17 @@ class Shop(commands.Cog):
     async def exchange_token(self, ctx: commands.Command, need_token: int):
         member = MemberUtil.get_member(ctx.author.id)
         if member is None:
-            await ctx.send("沒硬幣還想換雞腿，真是笑死人了")
+            await ctx.send("沒硬幣還想換雞腿，還想做白日夢啊")
         else:
             coinspertoken = GamblingUtil.get_token_rate()
             spend = need_token * coinspertoken
             if member.coin > spend:
                 MemberUtil.add_coin(member_id=member.id, amount=-spend)
                 MemberUtil.add_token(member_id=member.id, amount=need_token)
-                await ctx.send(f"成功兌換{need_token}個雞腿，目前剩下{member.coin}coins")
+                await ctx.send(f"成功兌換{need_token}個雞腿，目前剩下{member.coin}個硬幣")
             else:
-                msg = f"兌換失敗!不足{need_token * coinspertoken - coinspertoken}coins"
-                msg += f"目前匯率為 一隻雞腿需要{coinspertoken}coins"
+                msg = f"兌換失敗!不足{spend - member.coin}個硬幣\n"
+                msg += f"目前匯率為 一隻雞腿{coinspertoken}個硬幣"
                 await ctx.send(msg)
 
     @shop_group.command(name="add")
@@ -120,13 +124,21 @@ class Shop(commands.Cog):
                     await ctx.send(f"{item_count}個{item_name} 商品上架成功!")
 
     @shop_group.command(name="create")
-    async def create_item(self, ctx: commands.Command, item_name: str, level_required: int, price: int):
+    async def create_item(self, ctx: commands.Command, item_name: str, itemtype: int, buff_type: int, buff_value: int
+                          , buff_round: int, level_required: int, price: int, description: str):
         if len(item_name) > 15:
             await ctx.send(f"名稱不可超過15個中英字元!")
         elif price < 0:
             await ctx.send(f"價錢不可為負!請重新輸入!")
+        elif not 0 < itemtype < 5:
+            await ctx.send(f"道具類型只有四種!請重新輸入!")
+        elif not 0 < buff_type < 5:
+            await ctx.send(f"增幅類型只有四種!請重新輸入!")
+        elif buff_round < -1:
+            await ctx.send(f"增幅持續時間不可為負數(-1為永遠不毀滅)!請重新輸入!")
         else:
-            result = InventoryUtil.createItem(ctx.guild.id, item_name, level_required, price)
+            result = ItemUtil.createItem(ctx.guild.id, item_name, itemtype, buff_type, buff_value, buff_round, description
+                                         , level_required, price)
             if result == -1:
                 await ctx.send(item_name + ' 已經存在!')
             else:
@@ -134,7 +146,7 @@ class Shop(commands.Cog):
 
     @shop_group.command(name="listItem")
     async def list_item(self, ctx: commands.Command):
-        result = InventoryUtil.ListAllItem(ctx.guild.id)
+        result = ItemUtil.ListAllItem(ctx.guild.id)
         if len(result) < 1:
             await ctx.send('目前沒有商品')
         else:
@@ -172,8 +184,8 @@ class Shop(commands.Cog):
                     await ctx.send(f"修改成功! 目前{item_name}供給數量已改成{result.amount}")
 
     @shop_group.command(name="hidden")
-    async def change_itemHidden_status(self, ctx: commands.Command, item_name: str, hidden: bool):
-        result = InventoryUtil.changeItemHiddenStatus(ctx.guild.id, item_name, hidden)
+    async def change_shopitemHidden_status(self, ctx: commands.Command, item_name: str, hidden: bool):
+        result = InventoryUtil.changeShopitemHiddenStatus(ctx.guild.id, item_name, hidden)
         if result == -1:
             await ctx.send("查無此項目，請確認商品名稱是否輸入錯誤!")
         elif result == -2:
@@ -185,8 +197,8 @@ class Shop(commands.Cog):
                 await ctx.send(f"修改成功! 目前{item_name}供給數量為{result.amount}")
 
     @shop_group.command(name="itemStatus")
-    async def check_item_status(self, ctx: commands.Command, item_name: str):
-        result = InventoryUtil.checkItemStatus(ctx.guild.id, item_name)
+    async def check_Shopitem_status(self, ctx: commands.Command, item_name: str):
+        result = InventoryUtil.checkShopitemStatus(ctx.guild.id, item_name)
         if result == -1:
             await ctx.send("查無此項目，請確認商品名稱是否輸入錯誤!")
         elif result == -2:
@@ -201,7 +213,7 @@ class Shop(commands.Cog):
 
     @shop_group.command(name="deleteItem")
     async def delete_item(self, ctx: commands.Command, item_name: str):
-        result = InventoryUtil.deleteItem(ctx.guild.id, item_name)
+        result = ItemUtil.deleteItem(ctx.guild.id, item_name)
         if result == -1:
             await ctx.send("找不到該item，請確認名稱是否輸入錯誤!")
         else:
@@ -209,7 +221,7 @@ class Shop(commands.Cog):
 
     @shop_group.command(name="deleteItems")
     async def delete_items(self, ctx: commands.Command, item_name: str):
-        InventoryUtil.deleteItems(ctx.guild.id)
+        ItemUtil.deleteItems(ctx.guild.id)
         await ctx.send("所有item已被成功刪除!")
 
     @shop_group.command(name="listHidden")
@@ -221,6 +233,45 @@ class Shop(commands.Cog):
             msg = "```\n"
             for product in result:
                 msg += product.item.name + "\n"
+            msg += "```"
+            await ctx.send(msg)
+
+    @shop_group.command(name="detail")
+    async def showShopitemDetail(self, ctx: commands.Command, item_name: str):
+        item = ItemUtil.searchItem(guild_id=ctx.guild.id, item_name=item_name)
+        if item is None:
+            await ctx.send("找不到該商品，請確認名稱是否輸入錯誤!")
+        result = InventoryUtil.findShopItem(ctx.guild.id, item)
+        if result is None:
+            await ctx.send("找不到該商品，請確認名稱是否輸入錯誤!")
+        else:
+            if result.item.type == 1:
+                itemtype = "攻擊道具"
+            elif result.item.type == 2:
+                itemtype = "防禦道具"
+            elif result.item.type == 3:
+                itemtype = "恢復道具"
+            else:
+                itemtype = "狀態道具"
+
+            if result.item.buff.buff_type == 1:
+                bufftype = "攻擊力"
+            elif result.item.buff.buff_type == 2:
+                bufftype = "防禦力"
+            elif result.item.buff.buff_type == 3:
+                bufftype = "魔法力"
+            else:
+                bufftype = "生命力"
+
+            msg = "```"
+            msg += f"商品名稱: {result.item.name}\n"
+            msg += f"商品價錢: {result.item.token_required}\n"
+            msg += f"等級限制: {result.item.level_required}\n"
+            msg += f"道具種類: {itemtype}\n"
+            msg += f"增幅種類: {bufftype}\n"
+            msg += f"增幅數值: {result.item.buff.buff_value}\n"
+            msg += "增幅時間: {}\n".format(result.item.buff.buff_round if result.item.buff.buff_round > 0 else "永不毀滅")
+            msg += f"商品描述: {result.item.description}\n"
             msg += "```"
             await ctx.send(msg)
 

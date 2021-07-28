@@ -20,15 +20,15 @@ class TestKfpMigrator():
         database.teardown()
         os.remove(testDbPath)
     
-    def test_itemDropHiddenMigration(self):
-        oldDbPath = getDBPath("item_has_hidden.db")
-        testDbPath = getDBPath("test.db")
-        shutil.copyfile(oldDbPath, testDbPath)
-
-        database = KfpDb(testDbPath)
-        assert KfpMigrator.KfpMigrate(database.sqliteDb)
-        database.teardown()
-        os.remove(testDbPath)
+    # def test_itemDropHiddenMigration(self):
+    #     oldDbPath = getDBPath("item_has_hidden.db")
+    #     testDbPath = getDBPath("test.db")
+    #     shutil.copyfile(oldDbPath, testDbPath)
+    #
+    #     database = KfpDb(testDbPath)
+    #     assert KfpMigrator.KfpMigrate(database.sqliteDb)
+    #     database.teardown()
+    #     os.remove(testDbPath)
 
     def test_withRegularDatabase(self):
         database = KfpDb(":memory:")
