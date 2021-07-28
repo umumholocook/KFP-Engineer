@@ -1,28 +1,32 @@
+from common.customField.BuffField import BuffField
 from common.models.BaseModel import BaseModel
 from peewee import *
 
+
 class Item(BaseModel):
-    id = AutoField() # item id
-    guild_id = IntegerField() # guild id
-    name = CharField() # item name
-    role_id = IntegerField() # any kind of role associate with this item
-    token_required = IntegerField() # the token required to buy this item
-    level_required = IntegerField() # the level required to buy this item
-    type = IntegerField() # type of item
-    buff_type = IntegerField() # type of side effect
-    buff_value = IntegerField() # actual side effect value
+    id = AutoField()  # item id
+    guild_id = IntegerField()  # guild id
+    name = CharField()  # item name
+    role_id = IntegerField()  # any kind of role associate with this item
+    token_required = IntegerField()  # the token required to buy this item
+    level_required = IntegerField()  # the level required to buy this item
+    type = IntegerField()  # type of item
+    buff = BuffField()  # type of side effect
+    description = CharField()  # item description
+
 
 class InventoryRecord(BaseModel):
-    id = AutoField() # record id
-    guild_id = IntegerField() # guild id
-    user_id = IntegerField() # user id
+    id = AutoField()  # record id
+    guild_id = IntegerField()  # guild id
+    user_id = IntegerField()  # user id
     item = ForeignKeyField(Item, backref='InventoryRecord')
-    amount = IntegerField() # item amount
+    amount = IntegerField()  # item amount
+
 
 # this is for shop to keep track of items
 class ShopItem(BaseModel):
     id = AutoField()
-    guild_id = IntegerField() # guild id
-    item = ForeignKeyField(Item, backref='InventoryRecord') # number of item in shop
-    amount = IntegerField() # number of item in shop, -1 is infinite
-    hidden = BooleanField() # whether or not to hide this item
+    guild_id = IntegerField()  # guild id
+    item = ForeignKeyField(Item, backref='InventoryRecord')  # number of item in shop
+    amount = IntegerField()  # number of item in shop, -1 is infinite
+    hidden = BooleanField()  # whether or not to hide this item
