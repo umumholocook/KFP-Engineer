@@ -10,7 +10,7 @@ class Nickname(commands.Cog):
     
     @commands.group(name = 'nickname', invoke_without_command=True)
     async def nickname(self, ctx:commands.Context, *attr):
-        msg = "如何使用暱稱\n"
+        msg = "如何使用暱稱這個功能\n"
         msg+= "\n"
         msg+= "!nickname list <@用戶名> 顯示用戶的暱稱\n"
         msg+= "!nickname set <@用戶名> <暱稱> 設定用戶的暱稱\n"
