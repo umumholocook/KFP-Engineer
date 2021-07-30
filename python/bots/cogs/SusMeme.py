@@ -18,6 +18,7 @@ class SusMeme(commands.Cog):
         "BLUE",
         "BROWN",
         "CYAN",
+        "GRAY",
         "GREEN",
         "LIME",
         "ORANGE",
@@ -65,6 +66,7 @@ class SusMeme(commands.Cog):
             msg+= "BLUE\n"
             msg+= "BROWN\n"
             msg+= "CYAN\n"
+            msg+= "GRAY\n"
             msg+= "GREEN\n"
             msg+= "LIME\n"
             msg+= "ORANGE\n"

@@ -12,6 +12,7 @@ class SusMemeGenerator():
         "BLUE.png",
         "BROWN.png",
         "CYAN.png",
+        "GRAY.png",
         "GREEN.png",
         "LIME.png",
         "ORANGE.png",

@@ -119,10 +119,12 @@ def get_version():
     return f"{VERSION}.{count}"
 
 
+exception_cogs = ["InventoryDisplay.py"]
+
 #preload cogs
 temp = 'load cogs:\n'
 for file in os.listdir(r'./cogs'):
-    if not file.startswith("__init__") and file.endswith('.py'):
+    if not file.startswith("__init__") and not file in exception_cogs and file.endswith('.py'):
         temp += '  |- {}\n'.format(file[:-3])
         bot.load_extension('cogs.{}'.format(file[:-3]))
 print(temp)
