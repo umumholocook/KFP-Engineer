@@ -30,9 +30,12 @@ class InventoryDisplay(commands.Cog):
             )
 
             # 內嵌方塊: 顯示全部物品
-            for item_index, item_display in result[:]:
+            for item_index, item_display in enumerate(result[:], start=1):
                 embed_inventory.add_field(value=f'{item_index}. {item_display}', inline=False)
                 
             embed_inventory.set_thumbnail(url="https://s1.zerochan.net/Takanashi.Kiara.600.3145979.jpg") # 暫時放一張圖代替
             embed_inventory.set_footer(text=f"一共{result_count}個物品")
             await ctx.send(embed = embed_inventory)
+
+def setup(bot):
+    bot.add_cog(InventoryDisplay(bot))
