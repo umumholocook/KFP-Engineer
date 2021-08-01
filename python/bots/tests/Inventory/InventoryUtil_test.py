@@ -1,3 +1,4 @@
+from common.RPGUtil.ItemType import ItemType
 from common.RPGUtil.Buff import Buff, BuffType
 from common.RPGUtil.InventoryUtil import InventoryUtil, ErrorCode
 from common.KFP_DB import KfpDb
@@ -16,14 +17,14 @@ class TestInventoryUtil():
         assert len(inventory) == 0
 
     def test_buffTypeStorage_success(self):
-        item = ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=BuffType.ATTACK, buff_value=30, buff_round=3)
+        item = ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=30, buff_round=3)
         item_buff:Buff = item.buff
         assert item_buff.buff_type == BuffType.ATTACK
         assert item_buff.buff_value == 30
         assert item_buff.buff_round == 3
 
     def test_buffTypeStorageRead_success(self):
-        item = ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=BuffType.ATTACK, buff_value=30, buff_round=3)
+        item = ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=30, buff_round=3)
         item_from_db = ItemUtil.ListAllItem(guild_id=1)[0]
         item_buff:Buff = item_from_db.buff
         assert item_buff.buff_type == BuffType.ATTACK
@@ -31,68 +32,68 @@ class TestInventoryUtil():
         assert item_buff.buff_round == 3
 
     def test_addItemToItemdb_success(self):
-        item1 = ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2)
-        item2 = ItemUtil.createItem(guild_id=1, item_name="hey", itemtype=4, buff_type=2, buff_value=10, buff_round=3)
+        item1 = ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2)
+        item2 = ItemUtil.createItem(guild_id=1, item_name="hey", item_type=ItemType.STATUS, buff_type=BuffType.DEFENCE, buff_value=10, buff_round=3)
         items = ItemUtil.ListAllItem(guild_id=1)
         assert items == [item1, item2]
 
     def test_addItemToItemdb_failed_samename(self):
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2)
-        item2 = ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2)
+        item2 = ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2)
         items = ItemUtil.ListAllItem(guild_id=1)
         assert len(items) == 1 and item2 == -1
 
     def test_addItemTOShop_success(self):
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2)
-        ItemUtil.createItem(guild_id=1, item_name="hey", itemtype=4, buff_type=2, buff_value=10, buff_round=3)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2)
+        ItemUtil.createItem(guild_id=1, item_name="hey", item_type=ItemType.STATUS, buff_type=BuffType.DEFENCE, buff_value=10, buff_round=3)
         shopItem1 = InventoryUtil.addItemToShop(guild_id=1, item_name="hey", amount=10)
         result = InventoryUtil.ShopMenu(guild_id=1)
         assert result == [shopItem1]
 
     def test_addItemTOShop_failed_noitem(self):
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2)
-        ItemUtil.createItem(guild_id=1, item_name="hey", itemtype=4, buff_type=2, buff_value=10, buff_round=3)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2)
+        ItemUtil.createItem(guild_id=1, item_name="hey", item_type=ItemType.STATUS, buff_type=BuffType.DEFENCE, buff_value=10, buff_round=3)
         InventoryUtil.addItemToShop(guild_id=1, item_name="he", amount=10)
         result = InventoryUtil.ShopMenu(guild_id=1)
         assert result == []
 
     def test_addItemTOShop_success_addAmount(self):
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         result = InventoryUtil.ShopMenu(guild_id=1)
         assert result[0].amount == 20 and len(result) == 1
 
     def test_addItemTOShop_failed_addAmount(self):
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2)
         InventoryUtil.addItemToShop(guild_id=1, item_name="he", amount=10)
         InventoryUtil.addItemToShop(guild_id=1, item_name="he", amount=10)
         result = InventoryUtil.ShopMenu(guild_id=1)
         assert result == []
 
     def test_addItemTOShop_failed_unlimitedSupply(self):
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=-1)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         result = InventoryUtil.ShopMenu(guild_id=1)
         assert result[0].amount == -1
 
     def test_addItemTOShop_failed_limitedToUnlimited(self):
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2)
         shopitem = InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         result = InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=-1)
         assert result == -3 and shopitem.amount == 10
 
     def test_findShopItem_success(self):
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2)
-        ItemUtil.createItem(guild_id=1, item_name="hey", itemtype=4, buff_type=2, buff_value=10, buff_round=3)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2)
+        ItemUtil.createItem(guild_id=1, item_name="hey", item_type=ItemType.STATUS, buff_type=BuffType.DEFENCE, buff_value=10, buff_round=3)
         shopItem1 = InventoryUtil.addItemToShop(guild_id=1, item_name="hey", amount=10)
         result = InventoryUtil.findShopItem(guild_id=1, item=shopItem1.item)
         assert result == shopItem1
 
     def test_findShopItem_failed(self):
-        item1 = ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2)
-        ItemUtil.createItem(guild_id=1, item_name="hey", itemtype=4, buff_type=2, buff_value=10, buff_round=3)
+        item1 = ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2)
+        ItemUtil.createItem(guild_id=1, item_name="hey", item_type=ItemType.STATUS, buff_type=BuffType.DEFENCE, buff_value=10, buff_round=3)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hey", amount=10)
         result = InventoryUtil.findShopItem(guild_id=1, item=item1)
         assert result == None
@@ -106,7 +107,7 @@ class TestInventoryUtil():
     def test_buyShopitem_success(self):
         MemberUtil.add_member(member_id=123)
         MemberUtil.add_token(member_id=123, amount=100)
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2, level_required=0, price=10)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2, level_required=0, price=10)
         shopItem1 = InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hey", amount=10)
         InventoryUtil.buyShopitem(guild_id=1, user_id=123, item_name="hello", count=2)
@@ -116,7 +117,7 @@ class TestInventoryUtil():
     def test_buyShopitem_success_shopItemchangeHidden(self):
         MemberUtil.add_member(member_id=123)
         MemberUtil.add_token(member_id=123, amount=500)
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2, level_required=0, price=1)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2, level_required=0, price=1)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         InventoryUtil.buyShopitem(guild_id=1, user_id=123, item_name="hello", count=10)
         InventoryUtil.checkZeroAmount(guild_id=1)
@@ -126,8 +127,8 @@ class TestInventoryUtil():
     def test_buyShopitems_success(self):
         MemberUtil.add_member(member_id=123)
         MemberUtil.add_token(member_id=123, amount=500)
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2, level_required=0, price=10)
-        ItemUtil.createItem(guild_id=1, item_name="hey", itemtype=4, buff_type=2, buff_value=10, buff_round=3, level_required=0, price=10)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2, level_required=0, price=10)
+        ItemUtil.createItem(guild_id=1, item_name="hey", item_type=ItemType.STATUS, buff_type=BuffType.DEFENCE, buff_value=10, buff_round=3, level_required=0, price=10)
         shopItem1 = InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         shopItem2 = InventoryUtil.addItemToShop(guild_id=1, item_name="hey", amount=10)
         InventoryUtil.buyShopitem(guild_id=1, user_id=123, item_name="hello", count=2)
@@ -138,8 +139,8 @@ class TestInventoryUtil():
     def test_buyShopitem_failed_noProduct(self):
         MemberUtil.add_member(member_id=123)
         MemberUtil.add_token(member_id=123, amount=100)
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2, level_required=0, price=10)
-        ItemUtil.createItem(guild_id=1, item_name="hey", itemtype=4, buff_type=2, buff_value=10, buff_round=3, level_required=0, price=10)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2, level_required=0, price=10)
+        ItemUtil.createItem(guild_id=1, item_name="hey", item_type=ItemType.STATUS, buff_type=BuffType.DEFENCE, buff_value=10, buff_round=3, level_required=0, price=10)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hey", amount=10, hidden=True)
         result = InventoryUtil.buyShopitem(guild_id=1, user_id=123, item_name="he", count=2)
@@ -150,7 +151,7 @@ class TestInventoryUtil():
     def test_buyShopitem_failed_levelDoesNotRequired(self):
         MemberUtil.add_member(member_id=123)
         MemberUtil.add_token(member_id=123, amount=10)
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2, level_required=100, price=100)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2, level_required=100, price=100)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         result = InventoryUtil.buyShopitem(guild_id=1, user_id=123, item_name="hello", count=2)
         assert result == ErrorCode.LevelDoesNotReach
@@ -158,7 +159,7 @@ class TestInventoryUtil():
     def test_buyShopitem_failed_noMoney(self):
         MemberUtil.add_member(member_id=123)
         MemberUtil.add_token(member_id=123, amount=10)
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2, level_required=0, price=100)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2, level_required=0, price=100)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         result = InventoryUtil.buyShopitem(guild_id=1, user_id=123, item_name="hello", count=2)
         assert result == ErrorCode.TokenDoesNotEnough
@@ -166,13 +167,13 @@ class TestInventoryUtil():
     def test_buyShopitem_failed_notEnoughSupply(self):
         MemberUtil.add_member(member_id=123)
         MemberUtil.add_token(member_id=123, amount=100)
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2, level_required=0, price=10)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2, level_required=0, price=10)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=1)
         result = InventoryUtil.buyShopitem(guild_id=1, user_id=123, item_name="hello", count=2)
         assert result == ErrorCode.SupplyDoesNotEnough
 
     def test_changeSupplyAmount_success(self):
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2, level_required=0, price=10)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2, level_required=0, price=10)
         shopItem1 = InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=-1)
         assert shopItem1.amount == -1
 
@@ -180,7 +181,7 @@ class TestInventoryUtil():
         assert shopItem2.amount == 10
 
     def test_changeSupplyAmount_success_limitedToUnlimited(self):
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2, level_required=0, price=10)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2, level_required=0, price=10)
         shopItem1 = InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         assert shopItem1.amount == 10
 
@@ -188,8 +189,8 @@ class TestInventoryUtil():
         assert shopItem2.amount == -1
 
     def test_changeSupplyAmount_failed(self):
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2, level_required=0, price=10)
-        ItemUtil.createItem(guild_id=1, item_name="hey", itemtype=4, buff_type=2, buff_value=10, buff_round=3, level_required=0, price=10)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2, level_required=0, price=10)
+        ItemUtil.createItem(guild_id=1, item_name="hey", item_type=ItemType.STATUS, buff_type=BuffType.DEFENCE, buff_value=10, buff_round=3, level_required=0, price=10)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         # item cannot find
         result1 = InventoryUtil.changeSupplyAmount(guild_id=1, item_name="he", newAmount=-1)
@@ -199,7 +200,7 @@ class TestInventoryUtil():
         assert result2 == -2
 
     def test_changeShopitemHiddenStatus_success(self):
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2, level_required=0, price=10)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2, level_required=0, price=10)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         result = InventoryUtil.changeShopitemHiddenStatus(guild_id=1, item_name="hello", hidden=True)
         assert result.hidden == True
@@ -209,20 +210,20 @@ class TestInventoryUtil():
         assert result3.hidden == False
 
     def test_changeShopitemHiddenStatus_failed_noitem(self):
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2, level_required=0, price=10)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2, level_required=0, price=10)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         result = InventoryUtil.changeShopitemHiddenStatus(guild_id=1, item_name="he", hidden=True)
         assert result == -1
 
     def test_changeShopitemHiddenStatus_failed_noShopitem(self):
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2, level_required=0, price=10)
-        ItemUtil.createItem(guild_id=1, item_name="hey", itemtype=4, buff_type=2, buff_value=10, buff_round=3, level_required=0, price=10)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2, level_required=0, price=10)
+        ItemUtil.createItem(guild_id=1, item_name="hey", item_type=ItemType.STATUS, buff_type=BuffType.DEFENCE, buff_value=10, buff_round=3, level_required=0, price=10)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         result = InventoryUtil.changeShopitemHiddenStatus(guild_id=1, item_name="hey", hidden=True)
         assert result == -2
 
     def test_checkShopitemStatus_success(self):
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2, level_required=0, price=10)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2, level_required=0, price=10)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         result = InventoryUtil.checkShopitemStatus(guild_id=1, item_name="hello")
         assert result.hidden == False
@@ -232,7 +233,7 @@ class TestInventoryUtil():
         result1 = InventoryUtil.checkShopitemStatus(guild_id=1, item_name="hello")
         assert result1 == -1
         # no shopitem
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2, level_required=0, price=10)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2, level_required=0, price=10)
         result2 = InventoryUtil.checkShopitemStatus(guild_id=1, item_name="hello")
         assert result2 == -2
 
@@ -240,8 +241,8 @@ class TestInventoryUtil():
         result = InventoryUtil.listHiddenShopItem(guild_id=1)
         assert len(result) == 0
 
-        ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2, level_required=0, price=1)
-        ItemUtil.createItem(guild_id=1, item_name="hey", itemtype=4, buff_type=2, buff_value=10, buff_round=3, level_required=0, price=1)
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2, level_required=0, price=1)
+        ItemUtil.createItem(guild_id=1, item_name="hey", item_type=ItemType.STATUS, buff_type=BuffType.DEFENCE, buff_value=10, buff_round=3, level_required=0, price=1)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
         InventoryUtil.addItemToShop(guild_id=1, item_name="hey", amount=10)
         InventoryUtil.changeShopitemHiddenStatus(guild_id=1, item_name="hello", hidden=True)

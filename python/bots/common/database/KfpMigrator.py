@@ -1,3 +1,4 @@
+from common.RPGUtil.ItemType import ItemType
 from common.customField.BuffField import BuffField
 from common.RPGUtil.Buff import Buff, BuffType
 from peewee import SqliteDatabase, CharField
@@ -39,7 +40,7 @@ class KfpMigrator():
                     migrator.drop_column('item', 'buff_value'),
                 )
             if not KfpMigrator.hasColumn("type", columns):
-                typeField = IntegerField(default=0)
+                typeField = CharField(default=ItemType.NONE)
                 migrate(
                     migrator.add_column('item', 'type', typeField),
                 )

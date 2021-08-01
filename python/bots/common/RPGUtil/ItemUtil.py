@@ -1,18 +1,12 @@
+from common.RPGUtil.ItemType import ItemType
 from common.models.InventoryRecord import Item
 from common.RPGUtil.Buff import *
 from enum import Enum
 from common.customField.BuffField import BuffField
 
-
-class ItemType(Enum):
-    attackItem = 1
-    defenceItem = 2
-    RecoverItem = 3
-    StatusItem = 4
-
 class ItemUtil():
 
-    def createItem(guild_id: int, item_name: str, itemtype: int, buff_type: BuffType = BuffType.NONE, buff_value: int = 0, buff_round: int = -1
+    def createItem(guild_id: int, item_name: str, item_type: ItemType = ItemType.NONE, buff_type: BuffType = BuffType.NONE, buff_value: int = 0, buff_round: int = -1
                    , description: str = "", level_required: int = 10, price: int = 10, role_id: int = -1):
         item = ItemUtil.searchItem(guild_id=guild_id, item_name=item_name)
         # item exist
@@ -26,7 +20,7 @@ class ItemUtil():
                 role_id=role_id,
                 token_required=price,
                 level_required=level_required,
-                type=itemtype,
+                type=item_type,
                 buff=buff,
                 description=description
             )

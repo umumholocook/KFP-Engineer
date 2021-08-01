@@ -1,3 +1,4 @@
+from common.customField.ItemTypeField import ItemTypeField
 from common.customField.BuffField import BuffField
 from common.models.BaseModel import BaseModel
 from peewee import *
@@ -10,7 +11,7 @@ class Item(BaseModel):
     role_id = IntegerField()  # any kind of role associate with this item
     token_required = IntegerField()  # the token required to buy this item
     level_required = IntegerField()  # the level required to buy this item
-    type = IntegerField()  # type of item
+    type = ItemTypeField()  # type of item
     buff = BuffField()  # type of side effect
     description = CharField()  # item description
 
