@@ -23,7 +23,7 @@ class RPG(commands.Cog):
             return
         
         if RPGCharacterUtil.createNewRPGCharacter(ctx.author.id) != None:
-            await ctx.send(f"歡迎冒險者{ctx.author.name}, 從現在開始你的冒險之旅吧!")
+            await ctx.send(f"歡迎冒險者{ctx.author.display_name}, 從現在開始你的冒險之旅吧!")
             return
 
         await ctx.send(f"看起來你的行李好像還沒準備好, 詳情請洽冒險者公會員工.")
@@ -35,7 +35,7 @@ class RPG(commands.Cog):
             await ctx.send("看起來你還沒開始你的旅程呢. 在開始前就放棄的概念?")
             return
         RPGCharacterUtil.retireRPGCharacter(ctx.author.id)
-        await ctx.send(f"冒險者{ctx.author.name}申請退休成功, 辛苦你了!")
+        await ctx.send(f"冒險者{ctx.author.display_name}申請退休成功, 辛苦你了!")
 
 
 def setup(client):

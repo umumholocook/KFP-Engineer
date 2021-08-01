@@ -1,14 +1,13 @@
 from common.models.Member import Member
+from common.MemberUtil import MemberUtil
 from common.models.RPGCharacter import RPGCharacter
 from common.LevelUtil import LevelUtil
+
 
 class RPGCharacterUtil():
 
     def hasAdvantureStared(member_id: int) -> bool:
-        mQuery = Member.select().where(Member.member_id == member_id)
-        if not mQuery.exists():
-            return False
-        member: Member = mQuery.get()
+        member: Member = MemberUtil.get_member(member_id)
         if not member:
             return False
         query = RPGCharacter.select().where(
@@ -19,19 +18,17 @@ class RPGCharacterUtil():
         return True
     
     def retireRPGCharacter(member_id: int) -> bool:
-        mQuery = Member.select().where(Member.member_id == member_id)
-        if not mQuery.exists():
-            return False
-        member: Member = mQuery.get()
+        member: Member = MemberUtil.get_member(member_id)
+        if not member:
+            return
         RPGCharacter.delete().where(
             RPGCharacter.character == member
         ).execute()
 
     def createNewRPGCharacter(member_id: int) -> RPGCharacter:
-        mQuery = Member.select().where(Member.member_id == member_id)
-        if not mQuery.exists():
+        member: Member = MemberUtil.get_member(member_id)
+        if not member:
             return None
-        member: Member = mQuery.get()
         query = RPGCharacter.select().where(
             RPGCharacter.character == member
         )
