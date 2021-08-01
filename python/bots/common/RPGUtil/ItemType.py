@@ -6,3 +6,7 @@ class ItemType(str, Enum):
     DEFENCE = "防禦道具"
     RECOVER = "回復道具"
     STATUS = "狀態道具"
+
+    @staticmethod
+    def list():
+        return list(map(lambda c: c, ItemType))

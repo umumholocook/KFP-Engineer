@@ -45,7 +45,7 @@ class ItemUtil():
         ).execute()
 
     def deleteItems(guild_id: int):
-        Item.delete().execute()
+        Item.delete().where(Item.guild_id == guild_id).execute()
 
     def ListAllItem(guild_id: int):
         result = []

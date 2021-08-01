@@ -1,3 +1,4 @@
+from common.RPGUtil.ItemType import ItemType
 from common.RPGUtil.Buff import BuffType
 from common.RPGUtil.InventoryUtil import InventoryUtil, ErrorCode
 from common.RPGUtil.ItemUtil import ItemUtil
@@ -68,7 +69,7 @@ class Shop(commands.Cog):
         msg += "\t2.把新建立的商品使用add上架販售\n"
         msg += "\n"
         msg += "指令集:\n"
-        msg += "!shop add <商品名稱> <數量> 上架item成為shopitem，若已存在則會增加供應量\n"
+        msg += "!shop add <數量> <商品名稱> 上架<商品名稱>到商店裡，若已存在則會增加供應量\n"
         msg += "!shop create <商品名稱> <道具類型> <增幅類型> <增幅數值> <增幅持續時間> <等級限制> <價錢> <商品描述> 新增一個Item\n"
         msg += "道具類型(1~4): 1.攻擊道具 2.防禦道具 3.恢復道具 4.狀態道具\n"
         msg += "增幅類型(1~4): 1.攻擊力 2.防禦力 3.魔法力 4.生命力\n"
@@ -138,7 +139,7 @@ class Shop(commands.Cog):
         elif buff_round < -1:
             await ctx.send(f"增幅持續時間不可為負數(-1為永遠不毀滅)!請重新輸入!")
         else:
-            result = ItemUtil.createItem(ctx.guild.id, item_name, itemtype, BuffType.list()[buff_type], buff_value, buff_round, description
+            result = ItemUtil.createItem(ctx.guild.id, item_name, ItemType.list()[itemtype], BuffType.list()[buff_type], buff_value, buff_round, description
                                          , level_required, price)
             if result == -1:
                 await ctx.send(item_name + ' 已經存在!')
@@ -159,6 +160,11 @@ class Shop(commands.Cog):
                 msg += " 價格: {}\n".format(str(products.token_required).ljust(3, " "))
             msg += "```"
             await ctx.send(msg)
+
+    @shop_group.command(name="clearAllItems")
+    async def clear_all_items(self, ctx: commands.Command):
+        ItemUtil.deleteItems(ctx.guild.id)
+        await ctx.send("本群所有item清理結束")
 
     @shop_group.command(name="token")
     async def get_user_token(self, ctx: commands.Command):

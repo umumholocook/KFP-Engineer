@@ -53,3 +53,6 @@ class TestItemUtil():
         ItemUtil.deleteItems(guild_id=1)
         result = ItemUtil.ListAllItem(guild_id=1)
         assert result == []
+
+    def test_IntToItemType(self):
+        assert ItemType.list()[0] == ItemType.NONE
