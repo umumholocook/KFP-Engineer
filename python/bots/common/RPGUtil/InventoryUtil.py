@@ -102,6 +102,7 @@ class InventoryUtil():
         if itemRecord:
             itemRecord.amount += count
             itemRecord.save()
+            return
         InventoryUtil.createInventory(guild_id=guild_id, user_id=user_id, item=item, amount=count)
 
     def getAllItemsBelongToUser(guild_id: int, user_id: int):
@@ -114,7 +115,13 @@ class InventoryUtil():
             for record in query.iterator():
                 result.append(record)
         return result
-
+#################################以下指令為開發人員專用！正式版本發布前請刪除！
+    def removeUserItems_TEST(guild_id: int, user_id: int):
+        InventoryRecord.delete().where(
+            InventoryRecord.guild_id == guild_id,
+            InventoryRecord.user_id == user_id
+        ).execute()
+##########################################################################
     def findItemRecord(guild_id: int, user_id: int, item: Item):
         query = InventoryRecord.select().where(
             InventoryRecord.guild_id == guild_id,
