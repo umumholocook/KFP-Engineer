@@ -52,10 +52,10 @@ class TestKujiUtil():
         assert history[0] == 1
         assert history[1] == 2
 
-    # def test_clearData(self):
-    #     KujiUtil.updateMemberJp(1, 1)
-    #     KujiUtil.clearData()
-    #     assert KujiUtil.canDrawJp(1)
-    #
-    #     KujiUtil.updateMemberCn(1, 1, 2)
-    #     assert not KujiUtil.canDrawCn(1)
+    def test_clearData(self):
+        KujiUtil.updateMemberJp(1, 1)
+        KujiUtil.clearData()
+        assert KujiUtil.canDrawJp(1)
+    
+        KujiUtil.updateMemberCn(1, 1, 2)
+        assert not KujiUtil.canDrawCn(1)
