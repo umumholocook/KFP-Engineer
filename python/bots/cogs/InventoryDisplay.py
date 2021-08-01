@@ -15,9 +15,9 @@ class InventoryDisplay(commands.Cog):
         msg += "```"
         await ctx.send(msg)
 
-    @inventory_group.command(command='list')
-    async def show_inventory(self, ctx: commands.context):
-        result = InventoryUtil.getAllItemsBelongToUser(ctx.guild_id, ctx.user_id)
+    @inventory_group.command(name='list')
+    async def show_inventory(self, ctx: commands.Context):
+        result = InventoryUtil.getAllItemsBelongToUser(ctx.guild.id, ctx.author.id)
         result_count = len(result)  # 資料個數 = 資料輸出串列總長
         if result_count < 1:
             await ctx.send('你尚未擁有認為物品!')
