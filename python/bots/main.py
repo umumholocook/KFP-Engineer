@@ -119,7 +119,7 @@ def get_version():
     return f"{VERSION}.{count}"
 
 
-exception_cogs = ["InventoryDisplay.py"]
+exception_cogs = []
 
 #preload cogs
 temp = 'load cogs:\n'
