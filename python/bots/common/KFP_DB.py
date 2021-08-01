@@ -1,3 +1,4 @@
+from common.models.RPGCharacter import RPGCharacter
 from common.MemberUtil import MemberUtil
 from common.ChannelUtil import ChannelUtil
 
@@ -22,7 +23,7 @@ from discord.guild import Guild, Role
 from peewee import SqliteDatabase
 
 MODULES = [Channel, Forward, GamblingBet, GamblingGame, InventoryRecord, Item,
-KfpRole, KujiRecord, Member, NicknameModel, PermissionRole, Police, ShopItem]
+KfpRole, KujiRecord, Member, NicknameModel, PermissionRole, Police, RPGCharacter, ShopItem]
 
 class KfpDb():
     # {guild:[channel, channel,...] ... }
