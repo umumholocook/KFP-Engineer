@@ -1,3 +1,4 @@
+from common.RPGUtil.Buff import BuffType
 from common.RPGUtil.InventoryUtil import InventoryUtil, ErrorCode
 from common.RPGUtil.ItemUtil import ItemUtil
 from discord.ext import commands
@@ -130,14 +131,14 @@ class Shop(commands.Cog):
             await ctx.send(f"名稱不可超過15個中英字元!")
         elif price < 0:
             await ctx.send(f"價錢不可為負!請重新輸入!")
-        elif not 0 < itemtype < 5:
-            await ctx.send(f"道具類型只有四種!請重新輸入!")
+        elif not 0 < itemtype < len(BuffType):
+            await ctx.send(f"道具類型錯誤!請重新輸入!")
         elif not 0 < buff_type < 5:
             await ctx.send(f"增幅類型只有四種!請重新輸入!")
         elif buff_round < -1:
             await ctx.send(f"增幅持續時間不可為負數(-1為永遠不毀滅)!請重新輸入!")
         else:
-            result = ItemUtil.createItem(ctx.guild.id, item_name, itemtype, buff_type, buff_value, buff_round, description
+            result = ItemUtil.createItem(ctx.guild.id, item_name, itemtype, BuffType.list()[buff_type], buff_value, buff_round, description
                                          , level_required, price)
             if result == -1:
                 await ctx.send(item_name + ' 已經存在!')
@@ -254,14 +255,16 @@ class Shop(commands.Cog):
             else:
                 itemtype = "狀態道具"
 
-            if result.item.buff.buff_type == 1:
+            if result.item.buff.buff_type == BuffType.ATTACK:
                 bufftype = "攻擊力"
-            elif result.item.buff.buff_type == 2:
+            elif result.item.buff.buff_type == BuffType.DEFENCE:
                 bufftype = "防禦力"
-            elif result.item.buff.buff_type == 3:
+            elif result.item.buff.buff_type == BuffType.MAGIC:
                 bufftype = "魔法力"
-            else:
+            elif result.item.buff.buff_type == BuffType.HIT_POINT:
                 bufftype = "生命力"
+            else:
+                bufftype = "無屬性"
 
             msg = "```"
             msg += f"商品名稱: {result.item.name}\n"

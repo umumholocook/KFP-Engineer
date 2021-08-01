@@ -1,3 +1,4 @@
+from common.RPGUtil.Buff import Buff, BuffType
 from common.RPGUtil.InventoryUtil import InventoryUtil, ErrorCode
 from common.KFP_DB import KfpDb
 from common.MemberUtil import MemberUtil
@@ -14,6 +15,20 @@ class TestInventoryUtil():
         inventory = InventoryUtil.getAllItemsBelongToUser(1, 1)
         assert len(inventory) == 0
 
+    def test_buffTypeStorage_success(self):
+        item = ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=BuffType.ATTACK, buff_value=30, buff_round=3)
+        item_buff:Buff = item.buff
+        assert item_buff.buff_type == BuffType.ATTACK
+        assert item_buff.buff_value == 30
+        assert item_buff.buff_round == 3
+
+    def test_buffTypeStorageRead_success(self):
+        item = ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=BuffType.ATTACK, buff_value=30, buff_round=3)
+        item_from_db = ItemUtil.ListAllItem(guild_id=1)[0]
+        item_buff:Buff = item_from_db.buff
+        assert item_buff.buff_type == BuffType.ATTACK
+        assert item_buff.buff_value == 30
+        assert item_buff.buff_round == 3
 
     def test_addItemToItemdb_success(self):
         item1 = ItemUtil.createItem(guild_id=1, item_name="hello", itemtype=1, buff_type=1, buff_value=-1, buff_round=2)

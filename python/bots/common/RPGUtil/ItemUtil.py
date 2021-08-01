@@ -10,11 +10,10 @@ class ItemType(Enum):
     RecoverItem = 3
     StatusItem = 4
 
-
 class ItemUtil():
 
-    def createItem(guild_id: int, item_name: str, itemtype: int, buff_type: int, buff_value: int, buff_round: int
-                   , description: str = "無", level_required: int = 10, price: int = 10, role_id: int = -1):
+    def createItem(guild_id: int, item_name: str, itemtype: int, buff_type: BuffType = BuffType.NONE, buff_value: int = 0, buff_round: int = -1
+                   , description: str = "", level_required: int = 10, price: int = 10, role_id: int = -1):
         item = ItemUtil.searchItem(guild_id=guild_id, item_name=item_name)
         # item exist
         if item is not None:

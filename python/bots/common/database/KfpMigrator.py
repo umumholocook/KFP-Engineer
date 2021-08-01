@@ -1,5 +1,5 @@
 from common.customField.BuffField import BuffField
-from common.models.Member import Member
+from common.RPGUtil.Buff import Buff, BuffType
 from peewee import SqliteDatabase, CharField
 from peewee import BigIntegerField, IntegerField
 from playhouse.migrate import SqliteMigrator
@@ -9,7 +9,6 @@ class KfpMigrator():
     def KfpMigrate(database: SqliteDatabase):
         tables = database.get_tables()
         migrator = SqliteMigrator(database)
-
         if "member" in tables:
             columns = database.get_columns("member")
             if not KfpMigrator.hasColumn("token", columns):
@@ -27,16 +26,31 @@ class KfpMigrator():
                 )
         if "item" in tables:
             columns = database.get_columns("item")
-            if KfpMigrator.hasColumn("hidden", columns):
-                typeField = IntegerField(default=0)
-                buff = BuffField(default="")
-                description = CharField(default="")
+            if KfpMigrator.hasColumn("hidden", columns):                
                 migrate(
                     migrator.drop_column('item', 'hidden'),
-                    migrator.add_column('item', 'type', typeField),
+                )
+            if KfpMigrator.hasColumn("buff_type", columns):                
+                migrate(
                     migrator.drop_column('item', 'buff_type'),
+                )
+            if KfpMigrator.hasColumn("buff_value", columns):                
+                migrate(
                     migrator.drop_column('item', 'buff_value'),
+                )
+            if not KfpMigrator.hasColumn("type", columns):
+                typeField = IntegerField(default=0)
+                migrate(
+                    migrator.add_column('item', 'type', typeField),
+                )
+            if not KfpMigrator.hasColumn("buff", columns):
+                buff = BuffField(default=Buff(BuffType.NONE, 0, -1))
+                migrate(
                     migrator.add_column('item', 'buff', buff),
+                )
+            if not KfpMigrator.hasColumn("description", columns):
+                description = CharField(default="")
+                migrate(
                     migrator.add_column('item', 'description', description),
                 )
         return True
