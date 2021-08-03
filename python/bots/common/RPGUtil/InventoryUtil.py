@@ -98,7 +98,8 @@ class InventoryUtil():
 
     def deleteShopItem(guild_id: int, item: Item):
         ShopItem.delete().where(
-            ShopItem.item == item
+            ShopItem.item == item,
+            ShopItem.guild_id == guild_id
         ).execute()
 
     def deleteShopItems(guild_id: int):

@@ -43,7 +43,8 @@ class ItemUtil():
         if shopItem is not None:
             InventoryUtil.deleteShopItem(guild_id=guild_id, item=item)
         Item.delete().where(
-            Item.name == item_name
+            Item.name == item_name,
+            Item.guild_id == guild_id
         ).execute()
 
     def deleteItems(guild_id: int):
