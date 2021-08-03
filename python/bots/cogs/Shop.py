@@ -252,14 +252,16 @@ class Shop(commands.Cog):
         if result is None:
             await ctx.send("找不到該商品，請確認名稱是否輸入錯誤!")
         else:
-            if result.item.type == 1:
+            if result.item.type == ItemType.ATTACK:
                 itemtype = "攻擊道具"
-            elif result.item.type == 2:
+            elif result.item.type == ItemType.DEFENCE:
                 itemtype = "防禦道具"
-            elif result.item.type == 3:
+            elif result.item.type == ItemType.RECOVER:
                 itemtype = "恢復道具"
-            else:
+            elif result.item.type == ItemType.STATUS:
                 itemtype = "狀態道具"
+            else:
+                itemtype = "一般道具"
 
             if result.item.buff.buff_type == BuffType.ATTACK:
                 bufftype = "攻擊力"

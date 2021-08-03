@@ -96,6 +96,17 @@ class InventoryUtil():
             return shopItem
         return None
 
+    def deleteShopItem(guild_id: int, item: Item):
+        ShopItem.delete().where(
+            ShopItem.item == item,
+            ShopItem.guild_id == guild_id
+        ).execute()
+
+    def deleteShopItems(guild_id: int):
+        ShopItem.delete().where(
+            ShopItem.guild_id == guild_id
+        ).execute()
+
     def addItemToUserInventory(guild_id: int, user_id: int, item: Item, count: int):
         itemRecord: InventoryRecord = InventoryUtil.findItemRecord(guild_id=guild_id, user_id=user_id, item=item)
         # if member does not have InventoryRecord
@@ -115,13 +126,15 @@ class InventoryUtil():
             for record in query.iterator():
                 result.append(record)
         return result
-#################################以下指令為開發人員專用！正式版本發布前請刪除！
+
+    #################################以下指令為開發人員專用！正式版本發布前請刪除！
     def removeUserItems_TEST(guild_id: int, user_id: int):
         InventoryRecord.delete().where(
             InventoryRecord.guild_id == guild_id,
             InventoryRecord.user_id == user_id
         ).execute()
-##########################################################################
+
+    ##########################################################################
     def findItemRecord(guild_id: int, user_id: int, item: Item):
         query = InventoryRecord.select().where(
             InventoryRecord.guild_id == guild_id,

@@ -98,6 +98,28 @@ class TestInventoryUtil():
         result = InventoryUtil.findShopItem(guild_id=1, item=item1)
         assert result == None
 
+    def test_deleteShopItem(self):
+        item1 = ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2)
+        ItemUtil.createItem(guild_id=1, item_name="hey", item_type=ItemType.STATUS, buff_type=BuffType.DEFENCE, buff_value=10, buff_round=3)
+        InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
+        InventoryUtil.addItemToShop(guild_id=1, item_name="hey", amount=100)
+        list = InventoryUtil.ShopMenu(guild_id=1)
+        assert len(list) == 2
+        InventoryUtil.deleteShopItem(guild_id=1, item=item1)
+        list = InventoryUtil.ShopMenu(guild_id=1)
+        assert len(list) == 1
+
+    def test_deleteShopItems(self):
+        ItemUtil.createItem(guild_id=1, item_name="hello", item_type=ItemType.ATTACK, buff_type=BuffType.ATTACK, buff_value=-1, buff_round=2)
+        ItemUtil.createItem(guild_id=1, item_name="hey", item_type=ItemType.STATUS, buff_type=BuffType.DEFENCE, buff_value=10, buff_round=3)
+        InventoryUtil.addItemToShop(guild_id=1, item_name="hello", amount=10)
+        InventoryUtil.addItemToShop(guild_id=1, item_name="hey", amount=100)
+        list = InventoryUtil.ShopMenu(guild_id=1)
+        assert len(list) == 2
+        InventoryUtil.deleteShopItems(guild_id=1)
+        list = InventoryUtil.ShopMenu(guild_id=1)
+        assert len(list) == 0
+
     def test_getAllItemsBelongToUser_empty(self):
         MemberUtil.add_member(member_id=123)
         MemberUtil.add_token(member_id=123, amount=100)
