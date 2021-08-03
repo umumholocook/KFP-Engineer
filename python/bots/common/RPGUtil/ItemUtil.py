@@ -1,8 +1,7 @@
+from common.RPGUtil import InventoryUtil
 from common.RPGUtil.ItemType import ItemType
 from common.models.InventoryRecord import Item
 from common.RPGUtil.Buff import *
-from enum import Enum
-from common.customField.BuffField import BuffField
 
 class ItemUtil():
 
@@ -40,11 +39,15 @@ class ItemUtil():
         # does not exist item
         if item is None:
             return -1
+        shopItem = InventoryUtil.findShopItem(guild_id=guild_id, item=item)
+        if shopItem is not None:
+            InventoryUtil.deleteShopItem(guild_id=guild_id, item=item)
         Item.delete().where(
             Item.name == item_name
         ).execute()
 
     def deleteItems(guild_id: int):
+        InventoryUtil.deleteShopItems(guild_id=guild_id)
         Item.delete().where(Item.guild_id == guild_id).execute()
 
     def ListAllItem(guild_id: int):
