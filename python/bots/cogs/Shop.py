@@ -78,7 +78,7 @@ class Shop(commands.Cog):
         msg += "!shop itemStatus <商品名稱> 確認item是否上架(或上架但隱藏)\n"
         msg += "!shop listItem 將目前創建好的item列出\n"
         msg += "!shop deleteItem <商品名稱> 刪除特定item\n"
-        msg += "!shop deleteItems 將目前創建好的所有item刪除\n"
+        msg += "!shop clearAllItems 將目前創建好的所有item刪除(若已上架則會一併清除ShopItem)\n"
         msg += "!shop listHidden 顯示隱藏狀態的商品\n"
         msg += "\n\n"
         msg += "註1:change指令會直接改動目前供應數量，適用時機為\n"
@@ -161,11 +161,6 @@ class Shop(commands.Cog):
             msg += "```"
             await ctx.send(msg)
 
-    @shop_group.command(name="clearAllItems")
-    async def clear_all_items(self, ctx: commands.Command):
-        ItemUtil.deleteItems(ctx.guild.id)
-        await ctx.send("本群所有item清理結束")
-
     @shop_group.command(name="token")
     async def get_user_token(self, ctx: commands.Command):
         member = MemberUtil.get_or_add_member(ctx.author.id)
@@ -226,10 +221,10 @@ class Shop(commands.Cog):
         else:
             await ctx.send(f"{item_name} 已被成功刪除!")
 
-    @shop_group.command(name="deleteItems")
-    async def delete_items(self, ctx: commands.Command, item_name: str):
+    @shop_group.command(name="clearAllItems")
+    async def clear_all_items(self, ctx: commands.Command):
         ItemUtil.deleteItems(ctx.guild.id)
-        await ctx.send("所有item已被成功刪除!")
+        await ctx.send("本群所有item清理結束")
 
     @shop_group.command(name="listHidden")
     async def list_hidden_shopItem(self, ctx: commands.Command):
