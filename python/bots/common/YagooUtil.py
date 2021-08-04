@@ -1,4 +1,4 @@
-import os, tempfile
+import os, tempfile, unicodedata
 from PIL import Image, ImageDraw, ImageFont
 
 class YagooUtil():
@@ -11,6 +11,22 @@ class YagooUtil():
     def _getMemePath():
         return os.sep.join((os.getcwd(), "resource", "image", "yagoo_hello.jpg"))
 
+    def _getSubText(text: str, offset: int):
+        subText = ""
+        length = 0
+        print("getting range ({}, {})".format(offset, min(offset + 4, len(text))))
+        for i in range(offset, min(offset + 4, len(text))):
+            status = unicodedata.east_asian_width(text[i])
+            if status == 'W':
+                length += 2    
+            else:
+                length += 1
+            if length > 4:
+                break
+            print("adding {} to the string with width {}".format(text[i], status))
+            subText += text[i] 
+        return subText
+
     def renderText(text: str):
         offset = 10
         yellow = (252, 241, 79)
@@ -18,8 +34,11 @@ class YagooUtil():
         image = Image.open(YagooUtil._getMemePath())
         draw = ImageDraw.Draw(image)
 
-        _, text_h = YagooUtil._renderSubText((offset, offset), yellow, text[:2], draw)
-        YagooUtil._renderSubText((offset, offset + text_h), blue, text[2:4], draw)
+        subText_1 = YagooUtil._getSubText(text, 0)
+        _, text_h = YagooUtil._renderSubText((offset, offset), yellow, subText_1, draw)
+
+        subText_2 = YagooUtil._getSubText(text, len(subText_1))
+        YagooUtil._renderSubText((offset, offset + text_h), blue, subText_2, draw)
         
         image.save(YagooUtil._getStoragePath())
 
