@@ -14,7 +14,6 @@ class YagooUtil():
     def _getSubText(text: str, offset: int):
         subText = ""
         length = 0
-        print("getting range ({}, {})".format(offset, min(offset + 4, len(text))))
         for i in range(offset, min(offset + 4, len(text))):
             status = unicodedata.east_asian_width(text[i])
             if status == 'W':
@@ -23,7 +22,6 @@ class YagooUtil():
                 length += 1
             if length > 4:
                 break
-            print("adding {} to the string with width {}".format(text[i], status))
             subText += text[i] 
         return subText
 
