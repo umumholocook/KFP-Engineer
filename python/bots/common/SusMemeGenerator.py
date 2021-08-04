@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 from numpy import asarray
-import os, tempfile, random, imageio, asyncio
+import os, tempfile, random, imageio
 
 
 class SusMemeGenerator():
