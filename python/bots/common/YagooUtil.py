@@ -1,5 +1,5 @@
 import os, tempfile, unicodedata
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 class YagooUtil():
     def getTempFileName():
@@ -33,14 +33,33 @@ class YagooUtil():
         draw = ImageDraw.Draw(image)
 
         subText_1 = YagooUtil._getSubText(text, 0)
+        YagooUtil._renderSubTextShadow((offset, offset), subText_1, image)
         _, text_h = YagooUtil._renderSubText((offset, offset), yellow, subText_1, draw)
 
         subText_2 = YagooUtil._getSubText(text, len(subText_1))
+        YagooUtil._renderSubTextShadow((offset, offset + text_h), subText_2, image)
         YagooUtil._renderSubText((offset, offset + text_h), blue, subText_2, draw)
         
         image.save(YagooUtil._getStoragePath())
 
         return YagooUtil._getStoragePath()
+
+    def _renderSubTextShadow(offset, subText: str, image: Image):
+        font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "DFKai-SB.ttf")), size=50, encoding='utf-8')
+        textSize = ImageDraw.Draw(image).textsize(subText, font)
+
+        blurred = Image.new('RGBA', textSize)
+        draw = ImageDraw.Draw(blurred)
+        size = 1.2
+        draw.text((textSize[0] / 2, textSize[1] / 2), subText, fill=(255, 255, 255), font=font, anchor='mm')
+        blurred = blurred.resize((int(blurred.size[0] * size), int(blurred.size[1] * size)))
+        blurred = blurred.filter(ImageFilter.GaussianBlur(radius=2))
+        blurred = blurred.filter(ImageFilter.GaussianBlur(radius=2))
+        white = Image.new('RGBA', blurred.size, (255, 255, 255))
+        
+        # Paste soft text onto background
+        image.paste(white, (offset[0] * -1 , offset[1] - 4), blurred)
+
 
     def _renderSubText(offset, text_color, subText: str, draw: ImageDraw):
         stroke_color = (0, 0, 0)
