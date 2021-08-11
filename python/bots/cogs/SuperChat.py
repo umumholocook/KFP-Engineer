@@ -24,10 +24,8 @@ class SuperChatMeme(commands.Cog):
 
     @commands.group(name='sc', invoke_without_command=True)
     async def superchat_group(self, ctx: commands.Context, sc_money: int, user: User, sc_msg: str = ""):
-        # money 0 just for test
-        if sc_money == 0:
-            sc_color = "RED"
-        elif sc_money < 15:
+
+        if sc_money < 15:
             await ctx.send("至少15硬幣才能使用SuperChat!\n")
             return
         else:
