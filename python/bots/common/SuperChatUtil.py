@@ -1,6 +1,8 @@
 import os
 import random
 import tempfile
+
+import unicodedata
 from PIL import Image, ImageDraw, ImageFont
 import re
 
@@ -58,6 +60,19 @@ class SuperChatUtil():
         mask = Image.open(SuperChatUtil._getMaskImagePath()).resize((SuperChatUtil._avatar_size, SuperChatUtil._avatar_size))
         img = avatar.resize((SuperChatUtil._avatar_size, SuperChatUtil._avatar_size))
         background.paste(img, tuple(SuperChatUtil._allOffSet["avatar"]), mask)
+
+        # see need to add text image or not
+        if sc_color != "BLUE":
+            addPage, newMsg = SuperChatUtil._resizeMsg(offset=1650, msg=sc_msg, img=background)
+            print(addPage)
+            if addPage != 0:
+                text_path = os.sep.join(
+                    (os.getcwd(), "resource", "image", "superchatMeme", f"{sc_color}_text.png"))
+                textground = Image.open(text_path)
+                if addPage == 1:
+                    background.paste(textground, (0, 390))
+                elif addPage == 2:
+                    background.paste(textground, (0, 460))
         draw = ImageDraw.Draw(background)
 
         # name
@@ -72,7 +87,7 @@ class SuperChatUtil():
 
         # msg
         if sc_color != "BLUE":
-            SuperChatUtil._pasteText(SuperChatUtil._allOffSet["text"], sc_msg, nameColor, draw)
+            SuperChatUtil._pasteText(SuperChatUtil._allOffSet["text"], newMsg, nameColor, draw)
 
         background.save(os.sep.join((tempfile.gettempdir(), "result.png")))
         return SuperChatUtil.getMemePath()
@@ -95,5 +110,24 @@ class SuperChatUtil():
                                   encoding='utf-8')
         draw.text(offset, msg, fill=tuple(color), font=font)
 
+    def _resizeMsg(offset: int, msg: str, img: Image):
+        font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "msjh.ttc")), size=60,
+                                  encoding='utf-8')
+        addPage = 0
+        newMsg = ""
+        for i in range(len(msg)):
+            newMsg += msg[i]
+            if ImageDraw.Draw(img).textsize(newMsg, font)[0] > offset:
+                newMsg = newMsg[:-1] + "\n" + newMsg[-1]
+                addPage += 1
+                if addPage == 3:
+                    newMsg = newMsg[:-3] + "..."
+                    addPage -= 1
+                    return addPage, newMsg
+        return addPage, newMsg
+
     def _getMaskImagePath():
         return os.sep.join((os.getcwd(), "resource", "image", "superchatMeme", "mask.png"))
+
+    def _getTextMaskPath():
+        return os.sep.join((os.getcwd(), "resource", "image", "superchatMeme", "text_mask.png"))

@@ -7,24 +7,23 @@ from common.MemberUtil import MemberUtil
 from common.SuperChatUtil import SuperChatUtil
 from common.NicknameUtil import NicknameUtil
 
+
 class SuperChatMeme(commands.Cog):
-    # Color = [
-    #     "BLUE",
-    #     "CYAN",
-    #     "LIGHTBLUE",
-    #     "MAGENTA",
-    #     "ORANGE",
-    #     "RED",
-    #     "YELLOW",
-    #     "RANDOM"
-    # ]
+    _ColorWord = {
+        "BLUE": 0,
+        "CYAN": 150,
+        "LIGHTBLUE": 50,
+        "MAGENTA": 250,
+        "ORANGE": 225,
+        "RED": 270,
+        "YELLOW": 200,
+    }
 
     def __init__(self, bot):
         self.bot = bot
 
     @commands.group(name='sc', invoke_without_command=True)
-    async def superchat_group(self, ctx: commands.Context, sc_money: int, user: User, sc_msg: str):
-        sc_color = "RANDOM"
+    async def superchat_group(self, ctx: commands.Context, sc_money: int, user: User, sc_msg: str = ""):
         # money 0 just for test
         if sc_money == 0:
             sc_color = "RED"
@@ -32,7 +31,12 @@ class SuperChatMeme(commands.Cog):
             await ctx.send("至少15硬幣才能使用SuperChat!\n")
             return
         else:
-            SuperChatMeme._getColor(sc_money)
+            sc_color = SuperChatMeme._getColor(sc_money)
+
+        # check msg too long or not
+        if len(sc_msg) > SuperChatMeme._ColorWord[sc_color]:
+            await ctx.send(f"字數過多!請限制在{SuperChatMeme._ColorWord[sc_color]}字元內!")
+            return
 
         # check author have enough coins or not
         giver = MemberUtil.get_or_add_member(ctx.author.id)
@@ -43,7 +47,7 @@ class SuperChatMeme(commands.Cog):
 
         # transaction
         MemberUtil.add_coin(member_id=giver.id, amount=-sc_money)
-        MemberUtil.add_coin(member_id=adder, amount=sc_money)
+        MemberUtil.add_coin(member_id=adder, amount=sc_money * 0.8)
 
         # create image
         avatar = self.downloadUserAvatar(ctx.author)
@@ -90,6 +94,7 @@ class SuperChatMeme(commands.Cog):
         else:
             sc_color = "RED"
         return sc_color
+
 
 def setup(client):
     client.add_cog(SuperChatMeme(client))
