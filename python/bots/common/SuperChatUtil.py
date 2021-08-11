@@ -10,7 +10,7 @@ class SuperChatUtil():
     _avatar_size = 165
 
     _picList = [
-        # "BLUE.png",
+        "BLUE.png",
         "CYAN.png",
         "LIGHTBLUE.png",
         "MAGENTA.png",
@@ -20,8 +20,8 @@ class SuperChatUtil():
     ]
 
     _word_color = {
-        # "BLUE_name": [185, 209, 236],
-        # "BLUE_word": [255, 255, 255],
+        "BLUE_name": [185, 209, 236],
+        "BLUE_word": [255, 255, 255],
         "CYAN_name": [0, 88, 76],
         "CYAN_word": [0, 0, 0],
         "LIGHTBLUE_name": [0, 55, 63],
@@ -51,8 +51,6 @@ class SuperChatUtil():
             os.remove(SuperChatUtil.getMemePath())
 
         # background
-        if sc_color == "RANDOM":
-            sc_color = random.choice(SuperChatUtil._picList)[:-4]
         background_path = os.sep.join((os.getcwd(), "resource", "image", "superchatMeme", f"{sc_color}.png"))
         background = Image.open(background_path)
 
@@ -73,7 +71,8 @@ class SuperChatUtil():
         SuperChatUtil._pasteMoney(SuperChatUtil._allOffSet["money"], str(sc_money), nameColor, draw)
 
         # msg
-        SuperChatUtil._pasteText(SuperChatUtil._allOffSet["text"], sc_msg, nameColor, draw)
+        if sc_color != "BLUE":
+            SuperChatUtil._pasteText(SuperChatUtil._allOffSet["text"], sc_msg, nameColor, draw)
 
         background.save(os.sep.join((tempfile.gettempdir(), "result.png")))
         return SuperChatUtil.getMemePath()

@@ -90,9 +90,9 @@ class Shop(commands.Cog):
 
     @shop_group.command(name="exchange")
     async def exchange_token(self, ctx: commands.Command, need_token: int):
-        member = MemberUtil.get_member(ctx.author.id)
+        member = MemberUtil.get_or_add_member(ctx.author.id)
         if member is None:
-            await ctx.send("沒硬幣還想換雞腿，還想做白日夢啊")
+            await ctx.send("沒硬幣還想換雞腿，趕快去店外雜談區聊天賺硬幣!")
         else:
             coinspertoken = GamblingUtil.get_token_rate()
             spend = need_token * coinspertoken
