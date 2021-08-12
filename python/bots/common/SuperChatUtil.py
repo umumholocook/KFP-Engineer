@@ -1,10 +1,6 @@
 import os
-import random
 import tempfile
-
-import unicodedata
 from PIL import Image, ImageDraw, ImageFont
-import re
 
 
 class SuperChatUtil():
@@ -40,8 +36,8 @@ class SuperChatUtil():
 
     _allOffSet = {
         "avatar": [140, 110],
-        "name": [350, 120],
-        "money": [350, 200],
+        "name": [350, 112],
+        "money": [350, 192],
         "text": [140, 350],
     }
 
@@ -63,7 +59,7 @@ class SuperChatUtil():
 
         # see need to add text image or not
         if sc_color != "BLUE":
-            addPage, newMsg = SuperChatUtil._resizeMsg(offset=1650, msg=sc_msg, img=background)
+            addPage, newMsg = SuperChatUtil._resizeMsg(offset=1625, msg=sc_msg, img=background)
             if addPage != 0:
                 text_path = os.sep.join(
                     (os.getcwd(), "resource", "image", "superchatMeme", f"{sc_color}_text.png"))
@@ -71,6 +67,7 @@ class SuperChatUtil():
                 if addPage == 1:
                     background.paste(textground, (0, 390))
                 elif addPage == 2:
+                    background.paste(textground, (0, 390))
                     background.paste(textground, (0, 460))
         draw = ImageDraw.Draw(background)
 
@@ -94,7 +91,7 @@ class SuperChatUtil():
     def _pasteName(offset, username: str, color: list, draw: ImageDraw):
         font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "msjh.ttc")), size=60,
                                   encoding='utf-8')
-        draw.text(offset, username, fill=tuple(color), font=font)
+        draw.text(offset, username, fill=tuple(color), font=font, stroke_width=1)
 
     def _pasteMoney(offset, money: str, color: list, draw: ImageDraw):
         font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "msjh.ttc")), size=60,
@@ -102,7 +99,7 @@ class SuperChatUtil():
         money = money[::-1]
         result = ','.join([money[i:i+3] for i in range(0, len(money), 3)])
         result = "Coin. " + result[::-1] + ".00"
-        draw.text(offset, result, fill=tuple(color), font=font)
+        draw.text(offset, result, fill=tuple(color), font=font, stroke_width=1)
 
     def _pasteText(offset, msg: str, color: list, draw: ImageDraw):
         font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "msjh.ttc")), size=60,
