@@ -71,8 +71,8 @@ class Shop(commands.Cog):
         msg += "指令集:\n"
         msg += "!shop add <數量> <商品名稱> 上架<商品名稱>到商店裡，若已存在則會增加供應量\n"
         msg += "!shop create <商品名稱> <道具類型> <增幅類型> <增幅數值> <增幅持續時間> <等級限制> <價錢> <商品描述> 新增一個Item\n"
-        msg += "道具類型(1~4): 1.攻擊道具 2.防禦道具 3.恢復道具 4.狀態道具\n"
-        msg += "增幅類型(1~4): 1.攻擊力 2.防禦力 3.魔法力 4.生命力\n"
+        msg += "道具類型(1~5): 1.一般道具 2.攻擊道具 3.防禦道具 4.回復道具 5.狀態道具\n"
+        msg += "增幅類型(1~4): 1.無 2.攻擊力 3.防禦力 4.魔法力 5.生命力\n"
         msg += "!shop change <新的供應數量> <商品名稱> 更改shopitem的供應量\n"
         msg += "!shop hidden <商品名稱> <商品隱藏與否(True為隱藏/False為顯示)>\n"
         msg += "!shop itemStatus <商品名稱> 確認item是否上架(或上架但隱藏)\n"
@@ -90,9 +90,9 @@ class Shop(commands.Cog):
 
     @shop_group.command(name="exchange")
     async def exchange_token(self, ctx: commands.Command, need_token: int):
-        member = MemberUtil.get_member(ctx.author.id)
+        member = MemberUtil.get_or_add_member(ctx.author.id)
         if member is None:
-            await ctx.send("沒硬幣還想換雞腿，還想做白日夢啊")
+            await ctx.send("沒硬幣還想換雞腿，趕快去店外雜談區聊天賺硬幣!")
         else:
             coinspertoken = GamblingUtil.get_token_rate()
             spend = need_token * coinspertoken
@@ -132,10 +132,10 @@ class Shop(commands.Cog):
             await ctx.send(f"名稱不可超過15個中英字元!")
         elif price < 0:
             await ctx.send(f"價錢不可為負!請重新輸入!")
-        elif not 0 < itemtype < len(BuffType):
+        elif not 0 < itemtype < len(ItemType) + 1:
             await ctx.send(f"道具類型錯誤!請重新輸入!")
-        elif not 0 < buff_type < 5:
-            await ctx.send(f"增幅類型只有四種!請重新輸入!")
+        elif not 0 < buff_type < len(BuffType) + 1:
+            await ctx.send(f"增幅類型只有五種!請重新輸入!")
         elif buff_round < -1:
             await ctx.send(f"增幅持續時間不可為負數(-1為永遠不毀滅)!請重新輸入!")
         else:
