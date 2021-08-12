@@ -33,7 +33,7 @@ class SuperChatMeme(commands.Cog):
 
         # check msg too long or not
         if len(sc_msg) > SuperChatMeme._ColorWord[sc_color]:
-            await ctx.send(f"字數過多!請限制在{SuperChatMeme._ColorWord[sc_color]}字元內!")
+            await ctx.send(f"字數過多!請限制在{SuperChatMeme._ColorWord[sc_color]}字數內!")
             return
 
         # check author have enough coins or not

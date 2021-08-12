@@ -45,7 +45,7 @@ class SuperChatUtil():
         "text": [140, 350],
     }
 
-    def getMemePath():
+    def getSuperChatPath():
         return os.sep.join((tempfile.gettempdir(), "result.png"))
 
     def createSC(user_name:str , avatar: Image, sc_money: int, sc_msg: str, sc_color: str):
@@ -90,7 +90,7 @@ class SuperChatUtil():
             SuperChatUtil._pasteText(SuperChatUtil._allOffSet["text"], newMsg, nameColor, draw)
 
         background.save(os.sep.join((tempfile.gettempdir(), "result.png")))
-        return SuperChatUtil.getMemePath()
+        return SuperChatUtil.getSuperChatPath()
 
     def _pasteName(offset, username: str, color: list, draw: ImageDraw):
         font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "msjh.ttc")), size=60,
@@ -128,6 +128,3 @@ class SuperChatUtil():
 
     def _getMaskImagePath():
         return os.sep.join((os.getcwd(), "resource", "image", "superchatMeme", "mask.png"))
-
-    def _getTextMaskPath():
-        return os.sep.join((os.getcwd(), "resource", "image", "superchatMeme", "text_mask.png"))
