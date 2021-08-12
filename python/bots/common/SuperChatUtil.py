@@ -49,8 +49,8 @@ class SuperChatUtil():
         return os.sep.join((tempfile.gettempdir(), "result.png"))
 
     def createSC(user_name:str , avatar: Image, sc_money: int, sc_msg: str, sc_color: str):
-        if os.path.exists(SuperChatUtil.getMemePath()):
-            os.remove(SuperChatUtil.getMemePath())
+        if os.path.exists(SuperChatUtil.getSuperChatPath()):
+            os.remove(SuperChatUtil.getSuperChatPath())
 
         # background
         background_path = os.sep.join((os.getcwd(), "resource", "image", "superchatMeme", f"{sc_color}.png"))
