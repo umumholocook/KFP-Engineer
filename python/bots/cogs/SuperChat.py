@@ -84,7 +84,7 @@ class SuperChatMeme(commands.Cog):
         elif 75 <= money < 150:
             sc_color = "CYAN"
         elif 150 <= money < 300:
-            sc_color = "YELLO"
+            sc_color = "YELLOW"
         elif 300 <= money < 750:
             sc_color = "ORANGE"
         elif 750 <= money < 1500:
