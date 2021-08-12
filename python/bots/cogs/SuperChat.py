@@ -4,10 +4,12 @@ import discord
 from PIL import Image
 import requests
 from discord.ext import commands
-from discord import User, File, client
+from discord import User, File
 from common.MemberUtil import MemberUtil
 from common.SuperChatUtil import SuperChatUtil
+from discord import Emoji
 import re
+from common.Util import Util
 
 
 class SuperChatMeme(commands.Cog):
@@ -33,14 +35,12 @@ class SuperChatMeme(commands.Cog):
         for token in msg:
             result = re.findall("<@!\d+>", token)
             if len(result) != 0:
-                sc_msg += " "
-                replace = token
                 for userID in result:
                     member = await ctx.guild.fetch_member(userID[3:-1])
                     replace = member.display_name.join(replace.split(userID))
-                sc_msg += replace
             else:
-                sc_msg = sc_msg + " " + token
+                replace = token
+            sc_msg = sc_msg + " " + replace
 
         if sc_money < 15:
             await ctx.send("至少15硬幣才能使用SuperChat!")
@@ -55,14 +55,14 @@ class SuperChatMeme(commands.Cog):
 
         # check author have enough coins or not
         giver = MemberUtil.get_or_add_member(ctx.author.id)
-        # if giver.coin < sc_money:
-        #     await ctx.send("硬幣不足!快去店外雜談區聊天賺硬幣!")
-        #     return
+        if giver.coin < sc_money:
+            await ctx.send("硬幣不足!快去店外雜談區聊天賺硬幣!")
+            return
         adder = MemberUtil.get_or_add_member(user.id)
 
         # transaction
-        # MemberUtil.add_coin(member_id=giver.member_id, amount=-sc_money)
-        # MemberUtil.add_coin(member_id=adder.member_id, amount=sc_money * 0.8)
+        MemberUtil.add_coin(member_id=giver.member_id, amount=-sc_money)
+        MemberUtil.add_coin(member_id=adder.member_id, amount=sc_money * 0.8)
 
         # create image
         avatar = self.downloadUserAvatar(ctx.author)
@@ -88,9 +88,6 @@ class SuperChatMeme(commands.Cog):
         msg += "註2:每次SuperChat酌收20%手續費，故該用戶只會收到80%的硬幣\n"
         await ctx.send(msg)
 
-    @superchat_group.command()
-    async def geturl(ctx, emoji: discord.Emoji):
-        await ctx.send(emoji.url)
 
     def downloadUserAvatar(self, user: User):
         avatar_url = user.avatar_url

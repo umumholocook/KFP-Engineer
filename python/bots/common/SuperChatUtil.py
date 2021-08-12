@@ -97,7 +97,7 @@ class SuperChatUtil():
         draw.text(offset, username, fill=tuple(color), font=font)
 
     def _pasteMoney(offset, money: str, color: list, draw: ImageDraw):
-        font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "TimesNewRoman.ttf")), size=60,
+        font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "msjh.ttc")), size=60,
                                   encoding='utf-8')
         money = money[::-1]
         result = ','.join([money[i:i+3] for i in range(0, len(money), 3)])
