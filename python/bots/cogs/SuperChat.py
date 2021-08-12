@@ -58,8 +58,8 @@ class SuperChatMeme(commands.Cog):
         adder = MemberUtil.get_or_add_member(user.id)
 
         # transaction
-        MemberUtil.add_coin(member_id=giver.id, amount=-sc_money)
-        MemberUtil.add_coin(member_id=adder, amount=sc_money * 0.8)
+        MemberUtil.add_coin(member_id=giver.member_id, amount=-sc_money)
+        MemberUtil.add_coin(member_id=adder.member_id, amount=sc_money * 0.8)
 
         # create image
         avatar = self.downloadUserAvatar(ctx.author)
