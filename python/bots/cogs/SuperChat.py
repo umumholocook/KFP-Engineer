@@ -1,10 +1,11 @@
 import io
+
+import discord
 from PIL import Image
 import requests
 from discord.ext import commands
-from discord import User, File, guild
+from discord import User, File, client
 from common.MemberUtil import MemberUtil
-from common.NicknameUtil import NicknameUtil
 from common.SuperChatUtil import SuperChatUtil
 import re
 
@@ -33,9 +34,11 @@ class SuperChatMeme(commands.Cog):
             result = re.findall("<@!\d+>", token)
             if len(result) != 0:
                 sc_msg += " "
-                member = await ctx.guild.fetch_member(result[0][3:-1])
-                ans = member.display_name.join(token.split(result[0]))
-                sc_msg += ans
+                replace = token
+                for userID in result:
+                    member = await ctx.guild.fetch_member(userID[3:-1])
+                    replace = member.display_name.join(replace.split(userID))
+                sc_msg += replace
             else:
                 sc_msg = sc_msg + " " + token
 
@@ -52,14 +55,14 @@ class SuperChatMeme(commands.Cog):
 
         # check author have enough coins or not
         giver = MemberUtil.get_or_add_member(ctx.author.id)
-        if giver.coin < sc_money:
-            await ctx.send("硬幣不足!快去店外雜談區聊天賺硬幣!")
-            return
+        # if giver.coin < sc_money:
+        #     await ctx.send("硬幣不足!快去店外雜談區聊天賺硬幣!")
+        #     return
         adder = MemberUtil.get_or_add_member(user.id)
 
         # transaction
-        MemberUtil.add_coin(member_id=giver.member_id, amount=-sc_money)
-        MemberUtil.add_coin(member_id=adder.member_id, amount=sc_money * 0.8)
+        # MemberUtil.add_coin(member_id=giver.member_id, amount=-sc_money)
+        # MemberUtil.add_coin(member_id=adder.member_id, amount=sc_money * 0.8)
 
         # create image
         avatar = self.downloadUserAvatar(ctx.author)
@@ -72,7 +75,7 @@ class SuperChatMeme(commands.Cog):
     @superchat_group.command(name="help")
     async def show_help_msg(self, ctx: commands.Command):
         msg = "歡迎大家使用SuperChat功能! 使用方法如下:\n"
-        msg += "!sc <硬幣數量> <使用者> <文字> 給該使用者多少硬幣，後面文字可留言(中間不可有空白)\n"
+        msg += "!sc <硬幣數量> <使用者> <文字> 給該使用者多少硬幣，後面文字可留言\n"
         msg += "每個等級對應的SuperChat文字輸入上限如下:\n"
         msg += "Coin. 15-29 0字元(無法留言)\n"
         msg += "Coin. 30-74 50字元\n"
@@ -84,6 +87,10 @@ class SuperChatMeme(commands.Cog):
         msg += "註1:避免洗版，最多只會顯示三行\n"
         msg += "註2:每次SuperChat酌收20%手續費，故該用戶只會收到80%的硬幣\n"
         await ctx.send(msg)
+
+    @superchat_group.command()
+    async def geturl(ctx, emoji: discord.Emoji):
+        await ctx.send(emoji.url)
 
     def downloadUserAvatar(self, user: User):
         avatar_url = user.avatar_url
