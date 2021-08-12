@@ -64,7 +64,6 @@ class SuperChatUtil():
         # see need to add text image or not
         if sc_color != "BLUE":
             addPage, newMsg = SuperChatUtil._resizeMsg(offset=1650, msg=sc_msg, img=background)
-            print(addPage)
             if addPage != 0:
                 text_path = os.sep.join(
                     (os.getcwd(), "resource", "image", "superchatMeme", f"{sc_color}_text.png"))
