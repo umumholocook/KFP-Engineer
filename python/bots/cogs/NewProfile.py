@@ -195,12 +195,12 @@ class NewProfile(commands.Cog):
     async def profile_on_message(self, message:Message):
         if message.author.bot:
             return
-        if message.channel == None or not message.channel.guild.id in whitelist or message.author.bot:
-            return
-        if self.populateChannels(message, self.isTest):
-            return
-        if not self.channelAllowed(message.channel.id, self.isTest):
-            return
+        # if message.channel == None or not message.channel.guild.id in whitelist or message.author.bot:
+        #     return
+        # if self.populateChannels(message, self.isTest):
+        #     return
+        # if not self.channelAllowed(message.channel.id, self.isTest):
+        #     return
         member: Member = self.db.get_member(message.author.id)
         if not member:
             self.db.add_member(message.author.id)
@@ -289,6 +289,25 @@ class NewProfile(commands.Cog):
     #         await channelToUse.send('恭喜<@{}> 等級提升至{}。'.format(message.author.id, rank))
             
     #         await self.updateUserKfpRoles(message, rank, channelToUse)
+
+    # @profile_group.command('force_set_exp')
+    # async def profile_force_set_exp(self, ctx:commands.Context, exp=-1):
+    #     if exp < 1:
+    #         return
+    #     message = ctx.message
+    #     member: Member = self.db.get_member(message.author.id)
+    #     if not member:
+    #         member = self.db.add_member(message.author.id)
+    #     self.db.set_exp(member.member_id, exp)
+    #     member: Member = self.db.get_member(message.author.id)
+    #     await ctx.send(f"你現在有經驗值:{member.exp}")
+
+    @profile_group.command('get_rank_exp')
+    async def profile_get_rank_exp(self, ctx:commands.Context, rank=0):
+        if rank < 1:
+            return
+        exp_needed = Util.get_rank_exp(rank)
+        await ctx.send(f"要升級到等級{rank} 需要經驗值:{exp_needed}")
 
     @profile_group.command('items')
     async def show_items_command(self, ctx:commands.Context):
