@@ -32,12 +32,11 @@ class SuperChatMeme(commands.Cog):
         for token in msg:
             result = re.findall("<@!\d+>", token)
             if len(result) != 0:
-                sc_msg += " "
-                member = await ctx.guild.fetch_member(result[0][3:-1])
-                ans = member.display_name.join(token.split(result[0]))
-                sc_msg += ans
-            else:
-                sc_msg = sc_msg + " " + token
+                replace = token
+                for userID in result:
+                    member = await ctx.guild.fetch_member(userID[3:-1])
+                    replace = member.display_name.join(replace.split(userID))
+                sc_msg += replace
 
         if sc_money < 15:
             await ctx.send("至少15硬幣才能使用SuperChat!")
