@@ -1,15 +1,12 @@
 import io
-
-import discord
 from PIL import Image
 import requests
 from discord.ext import commands
-from discord import User, File
+from discord import User, File, guild
 from common.MemberUtil import MemberUtil
+from common.NicknameUtil import NicknameUtil
 from common.SuperChatUtil import SuperChatUtil
-from discord import Emoji
 import re
-from common.Util import Util
 
 
 class SuperChatMeme(commands.Cog):
@@ -35,12 +32,12 @@ class SuperChatMeme(commands.Cog):
         for token in msg:
             result = re.findall("<@!\d+>", token)
             if len(result) != 0:
-                for userID in result:
-                    member = await ctx.guild.fetch_member(userID[3:-1])
-                    replace = member.display_name.join(replace.split(userID))
+                sc_msg += " "
+                member = await ctx.guild.fetch_member(result[0][3:-1])
+                ans = member.display_name.join(token.split(result[0]))
+                sc_msg += ans
             else:
-                replace = token
-            sc_msg = sc_msg + " " + replace
+                sc_msg = sc_msg + " " + token
 
         if sc_money < 15:
             await ctx.send("至少15硬幣才能使用SuperChat!")
@@ -69,13 +66,17 @@ class SuperChatMeme(commands.Cog):
         imgPath = SuperChatUtil.createSC(ctx.author.name, avatar, sc_money, sc_msg, sc_color)
 
         img = File(imgPath, filename="result.png")
-        await ctx.send(f"感謝{ctx.author.name}給{user.name}的SuperChat!")
+
+        if sc_money < 16:
+            await ctx.send(f"感謝{ctx.author.display_name}很寒酸的施捨給{user.display}的SuperChat!")
+        else:
+            await ctx.send(f"感謝{ctx.author.display_name}給{user.display_name}的SuperChat!")
         await ctx.send(file=img)
 
     @superchat_group.command(name="help")
     async def show_help_msg(self, ctx: commands.Command):
         msg = "歡迎大家使用SuperChat功能! 使用方法如下:\n"
-        msg += "!sc <硬幣數量> <使用者> <文字> 給該使用者多少硬幣，後面文字可留言\n"
+        msg += "!sc <硬幣數量> <使用者> <文字> 給該使用者多少硬幣，後面文字可留言(中間不可有空白)\n"
         msg += "每個等級對應的SuperChat文字輸入上限如下:\n"
         msg += "Coin. 15-29 0字元(無法留言)\n"
         msg += "Coin. 30-74 50字元\n"
@@ -87,7 +88,6 @@ class SuperChatMeme(commands.Cog):
         msg += "註1:避免洗版，最多只會顯示三行\n"
         msg += "註2:每次SuperChat酌收20%手續費，故該用戶只會收到80%的硬幣\n"
         await ctx.send(msg)
-
 
     def downloadUserAvatar(self, user: User):
         avatar_url = user.avatar_url
