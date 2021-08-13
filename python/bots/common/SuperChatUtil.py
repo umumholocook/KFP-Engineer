@@ -1,5 +1,6 @@
 import os
 import tempfile
+import unicodedata
 from PIL import Image, ImageDraw, ImageFont
 
 
@@ -101,14 +102,21 @@ class SuperChatUtil():
         result = "Coin. " + result[::-1] + ".00"
         draw.text(offset, result, fill=tuple(color), font=font, stroke_width=1)
 
+    def _getFont():
+        font: ImageFont = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "webdings.ttf")), size=80,encoding='utf-8')
+        # SourceHanSans has the following styles:
+        # [b'ExtraLight', b'Light', b'Normal', b'Regular', b'Medium', b'Bold', b'Heavy']
+        font.set_variation_by_name('Medium')
+        return font
+
     def _pasteText(offset, msg: str, color: list, draw: ImageDraw):
-        font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "msjh.ttc")), size=60,
-                                  encoding='utf-8')
-        draw.text(offset, msg, fill=tuple(color), font=font)
+        font = SuperChatUtil._getFont()
+        for c in msg:
+            print(f"{c} has {unicodedata.east_asian_width(c)}")
+        draw.text(offset, f"{msg} " + u"\U0001f300", fill=tuple(color), font=font)
 
     def _resizeMsg(offset: int, msg: str, img: Image):
-        font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "msjh.ttc")), size=60,
-                                  encoding='utf-8')
+        font = SuperChatUtil._getFont()
         addPage = 0
         newMsg = ""
         for i in range(len(msg)):
