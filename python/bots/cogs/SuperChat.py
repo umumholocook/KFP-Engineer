@@ -66,7 +66,11 @@ class SuperChatMeme(commands.Cog):
         imgPath = SuperChatUtil.createSC(ctx.author.name, avatar, sc_money, sc_msg, sc_color)
 
         img = File(imgPath, filename="result.png")
-        await ctx.send(f"感謝{ctx.author.name}給{user.name}的SuperChat!")
+
+        if sc_money < 16:
+            await ctx.send(f"感謝{ctx.author.display_name}很寒酸的施捨給{user.display}的SuperChat!")
+        else:
+            await ctx.send(f"感謝{ctx.author.display_name}給{user.display_name}的SuperChat!")
         await ctx.send(file=img)
 
     @superchat_group.command(name="help")
