@@ -2,10 +2,11 @@ import io
 from PIL import Image
 import requests
 from discord.ext import commands
-from discord import User, File
+from discord import User, File, guild
 from common.MemberUtil import MemberUtil
-from common.SuperChatUtil import SuperChatUtil
 from common.NicknameUtil import NicknameUtil
+from common.SuperChatUtil import SuperChatUtil
+import re
 
 
 class SuperChatMeme(commands.Cog):
@@ -23,10 +24,23 @@ class SuperChatMeme(commands.Cog):
         self.bot = bot
 
     @commands.group(name='sc', invoke_without_command=True)
-    async def superchat_group(self, ctx: commands.Context, sc_money: int, user: User, sc_msg: str = ""):
+    async def superchat_group(self, ctx: commands.Context, sc_money: int, user: User, *args: str):
+
+        # replace user id to name
+        msg = args
+        sc_msg = ""
+        for token in msg:
+            result = re.findall("<@!\d+>", token)
+            if len(result) != 0:
+                sc_msg += " "
+                member = await ctx.guild.fetch_member(result[0][3:-1])
+                ans = member.display_name.join(token.split(result[0]))
+                sc_msg += ans
+            else:
+                sc_msg = sc_msg + " " + token
 
         if sc_money < 15:
-            await ctx.send("至少15硬幣才能使用SuperChat!\n")
+            await ctx.send("至少15硬幣才能使用SuperChat!")
             return
         else:
             sc_color = SuperChatMeme._getColor(sc_money)
@@ -44,8 +58,8 @@ class SuperChatMeme(commands.Cog):
         adder = MemberUtil.get_or_add_member(user.id)
 
         # transaction
-        MemberUtil.add_coin(member_id=giver.id, amount=-sc_money)
-        MemberUtil.add_coin(member_id=adder, amount=sc_money * 0.8)
+        MemberUtil.add_coin(member_id=giver.member_id, amount=-sc_money)
+        MemberUtil.add_coin(member_id=adder.member_id, amount=sc_money * 0.8)
 
         # create image
         avatar = self.downloadUserAvatar(ctx.author)
