@@ -15,6 +15,7 @@ class YagooMeme(commands.Cog):
         embedMsg = Embed()
         embedMsg.set_image(url='attachment://' + YagooUtil.getTempFileName())
         image = File(imagePath, filename=YagooUtil.getTempFileName())
+        await ctx.message.delete()
         await ctx.send(file=image)
 
     @yagoo_group.error
