@@ -103,7 +103,7 @@ class SuperChatUtil():
         draw.text(offset, result, fill=tuple(color), font=font, stroke_width=1)
 
     def _getFont():
-        font: ImageFont = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "webdings.ttf")), size=80,encoding='utf-8')
+        font: ImageFont = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "SourceHanSans-VF.ttf.ttc")), size=80,encoding='utf-8')
         # SourceHanSans has the following styles:
         # [b'ExtraLight', b'Light', b'Normal', b'Regular', b'Medium', b'Bold', b'Heavy']
         font.set_variation_by_name('Medium')
@@ -113,7 +113,7 @@ class SuperChatUtil():
         font = SuperChatUtil._getFont()
         for c in msg:
             print(f"{c} has {unicodedata.east_asian_width(c)}")
-        draw.text(offset, f"{msg} " + u"\U0001f300", fill=tuple(color), font=font)
+        draw.text(offset, msg, fill=tuple(color), font=font)
 
     def _resizeMsg(offset: int, msg: str, img: Image):
         font = SuperChatUtil._getFont()
