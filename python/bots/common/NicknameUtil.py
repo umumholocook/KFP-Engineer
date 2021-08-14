@@ -69,7 +69,10 @@ class NicknameUtil():
         member = await guild.fetch_member(user.id)
         if len(nicknames) < 1:
             if member:
-                return member.display_name
+                if None == member.nick:
+                    return member.display_name
+                else:
+                    return member.nick
             return user.name
         else:
             return random.choice(nicknames)
