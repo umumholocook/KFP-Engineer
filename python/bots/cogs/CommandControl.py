@@ -53,11 +53,11 @@ class CommandControl(commands.Cog):
         else:
             channel: Channel
             result  = f"目前指令'{command}'可以在以下頻道執行:\n"
-            result += "````"
+            result += "```"
             for channel in channels:
                 c = self.bot.get_channel(channel.channel_id)
                 result += f"{c.name}\n"
-            result += "````"
+            result += "```"
             await ctx.send(result)
 
     @command_control_group.command(name = 'commands')

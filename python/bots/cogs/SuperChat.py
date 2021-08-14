@@ -2,9 +2,8 @@ import io
 from PIL import Image
 import requests
 from discord.ext import commands
-from discord import User, File, guild
+from discord import User, File
 from common.MemberUtil import MemberUtil
-from common.NicknameUtil import NicknameUtil
 from common.SuperChatUtil import SuperChatUtil
 import re
 
