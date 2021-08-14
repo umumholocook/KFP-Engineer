@@ -63,14 +63,14 @@ class SuperChatMeme(commands.Cog):
 
         # check author have enough coins or not
         giver = MemberUtil.get_or_add_member(ctx.author.id)
-        # if giver.coin < sc_money:
-        #     await ctx.send("硬幣不足!快去店外雜談區聊天賺硬幣!")
-        #     return
+        if giver.coin < sc_money:
+            await ctx.send("硬幣不足!快去店外雜談區聊天賺硬幣!")
+            return
         adder = MemberUtil.get_or_add_member(user.id)
 
         # transaction
-        # MemberUtil.add_coin(member_id=giver.member_id, amount=-sc_money)
-        # MemberUtil.add_coin(member_id=adder.member_id, amount=sc_money * 0.8)
+        MemberUtil.add_coin(member_id=giver.member_id, amount=-sc_money)
+        MemberUtil.add_coin(member_id=adder.member_id, amount=sc_money * 0.8)
 
         # create image
         avatar = self.downloadUserAvatar(ctx.author)
