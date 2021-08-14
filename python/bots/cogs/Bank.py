@@ -16,7 +16,7 @@ class Bank(commands.Cog):
             return
         if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.BANK):
             return
-        member = MemberUtil.get_or_add_member(self.bot.user.id)
+        member = await MemberUtil.get_or_add_member(self.bot.user.id)
         await ctx.send(f"目前銀行有 {member.coin}枚硬幣.")
     
     @bank_group.command(name = 'add')
@@ -35,7 +35,7 @@ class Bank(commands.Cog):
         if coins < 1:
             await ctx.send("請不要來亂的好嗎?")
             return
-        nick = NicknameUtil.get_user_nickname_or_default(ctx.guild, user)
+        nick = await NicknameUtil.get_user_nickname_or_default(ctx.guild, user)
         if bank.coin < coins:
             await ctx.send(f"銀行餘額: {bank.coin} 不足以支付 {coins} 給 {nick}")
             return
