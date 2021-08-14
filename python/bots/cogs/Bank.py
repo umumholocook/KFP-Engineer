@@ -16,7 +16,7 @@ class Bank(commands.Cog):
             return
         if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.BANK):
             return
-        member = await MemberUtil.get_or_add_member(self.bot.user.id)
+        member = MemberUtil.get_or_add_member(self.bot.user.id)
         await ctx.send(f"目前銀行有 {member.coin}枚硬幣.")
     
     @bank_group.command(name = 'add')
