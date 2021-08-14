@@ -26,16 +26,24 @@ class SuperChatMeme(commands.Cog):
     @commands.group(name='sc', invoke_without_command=True)
     async def superchat_group(self, ctx: commands.Context, sc_money: int, user: User, *args: str):
 
-        # replace user id to name
+        # Replace
         msg = args
         sc_msg = ""
         for token in msg:
+            # user id to name
             result = re.findall("<@!\d+>", token)
             replace = token
             if len(result) != 0:
                 for userID in result:
                     member = await ctx.guild.fetch_member(userID[3:-1])
                     replace = member.display_name.join(replace.split(userID))
+
+            # stamp to short msg
+            result = re.findall("<:\w+:\d+>", replace)
+            if len(result) != 0:
+                for stamp in result:
+                    stamp_name = re.findall(":\w+:", stamp)
+                    replace = stamp_name[0].join(replace.split(stamp))
 
             if len(sc_msg) < 1:
                 sc_msg += replace
@@ -55,14 +63,14 @@ class SuperChatMeme(commands.Cog):
 
         # check author have enough coins or not
         giver = MemberUtil.get_or_add_member(ctx.author.id)
-        if giver.coin < sc_money:
-            await ctx.send("硬幣不足!快去店外雜談區聊天賺硬幣!")
-            return
+        # if giver.coin < sc_money:
+        #     await ctx.send("硬幣不足!快去店外雜談區聊天賺硬幣!")
+        #     return
         adder = MemberUtil.get_or_add_member(user.id)
 
         # transaction
-        MemberUtil.add_coin(member_id=giver.member_id, amount=-sc_money)
-        MemberUtil.add_coin(member_id=adder.member_id, amount=sc_money * 0.8)
+        # MemberUtil.add_coin(member_id=giver.member_id, amount=-sc_money)
+        # MemberUtil.add_coin(member_id=adder.member_id, amount=sc_money * 0.8)
 
         # create image
         avatar = self.downloadUserAvatar(ctx.author)
