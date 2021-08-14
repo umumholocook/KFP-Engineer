@@ -34,6 +34,9 @@ class ChannelUtil():
         if query.exists():
             channel: Channel = query.get()
             channel.delete_instance()
+            return True
+        else:
+            return False
 
     # 取得頻道
     def GetChannelWithGuild(guild_id: int, channel_type: Util.ChannelType):

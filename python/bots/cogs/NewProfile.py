@@ -225,6 +225,9 @@ class NewProfile(commands.Cog):
             if ctx.guild:
                 print("{} is not on white list, if you are a developer, add your server to the white list".format(ctx.guild.id))
             return
+        if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.PROFILE):
+            print("WARNING: cannot run on this channel, if you are a developer, try to use '!commandControll add profile'")
+            return
         memberRow: Member = self.db.get_member(ctx.author.id)
         if memberRow == None:
             self.db.add_member(ctx.author.id)
