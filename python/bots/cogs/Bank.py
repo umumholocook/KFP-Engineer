@@ -58,7 +58,7 @@ class Bank(commands.Cog):
             await ctx.send("請不要來亂的好嗎?")
             return
         member = MemberUtil.get_or_add_member(self.bot.user.id)
-        nick = NicknameUtil.get_user_nickname_or_default(ctx.guild, user)
+        nick = await NicknameUtil.get_user_nickname_or_default(ctx.guild, user)
         if member.coin < coins:
             await ctx.send(f"'{nick}'擁有餘額: {member.coin}. 不足以扣除 {coins}")
             return
