@@ -66,13 +66,16 @@ class NicknameUtil():
     
     async def get_user_nickname_or_default(guild: Guild, user: User):
         nicknames = NicknameUtil.get_all_nicknames(guild_id=guild.id, user_id=user.id)
-        member = await guild.fetch_member(user.id)
         if len(nicknames) < 1:
-            if member:
-                if None == member.nick:
-                    return member.display_name
-                else:
-                    return member.nick
-            return user.name
+            return NicknameUtil.get_user_name(guild, user)
         else:
             return random.choice(nicknames)
+
+    async def get_user_name(guild: Guild, user: User):
+        member = await guild.fetch_member(user.id)
+        if member:
+            if None == member.nick:
+                return member.display_name
+            else:
+                return member.nick
+        return user.name

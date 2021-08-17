@@ -1,5 +1,7 @@
+from common.models.RPGCharacter import RPGCharacter
 from common.RPGUtil.RPGCharacterUtil import RPGCharacterUtil
 from discord.ext import commands
+from common.NicknameUtil import NicknameUtil
 
 class RPG(commands.Cog):
 
@@ -36,6 +38,20 @@ class RPG(commands.Cog):
             return
         RPGCharacterUtil.retireRPGCharacter(ctx.author.id)
         await ctx.send(f"冒險者{ctx.author.display_name}申請退休成功, 辛苦你了!")
+
+    # 顯示狀態
+    @rpg_group.command(name="stats")
+    async def show_character_stats(self, ctx:commands.Context):
+        if not RPGCharacterUtil.hasAdvantureStared(ctx.author.id):
+            await ctx.send("看起來你還沒開始你的旅程呢. 請先申請成為冒險者吧")
+            return
+        name = NicknameUtil.get_user_name()
+        rpg: RPGCharacter = RPGCharacterUtil.getRPGCharacter(ctx.author)
+        result  = f"冒險者: {name}\n"
+        result += f"體力: {rpg.hp_current}/{rpg.hp_max}\n"
+        result += f"魔力: {rpg.mp_current}/{rpg.mp_max}\n"
+        result += f"攻擊力: {rpg.attack_basic}\n"
+        result += f"防禦力: {rpg.defense_basic}\n"
 
 
 def setup(client):

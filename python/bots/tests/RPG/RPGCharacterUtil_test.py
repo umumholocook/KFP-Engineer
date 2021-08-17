@@ -6,7 +6,7 @@ class TestRPGCharacterUtil():
         self.database = KfpDb(":memory:")
         
     def teardown_method(self, method):
-        pass
+        self.database.teardown()
 
     def test_hasAdvantureStarted_noMember(self):
         assert not RPGCharacterUtil.hasAdvantureStared(100)
@@ -43,3 +43,31 @@ class TestRPGCharacterUtil():
         RPGCharacterUtil.createNewRPGCharacter(member)
         RPGCharacterUtil.retireRPGCharacter(member.member_id)
         assert not RPGCharacterUtil.hasAdvantureStared(member.member_id)
+
+    def test_getRPGChracter_success(self):
+        member = self.database.add_member(100)
+        rpg = RPGCharacterUtil.createNewRPGCharacter(member)
+        rpg_get = RPGCharacterUtil.getRPGCharacter(member)
+        assert rpg_get == rpg
+    
+    def test_getRPGCharacter_successWithId(self):
+        member = self.database.add_member(100)
+        rpg = RPGCharacterUtil.createNewRPGCharacter(member)
+        rpg_get = RPGCharacterUtil.getRPGCharacter(member.member_id)
+        assert rpg_get == rpg
+
+    def test_levelUpCharacter_success(self):
+        member = self.database.add_member(100)
+        rpg: RPGCharacterUtil = RPGCharacterUtil.createNewRPGCharacter(member)
+        old_hp = rpg.hp_max 
+        old_mp = rpg.mp_max
+        old_atk = rpg.attack_basic
+        old_def = rpg.defense_basic
+        RPGCharacterUtil.levelUpCharacter(member.member_id, 1, 10)
+        rpg: RPGCharacterUtil = RPGCharacterUtil.getRPGCharacter(member.member_id)
+
+        assert rpg.hp_max > old_hp
+        assert rpg.mp_max > old_mp
+        assert rpg.attack_basic > old_atk
+        assert rpg.defense_basic > old_def
+        

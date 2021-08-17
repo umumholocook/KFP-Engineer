@@ -1,3 +1,4 @@
+from common.RPGUtil.RPGCharacterUtil import RPGCharacterUtil
 from common.models.InventoryRecord import InventoryRecord
 from common.RPGUtil.InventoryUtil import InventoryUtil
 from discord.abc import GuildChannel, User
@@ -214,8 +215,8 @@ class NewProfile(commands.Cog):
                 channelToUse = message.channel
             else:
                 channelToUse = message.guild.get_channel(channel)
+            RPGCharacterUtil.levelUpCharacter(message.author.id, member.rank, rank)
             await channelToUse.send('恭喜<@{}> 等級提升至{}。'.format(message.author.id, rank))
-            
             await self.updateUserKfpRoles(message, rank, channelToUse)
         self.db.increase_coin(message.guild.id, message.author.id, increaseNumber)
     
