@@ -25,7 +25,7 @@ class SuperChatMeme(commands.Cog):
     @commands.group(name='sc', invoke_without_command=True)
     async def superchat_group(self, ctx: commands.Context, sc_money: int, user: User, *args: str):
 
-        # Replace
+        # Replace msg
         msg = args
         sc_msg = ""
         for token in msg:
