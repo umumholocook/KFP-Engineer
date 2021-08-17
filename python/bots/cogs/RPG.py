@@ -12,8 +12,9 @@ class RPG(commands.Cog):
     async def rpg_group(self, ctx: commands.Context, *attr):
         msg  = "KFP大冒險指令\n"
         msg += "```\n"
-        msg += "!rpg startAdvanture 開始屬於你的大冒險!!\n"
-        msg += "!rpg attack <@其他冒險者> 攻擊其他冒險者"
+        msg += "!rpg startAdvanture - 開始屬於你的大冒險!!\n"
+        msg += "!rpg attack <@其他冒險者> - 攻擊其他冒險者"
+        msg += "!rpg status - 查看自己的冒險者數值, 可以添加 \"public\" 對外顯示"
         msg += "```\n"
         await ctx.send(msg)
 
@@ -40,18 +41,23 @@ class RPG(commands.Cog):
         await ctx.send(f"冒險者{ctx.author.display_name}申請退休成功, 辛苦你了!")
 
     # 顯示狀態
-    @rpg_group.command(name="stats")
-    async def show_character_stats(self, ctx:commands.Context):
+    @rpg_group.command(name="status")
+    async def show_character_stats(self, ctx:commands.Context, public = ""):
         if not RPGCharacterUtil.hasAdvantureStared(ctx.author.id):
             await ctx.send("看起來你還沒開始你的旅程呢. 請先申請成為冒險者吧")
             return
-        name = NicknameUtil.get_user_name()
-        rpg: RPGCharacter = RPGCharacterUtil.getRPGCharacter(ctx.author)
+        name = await NicknameUtil.get_user_name(ctx.guild, ctx.author)
+        rpg: RPGCharacter = RPGCharacterUtil.getRPGCharacter(ctx.author.id)
         result  = f"冒險者: {name}\n"
         result += f"體力: {rpg.hp_current}/{rpg.hp_max}\n"
         result += f"魔力: {rpg.mp_current}/{rpg.mp_max}\n"
         result += f"攻擊力: {rpg.attack_basic}\n"
         result += f"防禦力: {rpg.defense_basic}\n"
+
+        if public == "public":
+            await ctx.send(result)
+        else:
+            await ctx.author.send(result)
 
 
 def setup(client):
