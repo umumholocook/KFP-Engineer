@@ -71,3 +71,13 @@ class TestRPGCharacterUtil():
         assert rpg.attack_basic > old_atk
         assert rpg.defense_basic > old_def
         
+    def test_changeHp_success(self):
+        member = self.database.add_member(100)
+        rpg: RPGCharacterUtil = RPGCharacterUtil.createNewRPGCharacter(member)
+        expected_hp = rpg.hp_current
+        RPGCharacterUtil.changeHp(rpg, -10000)
+        assert rpg.hp_current == 0
+
+        RPGCharacterUtil.changeHp(rpg, +100)
+        assert rpg.hp_current == expected_hp
+        

@@ -3,9 +3,13 @@ from common.models.Member import Member
 from common.MemberUtil import MemberUtil
 from common.models.RPGCharacter import RPGCharacter
 from common.LevelUtil import LevelUtil
+import random
 
 
 class RPGCharacterUtil():
+    def goToRest(user: User):
+        pass
+
     def getRPGCharacter(user: User):
         return RPGCharacterUtil.getRPGCharacter(user.id)
 
@@ -63,6 +67,32 @@ class RPGCharacterUtil():
             attack_basic = new_attack,
             defense_basic = new_defense,
         )
-        
+    
+    def changeHp(character: RPGCharacter, hp: int):
+        new_hp = character.hp_current + hp
+        new_hp = min(character.hp_max, new_hp)
+        new_hp = max(0, new_hp)
+        character.hp_current = new_hp
+        character.save()
 
+    def getDefensePoint(character: RPGCharacter):
+        return character.defense_basic
+    
+    def getAttackPoint(character: RPGCharacter):
+        return character.attack_basic
+        
+    def _rollAttack(character: RPGCharacter):
+        # roll a d20
+        total = 0
+        diceCount = character.character.rank // 10 + 1
+        for _ in range(diceCount):
+            total += random.randint(1, 20)
+
+        return total
+    
+    def tryToAttack(attacker: RPGCharacter, victim: RPGCharacter):
+        atkPoint = RPGCharacterUtil._rollAttack(attacker)
+        defensePoint = RPGCharacterUtil.getDefensePoint(victim)
+        print(f"{atkPoint} vs {defensePoint}")
+        return atkPoint > defensePoint
     
