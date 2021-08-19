@@ -18,8 +18,10 @@ class RPG(commands.Cog):
         msg  = "KFP大冒險指令\n"
         msg += "```\n"
         msg += "!rpg startAdvanture - 開始屬於你的大冒險!!\n"
-        msg += "!rpg attack <@其他冒險者> - 攻擊其他冒險者"
-        msg += "!rpg status - 查看自己的冒險者數值, 可以添加 \"public\" 對外顯示"
+        msg += "!rpg retire - 回家種田, 不做冒險者了.\n"
+        msg += "!rpg attack <@其他冒險者> - 攻擊其他冒險者."
+        msg += "!rpg status - 查看自己的冒險者數值, 可以添加 \"public\" 對外顯示."
+        msg += "!rpg rest - 休息, 休息之後體力會恢復."
         msg += "```\n"
         await ctx.send(msg)
 
