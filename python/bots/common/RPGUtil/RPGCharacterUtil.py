@@ -85,7 +85,7 @@ class RPGCharacterUtil():
         for _ in range(diceCount):
             total += random.randint(1, 20)
 
-        return total
+        return total + character.attack_basic
     
     def tryToAttack(attacker: RPGCharacter, victim: RPGCharacter):
         atkPoint = RPGCharacterUtil._rollAttack(attacker)

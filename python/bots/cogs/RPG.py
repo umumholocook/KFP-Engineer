@@ -23,7 +23,7 @@ class RPG(commands.Cog):
 
     @rpg_group.command(name="draft")
     async def draft_character(self, ctx: commands.Context, user: User):
-        name = await NicknameUtil.get_user_name(ctx.guild, ctx.author)
+        name = await NicknameUtil.get_user_name(ctx.guild, user)
         if RPGCharacterUtil.hasAdvantureStared(user.id):
             await ctx.send(f"'{name}'已經是冒險者了, 不需要再招募.")
             return
