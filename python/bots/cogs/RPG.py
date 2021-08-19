@@ -59,7 +59,8 @@ class RPG(commands.Cog):
         if not RPGCharacterUtil.hasAdvantureStared(ctx.author.id):
             await ctx.send("看起來你還沒開始你的旅程呢. 在開始前就放棄的概念?")
             return
-        if ctx.author.hp_current < 1:
+        author: RPGCharacter = RPGCharacterUtil.getRPGCharacter(ctx.author.id)
+        if author.hp_current < 1:
             await ctx.send(f"你都沒有體力了! 先去休息啦!")
             return
         RPGCharacterUtil.retireRPGCharacter(ctx.author.id)
