@@ -19,7 +19,7 @@ class RPGCharacterUtil():
             return query.get()
         return None
 
-    def hasAdvantureStared(member_id: int):
+    def hasAdventureStared(member_id: int):
         character: RPGCharacter = RPGCharacterUtil.getRPGCharacter(member_id) 
         return character != None and not character.retired
     
@@ -32,8 +32,8 @@ class RPGCharacterUtil():
         RPGCharacterUtil.levelUpCharacter(user.id, old_level, new_level)
 
     def levelUpCharacter(member_id: int, old_level: int, new_level: int):
-        if not RPGCharacterUtil.hasAdvantureStared(member_id):
-            return # ignore if user hasn't start advanture 
+        if not RPGCharacterUtil.hasAdventureStared(member_id):
+            return # ignore if user hasn't start Adventure 
         rpg: RPGCharacter = RPGCharacterUtil.getRPGCharacter(member_id)
         print(f"old hp: {rpg.hp_max}")
         rpg.hp_max = LevelUtil.generateLevelUpHP(old_level, new_level, rpg.hp_max)
@@ -46,7 +46,7 @@ class RPGCharacterUtil():
         rpg.save()
 
     def createNewRPGCharacter(member_id: int) -> RPGCharacter:
-        if RPGCharacterUtil.hasAdvantureStared(member_id):
+        if RPGCharacterUtil.hasAdventureStared(member_id):
             return None
         character: RPGCharacter = RPGCharacterUtil.getRPGCharacter(member_id)
         if character:

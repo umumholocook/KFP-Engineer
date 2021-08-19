@@ -65,7 +65,7 @@ class StatusUtil():
                 status.delete_instance()
     
     def _cleanUpStatus(status: RPGStatus):
-        if not RPGCharacterUtil.hasAdvantureStared(status.member_id):
+        if not RPGCharacterUtil.hasAdventureStared(status.member_id):
             return
         character = RPGCharacterUtil.getRPGCharacter(status.member_id)
         if status.type == StatusType.REST.value:

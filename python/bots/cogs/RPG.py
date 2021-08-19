@@ -22,7 +22,7 @@ class RPG(commands.Cog):
     async def rpg_group(self, ctx: commands.Context, *attr):
         msg  = "KFP大冒險指令\n"
         msg += "```\n"
-        msg += "!rpg startAdvanture - 開始屬於你的大冒險!!\n"
+        msg += "!rpg startAdventure - 開始屬於你的大冒險!!\n"
         msg += "!rpg retire - 回家種田, 不做冒險者了.\n"
         msg += "!rpg attack <@其他冒險者> - 攻擊其他冒險者.\n"
         msg += "!rpg status - 查看自己的冒險者數值, 可以添加 \"public\" 對外顯示.\n"
@@ -35,7 +35,7 @@ class RPG(commands.Cog):
         if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_GUILD):
             return
         name = await NicknameUtil.get_user_name(ctx.guild, user)
-        if RPGCharacterUtil.hasAdvantureStared(user.id):
+        if RPGCharacterUtil.hasAdventureStared(user.id):
             await ctx.send(f"'{name}'已經是冒險者了, 不需要再招募.")
             return
         if RPGCharacterUtil.createNewRPGCharacter(user.id) != None:
@@ -44,11 +44,11 @@ class RPG(commands.Cog):
         await ctx.send(f"看起來招募中心已滿, 詳情請洽冒險者公會員工.")
 
     # 開始大冒險 
-    @rpg_group.command(name="startAdvanture")
+    @rpg_group.command(name="startAdventure")
     async def init_rpg_character(self, ctx: commands.Context):
         if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_GUILD):
             return
-        if RPGCharacterUtil.hasAdvantureStared(ctx.author.id):
+        if RPGCharacterUtil.hasAdventureStared(ctx.author.id):
             await ctx.send("你的冒險已經啟程")
             return
 
@@ -107,7 +107,7 @@ class RPG(commands.Cog):
     async def retire_rpg_character(self, ctx:commands.Context):
         if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_GUILD):
             return
-        if not RPGCharacterUtil.hasAdvantureStared(ctx.author.id):
+        if not RPGCharacterUtil.hasAdventureStared(ctx.author.id):
             await ctx.send("看起來你還沒開始你的旅程呢. 在開始前就放棄的概念?")
             return
         if StatusUtil.isResting(ctx.author, ctx.guild.id):
@@ -123,7 +123,7 @@ class RPG(commands.Cog):
     # 顯示狀態
     @rpg_group.command(name="status")
     async def show_character_stats(self, ctx:commands.Context, public = ""):
-        if not RPGCharacterUtil.hasAdvantureStared(ctx.author.id):
+        if not RPGCharacterUtil.hasAdventureStared(ctx.author.id):
             await ctx.send("看起來你還沒開始你的旅程呢. 請先申請成為冒險者吧")
             return
         name = await NicknameUtil.get_user_name(ctx.guild, ctx.author)
@@ -141,7 +141,7 @@ class RPG(commands.Cog):
     
     @rpg_group.command(name="rest")
     async def character_rest(self, ctx:commands.Context):
-        if not RPGCharacterUtil.hasAdvantureStared(ctx.author.id):
+        if not RPGCharacterUtil.hasAdventureStared(ctx.author.id):
             return
         if StatusUtil.isResting(ctx.author, ctx.guild.id):
             return 
@@ -153,10 +153,10 @@ class RPG(commands.Cog):
     async def attack_character(self, ctx:commands.Context, user: User):
         if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_BATTLE_GROUND):
             return
-        if not RPGCharacterUtil.hasAdvantureStared(ctx.author.id):
+        if not RPGCharacterUtil.hasAdventureStared(ctx.author.id):
             await ctx.send("看起來你還沒開始你的旅程呢. 請先申請成為冒險者吧")
             return
-        if not RPGCharacterUtil.hasAdvantureStared(user.id):
+        if not RPGCharacterUtil.hasAdventureStared(user.id):
             await ctx.send("看起來對方不是冒險者呢. 請不要攻擊平民")
             return
         author: RPGCharacter = RPGCharacterUtil.getRPGCharacter(ctx.author.id)

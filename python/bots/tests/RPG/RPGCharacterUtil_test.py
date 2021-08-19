@@ -8,17 +8,17 @@ class TestRPGCharacterUtil():
     def teardown_method(self, method):
         self.database.teardown()
 
-    def test_hasAdvantureStarted_noMember(self):
-        assert not RPGCharacterUtil.hasAdvantureStared(100)
+    def test_hasAdventureStarted_noMember(self):
+        assert not RPGCharacterUtil.hasAdventureStared(100)
     
-    def test_hasAdvantureStarted_hasMember_notStarted(self):
+    def test_hasAdventureStarted_hasMember_notStarted(self):
         self.database.add_member(20)
-        assert not RPGCharacterUtil.hasAdvantureStared(20)
+        assert not RPGCharacterUtil.hasAdventureStared(20)
 
-    def test_hasAdvantureStarted_started(self):
+    def test_hasAdventureStarted_started(self):
         member = self.database.add_member(33)
         RPGCharacterUtil.createNewRPGCharacter(member)
-        assert RPGCharacterUtil.hasAdvantureStared(33)
+        assert RPGCharacterUtil.hasAdventureStared(33)
 
     def test_createNewCharacter_success(self):
         member = self.database.add_member(33)
@@ -42,7 +42,7 @@ class TestRPGCharacterUtil():
         member = self.database.add_member(33)
         RPGCharacterUtil.createNewRPGCharacter(member)
         RPGCharacterUtil.retireRPGCharacter(member.member_id)
-        assert not RPGCharacterUtil.hasAdvantureStared(member.member_id)
+        assert not RPGCharacterUtil.hasAdventureStared(member.member_id)
 
     def test_getRPGChracter_success(self):
         member = self.database.add_member(100)
@@ -80,4 +80,5 @@ class TestRPGCharacterUtil():
 
         RPGCharacterUtil.changeHp(rpg, +100)
         assert rpg.hp_current == expected_hp
+    
         
