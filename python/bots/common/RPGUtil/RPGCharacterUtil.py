@@ -7,9 +7,6 @@ import random
 
 
 class RPGCharacterUtil():
-    def goToRest(user: User):
-        pass
-
     def getRPGCharacter(user: User):
         return RPGCharacterUtil.getRPGCharacter(user.id)
 
@@ -93,6 +90,6 @@ class RPGCharacterUtil():
     def tryToAttack(attacker: RPGCharacter, victim: RPGCharacter):
         atkPoint = RPGCharacterUtil._rollAttack(attacker)
         defensePoint = RPGCharacterUtil.getDefensePoint(victim)
-        print(f"{atkPoint} vs {defensePoint}")
+        # print(f"{atkPoint} vs {defensePoint}")
         return atkPoint > defensePoint
     

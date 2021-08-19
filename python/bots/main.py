@@ -1,8 +1,10 @@
+from common.RPGUtil.StatusUpdate import StatusUpdate
+from common.RPGUtil.StatusUtil import StatusUtil
 import discord, os, signal, tempfile
 from common.models.Channel import Channel
 from pathlib import Path
 from subprocess import Popen, PIPE, check_output
-from discord.ext import commands
+from discord.ext import commands, tasks
 from common.KFP_DB import KfpDb
 from common.ChannelUtil import ChannelUtil
 from discord import Role
@@ -43,6 +45,7 @@ async def on_ready():
         channel: Channel = ChannelUtil.getRebootMessageChannel(guild_id)
         if channel:
             await bot.get_channel(channel.channel_id).send("更新結束, 現在版本 {}".format(get_version()))
+    refreshStatus.start()
 
 @bot.event
 async def on_message(message):
@@ -118,6 +121,13 @@ def get_version():
     count = int(git_count) - 282
     return f"{VERSION}.{count}"
 
+@tasks.loop(seconds = 5)
+async def refreshStatus():
+    statusUpdates = StatusUtil.applyExpiredStatus()
+    StatusUtil.printAllStatus()
+    update: StatusUpdate
+    for update in statusUpdates:
+        await update.sendMessage(bot)
 
 exception_cogs = []
 

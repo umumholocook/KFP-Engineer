@@ -1,3 +1,5 @@
+from common.RPGUtil.StatusUtil import StatusUtil
+from common.RPGUtil.StatusUpdate import StatusUpdate
 from common.models.RPGCharacter import RPGCharacter
 from common.RPGUtil.RPGCharacterUtil import RPGCharacterUtil
 from discord.ext import commands
@@ -75,9 +77,11 @@ class RPG(commands.Cog):
     async def character_rest(self, ctx:commands.Context):
         if not RPGCharacterUtil.hasAdvantureStared(ctx.author.id):
             return
-        RPGCharacterUtil.goToRest(ctx.author)
+        if StatusUtil.isResting(ctx.author, ctx.guild.id):
+            return 
+        StatusUtil.startResting(ctx.author, ctx.guild.id)
         name = await NicknameUtil.get_user_name(ctx.guild, ctx.author)
-        await ctx.send("{name}正在休息中...")
+        await ctx.send(f"{name}正在休息中...")
     
     @rpg_group.command(name="attack")
     async def attack_character(self, ctx:commands.Context, user: User):
@@ -91,6 +95,9 @@ class RPG(commands.Cog):
         other: RPGCharacter = RPGCharacterUtil.getRPGCharacter(ctx.author.id)
         name = await NicknameUtil.get_user_name(ctx.guild, user)
 
+        if StatusUtil.isResting(ctx.author, ctx.guild.id):
+            await ctx.send("你正在休息. 攻擊無效.")
+            return 
         if other.hp_current < 1:
             await ctx.send(f"哎不是! '{name}'都已經昏厥了你還攻擊? 攻擊無效啦!")
             return
