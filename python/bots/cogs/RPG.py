@@ -92,7 +92,7 @@ class RPG(commands.Cog):
             await ctx.send("看起來對方不是冒險者呢. 請不要攻擊平民")
             return
         author: RPGCharacter = RPGCharacterUtil.getRPGCharacter(ctx.author.id)
-        other: RPGCharacter = RPGCharacterUtil.getRPGCharacter(ctx.author.id)
+        other: RPGCharacter = RPGCharacterUtil.getRPGCharacter(user.id)
         name = await NicknameUtil.get_user_name(ctx.guild, user)
 
         if StatusUtil.isResting(ctx.author, ctx.guild.id):

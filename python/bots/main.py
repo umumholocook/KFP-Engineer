@@ -121,10 +121,9 @@ def get_version():
     count = int(git_count) - 282
     return f"{VERSION}.{count}"
 
-@tasks.loop(seconds = 5)
+@tasks.loop(seconds = 60)
 async def refreshStatus():
     statusUpdates = StatusUtil.applyExpiredStatus()
-    StatusUtil.printAllStatus()
     update: StatusUpdate
     for update in statusUpdates:
         await update.sendMessage(bot)

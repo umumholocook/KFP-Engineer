@@ -65,5 +65,5 @@ class StatusUtil():
 
     def startResting(user: User, guild_id: int):
         rpg: RPGCharacter = RPGCharacterUtil.getRPGCharacter(user.id)
-        StatusUtil.createRestStatus(user.id, guild_id, rpg.hp_max, 2)
+        StatusUtil.createRestStatus(user.id, guild_id, rpg.hp_max, 300) # 5分鐘
         pass
