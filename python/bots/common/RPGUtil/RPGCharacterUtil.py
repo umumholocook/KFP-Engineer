@@ -20,16 +20,14 @@ class RPGCharacterUtil():
         return None
 
     def hasAdvantureStared(member_id: int):
-        return RPGCharacterUtil.getRPGCharacter(member_id) != None
+        character: RPGCharacter = RPGCharacterUtil.getRPGCharacter(member_id) 
+        return character != None and not character.retired
     
     def retireRPGCharacter(member_id: int):
-        member: Member = MemberUtil.get_member(member_id)
-        if not member:
-            return
-        RPGCharacter.delete().where(
-            RPGCharacter.character == member
-        ).execute()
-
+        character: RPGCharacter = RPGCharacterUtil.getRPGCharacter(member_id)
+        character.retired = True
+        character.save()
+        
     def levelUpCharacter(user: User, old_level: int, new_level: int):
         RPGCharacterUtil.levelUpCharacter(user.id, old_level, new_level)
 
@@ -50,6 +48,11 @@ class RPGCharacterUtil():
     def createNewRPGCharacter(member_id: int) -> RPGCharacter:
         if RPGCharacterUtil.hasAdvantureStared(member_id):
             return None
+        character: RPGCharacter = RPGCharacterUtil.getRPGCharacter(member_id)
+        if character:
+            character.retired = False
+            character.save()
+            return character
         member: Member = MemberUtil.get_member(member_id)
         new_hp = LevelUtil.generateNewHP(member.rank)
         new_mp = LevelUtil.generateNewMP(member.rank)
@@ -63,6 +66,7 @@ class RPGCharacterUtil():
             mp_max = new_mp,
             attack_basic = new_attack,
             defense_basic = new_defense,
+            retired = False
         )
     
     def changeHp(character: RPGCharacter, hp: int):

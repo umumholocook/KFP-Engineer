@@ -1,3 +1,5 @@
+from common.MemberUtil import MemberUtil
+from common.models.Member import Member
 from common.models.RPGStatus import RPGStatus
 from common.RPGUtil.StatusType import StatusType
 from common.Util import Util
@@ -49,9 +51,24 @@ class RPG(commands.Cog):
         if RPGCharacterUtil.hasAdvantureStared(ctx.author.id):
             await ctx.send("你的冒險已經啟程")
             return
-        
+
+        member: Member = MemberUtil.get_or_add_member(ctx.author.id)
+        if member.coin < 5000:
+            await ctx.send(f"看來你的硬幣不足呢, 先在群裡說說話賺取經驗吧.")
+            return
+            
+        isNew = True
+        if RPGCharacterUtil.getRPGCharacter(ctx.author.id) != None:
+            isNew = False
         if RPGCharacterUtil.createNewRPGCharacter(ctx.author.id) != None:
-            await ctx.send(f"歡迎冒險者{ctx.author.display_name}, 從現在開始你的冒險之旅吧!")
+            user = self.bot.get_user(ctx.author.id)
+            name = await NicknameUtil.get_user_name(ctx.guild, user)
+            MemberUtil.add_coin(ctx.author.id, -5000)
+            MemberUtil.add_coin(ctx.bot.user.id, 5000)
+            if isNew:
+                await ctx.send(f"歡迎冒險者'{name}'的加入, 從現在開始你的冒險之旅吧!")
+            else:
+                await ctx.send(f"歡迎回來'{name}', 已恢復您冒險者的身分!")
             return
 
         await ctx.send(f"看起來你的行李好像還沒準備好, 詳情請洽冒險者公會員工.")

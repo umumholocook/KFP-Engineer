@@ -14,3 +14,5 @@ class RPGCharacter(BaseModel):
 
     attack_basic = IntegerField()                               # Basic attack points
     defense_basic = IntegerField()                              # Basic defense points
+
+    retired = BooleanField()                                    # Indicator for if this character retired
