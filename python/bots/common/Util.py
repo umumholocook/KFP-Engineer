@@ -14,6 +14,8 @@ class Util:
         ROLE_EDITOR = 5 # 可以修改身分組的頻道
         PROFILE = 6 # 可以使用 profile 指令的頻道
         BANK = 7 # 可以使用 bank 指令的頻道
+        RPG_GUILD = 8 # 可以使用RPG指令的頻道
+        RPG_BATTLE_GROUND = 9 # 可以使用攻擊指令的頻道
         # 只能新添Channel, 不要刪除舊有的
 
     class KujiType(IntEnum):

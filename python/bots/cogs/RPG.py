@@ -1,3 +1,5 @@
+from common.Util import Util
+from common.ChannelUtil import ChannelUtil
 from common.RPGUtil.StatusUtil import StatusUtil
 from common.RPGUtil.StatusUpdate import StatusUpdate
 from common.models.RPGCharacter import RPGCharacter
@@ -23,6 +25,8 @@ class RPG(commands.Cog):
 
     @rpg_group.command(name="draft")
     async def draft_character(self, ctx: commands.Context, user: User):
+        if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_GUILD):
+            return
         name = await NicknameUtil.get_user_name(ctx.guild, user)
         if RPGCharacterUtil.hasAdvantureStared(user.id):
             await ctx.send(f"'{name}'已經是冒險者了, 不需要再招募.")
@@ -35,6 +39,8 @@ class RPG(commands.Cog):
     # 開始大冒險 
     @rpg_group.command(name="startAdvanture")
     async def init_rpg_character(self, ctx: commands.Context):
+        if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_GUILD):
+            return
         if RPGCharacterUtil.hasAdvantureStared(ctx.author.id):
             await ctx.send("你的冒險已經啟程")
             return
@@ -48,6 +54,8 @@ class RPG(commands.Cog):
     # 從冒險者退休
     @rpg_group.command(name="retire")
     async def retire_rpg_character(self, ctx:commands.Context):
+        if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_GUILD):
+            return
         if not RPGCharacterUtil.hasAdvantureStared(ctx.author.id):
             await ctx.send("看起來你還沒開始你的旅程呢. 在開始前就放棄的概念?")
             return
@@ -85,6 +93,8 @@ class RPG(commands.Cog):
     
     @rpg_group.command(name="attack")
     async def attack_character(self, ctx:commands.Context, user: User):
+        if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_BATTLE_GROUND):
+            return
         if not RPGCharacterUtil.hasAdvantureStared(ctx.author.id):
             await ctx.send("看起來你還沒開始你的旅程呢. 請先申請成為冒險者吧")
             return
