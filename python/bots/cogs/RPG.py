@@ -1,3 +1,5 @@
+from common.models.RPGStatus import RPGStatus
+from common.RPGUtil.StatusType import StatusType
 from common.Util import Util
 from common.ChannelUtil import ChannelUtil
 from common.RPGUtil.StatusUtil import StatusUtil
@@ -7,6 +9,7 @@ from common.RPGUtil.RPGCharacterUtil import RPGCharacterUtil
 from discord.ext import commands
 from discord import User
 from common.NicknameUtil import NicknameUtil
+import datetime
 
 class RPG(commands.Cog):
 
@@ -52,6 +55,35 @@ class RPG(commands.Cog):
             return
 
         await ctx.send(f"看起來你的行李好像還沒準備好, 詳情請洽冒險者公會員工.")
+
+    @rpg_group.command(name="force_update")
+    async def force_update(self, ctx:commands.Context):
+        if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_GUILD):
+            return
+        results = StatusUtil.getAllStatus(StatusType.REST)
+        rest_over = []
+        now = datetime.datetime.now()
+        status: RPGStatus
+        for status in results:
+            if status.expire_time < now:
+                rest_over.append(status)
+        msg  = f"目前休息中的人為 {len(results)}人\n"
+        msg += f"可以解除休息的人數為 {len(rest_over)}人\n"
+        if len(rest_over) > 0:
+            msg += f"解除休息中..."
+        await ctx.send(msg)
+        for status in rest_over:
+            character = RPGCharacterUtil.getRPGCharacter(status.member_id)
+            user = self.bot.get_user(status.member_id)
+            name = await NicknameUtil.get_user_name(ctx.guild, user)
+            if character == None:
+                msg = f"找不到人物{status.member_id}, 刪除舊狀態..."
+            else:
+                msg = f"刪除'{name}'的休息狀態..."
+                RPGCharacterUtil.changeHp(character, status.buff.buff_value)
+            await ctx.send(msg)
+            status.delete_instance() 
+            await ctx.send(f"'{name}'的休息狀態成功")
 
     # 從冒險者退休
     @rpg_group.command(name="retire")

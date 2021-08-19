@@ -29,6 +29,16 @@ class StatusUtil():
             return query.get()
         return None
 
+    def getAllStatus(type: StatusType):
+        query = RPGStatus.select().where(
+            RPGStatus.type == type.value
+        )
+        result = []
+        if query.exists():
+            for status in query.iterator():
+                result.append(status)
+        return result
+
     # loop through all the expired status and apply them if needed
     def applyExpiredStatus():
         now = datetime.datetime.now()
@@ -55,6 +65,8 @@ class StatusUtil():
                 status.delete_instance()
     
     def _cleanUpStatus(status: RPGStatus):
+        if not RPGCharacterUtil.hasAdvantureStared(status.member_id):
+            return
         character = RPGCharacterUtil.getRPGCharacter(status.member_id)
         if status.type == StatusType.REST.value:
             RPGCharacterUtil.changeHp(character, status.buff.buff_value)
