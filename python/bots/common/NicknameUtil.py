@@ -67,7 +67,7 @@ class NicknameUtil():
     async def get_user_nickname_or_default(guild: Guild, user: User):
         nicknames = NicknameUtil.get_all_nicknames(guild_id=guild.id, user_id=user.id)
         if len(nicknames) < 1:
-            return NicknameUtil.get_user_name(guild, user)
+            return await NicknameUtil.get_user_name(guild, user)
         else:
             return random.choice(nicknames)
 
