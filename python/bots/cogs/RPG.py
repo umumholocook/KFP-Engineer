@@ -53,9 +53,9 @@ class RPG(commands.Cog):
             return
 
         member: Member = MemberUtil.get_or_add_member(ctx.author.id)
-        if member.coin < 5000:
-            await ctx.send(f"看來你的硬幣不足呢, 先在群裡說說話賺取經驗吧.")
-            return
+        # if member.coin < 5000:
+        #     await ctx.send(f"看來你的硬幣不足呢, 先在群裡說說話賺取經驗吧.")
+        #     return
             
         isNew = True
         if RPGCharacterUtil.getRPGCharacter(ctx.author.id) != None:
@@ -161,7 +161,10 @@ class RPG(commands.Cog):
             return
         author: RPGCharacter = RPGCharacterUtil.getRPGCharacter(ctx.author.id)
         other: RPGCharacter = RPGCharacterUtil.getRPGCharacter(user.id)
+        author_name = await NicknameUtil.get_user_name(ctx.guild, ctx.author)
         name = await NicknameUtil.get_user_name(ctx.guild, user)
+        guild = self.bot.get_guild(ctx.guild.id)
+        member = guild.get_member(user.id)
 
         if StatusUtil.isResting(ctx.author, ctx.guild.id):
             await ctx.send("你正在休息. 攻擊無效.")
@@ -176,7 +179,6 @@ class RPG(commands.Cog):
             RPGCharacterUtil.changeHp(other, -1 * author.hp_max)
             await ctx.send(f"{name} 決定朝自己的腹部捅一刀, 因為流血過多而昏厥過去了. 攻擊成功")
             return
-
         if RPGCharacterUtil.tryToAttack(author, other):
             atk = RPGCharacterUtil.getAttackPoint(author)
             RPGCharacterUtil.changeHp(other, -1 * atk)    
@@ -184,6 +186,9 @@ class RPG(commands.Cog):
 
             if other.hp_current < 1:
                 await ctx.send(f"由於你的攻擊, '{name}'生命力歸零昏厥了過去")
+            # sent a message let member know is being attack
+            msg = f"注意!你被{author_name}攻擊了!"
+            await member.send(msg)
         else:
             await ctx.send(f"'{name}'成功的擋下了你的攻擊! 攻擊失敗!")
 
