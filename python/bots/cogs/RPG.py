@@ -53,9 +53,9 @@ class RPG(commands.Cog):
             return
 
         member: Member = MemberUtil.get_or_add_member(ctx.author.id)
-        # if member.coin < 5000:
-        #     await ctx.send(f"看來你的硬幣不足呢, 先在群裡說說話賺取經驗吧.")
-        #     return
+        if member.coin < 5000:
+            await ctx.send(f"看來你的硬幣不足呢, 先在群裡說說話賺取經驗吧.")
+            return
             
         isNew = True
         if RPGCharacterUtil.getRPGCharacter(ctx.author.id) != None:
