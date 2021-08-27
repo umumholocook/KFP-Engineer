@@ -1,0 +1,223 @@
+<html>
+<head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;300;400;500;700;900&family=Roboto:wght@500&family=Roboto+Mono&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+    @font-face {
+        font-family: Emoji;
+        src: url("../ttf/NotoColorEmoji-unhinted/NotoColorEmoji.ttf") format("opentype"),
+             url("../ttf/NotoEmoji-unhinted/NotoEmoji-Regular.ttf") format("opentype"),
+             local("Segoe UI Emoji");
+    }
+    body {
+        margin: 0;
+    }
+    #card {
+        width: 320px;
+    }
+    #card {
+        display: flex;
+        display: -webkit-box;
+        flex-direction: column;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+
+        color: #fff;
+        font-size: 15px;
+        font-family: "Noto Sans TC", Emoji, Arial, sans-serif;
+
+        border-radius: 4px;
+    }
+    #header {
+        display: flex;
+        display: -webkit-box;
+        flex-direction: row;
+        -webkit-box-orient: horizontal;
+        align-items: center;
+        -webkit-box-align: center;
+
+        background-color: #d50000;
+        font-weight: 500;
+
+        padding: 8px 16px;
+    }
+    #author-photo {
+        display: block;
+        overflow: hidden;
+
+        flex: none;
+        -webkit-box-flex: none;
+
+        margin-right: 16px;
+        border-radius: 50%;
+
+        width: 40px;
+        height: 40px;
+    }
+    #header-content {
+        display: flex;
+        display: -webkit-box;
+        flex-direction: row;
+        -webkit-box-orient: horizontal;
+        align-items: baseline;
+        -webkit-box-align: baseline;
+
+        flex: 1;
+        -webkit-box-flex: 1;
+    }
+    #header-content-primary-column {
+        display: flex;
+        display: -webkit-box;
+        flex-direction: column;
+        -webkit-box-orient: vertical;
+        justify-content: space-between;
+        -webkit-box-pack: justify;
+
+        flex: 1;
+        -webkit-box-flex: 1;
+        flex-basis: 0.000000001px;
+    }
+    #author-name {
+        color: rgba(255, 255, 255, .7);
+        font-size: 14px;
+    }
+    #purchase-amount-column {
+        display: flex;
+        display: -webkit-box;
+        flex-direction: row;
+        -webkit-box-orient: horizontal;
+        align-items: center;
+        -webkit-box-align: center;
+    }
+    #purchase-amount {
+        font-family: Roboto;
+    }
+    #content {
+        background-color: #e53935;
+
+        padding: 8px 16px;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+    }
+    #message {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        -webkit-line-clamp: 20;
+
+        line-height: 1.5em;
+        word-wrap: break-word;
+        word-break: break-word;
+
+        max-height: 200px;
+    }
+    a {
+        color: hsl(197, 90%, 47.8%);
+        text-decoration: none;
+    }
+    u, s {
+        text-decoration-thickness: 2px;
+    }
+    .emoji-char {
+        font-family: Emoji;
+    }
+    .emoji {
+        vertical-align: middle;
+
+        margin: -1px 2px 1px;
+
+        width: 24px;
+        height: 24px;
+    }
+    .mention, .timestamp, .spoiler, code {
+        border-radius: 3px;
+    }
+    .mention {
+        vertical-align: baseline;
+
+        background: hsla(235, 85.6%, 64.7%, .7);
+        color: hsl(236, 83.3%, 92.9%);
+        font-weight: 500;
+        
+        padding: 0 2px;
+    }
+    .timestamp {
+        background: hsla(0, 0%, 70%, .3);
+        color: #dcddde;
+
+        padding: 0 2px;
+    }
+    .spoiler {
+        background-color: #202225;
+        color: #202225;
+    }
+    .spoiler * {
+        visibility: hidden
+    }
+    code {
+        background-color: #2f3136;
+        color: #dcddde;
+        font-size: 85%;
+        font-family: 'Roboto Mono', monospace;
+        white-space: pre-wrap;
+
+        padding: .08em;
+    }
+    code.block {
+        display: inline-block;
+        visibility: visible;
+
+        line-height: 1.2em;
+
+        margin: 2px 0;
+        padding: .5em;
+        border: 1px solid #202225;
+
+        width: 95%;
+    }
+    blockquote {
+        display: inline-block;
+
+        border-left: 3px solid #ef9a9a;
+
+        margin: 0;
+        padding: 0 8px 0 1em;
+
+        width: 95%;
+    }
+</style>
+</head>
+<body>
+<div id="card">
+    <div id="header">
+        <img-shadow id="author-photo"><img alt=":avatar:" height="40" width="40" src="superchat-avatar-sample.png"></img-shadow>
+     
+        <div id="header-content">
+            <div id="header-content-primary-column">
+                <div id="author-name">Takotachi Ch. h0101ive-FAN</div>
+                <div id="purchase-amount-column">
+                    <div id="purchase-amount">Coin.7,500</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="content">
+        <div id="message">
+            <span class="emoji-char">🔱</span> A! <em>鯊鯊!</em> <strong>SHAAAAAARK!!</strong> <s>mai waifu</s>
+            <img class="emoji" alt=":octopus:" src="../image/github.com.twitter.twemoji/assets/72x72/1f419.png">
+            <span class="spoiler">Kusotori</span><span class="mention">@Tenchou</span><span class="timestamp">2021年7月1日星期四 20:00</span>
+            <code>Water in the fire! WHY? 勞工兄弟，免驚免怨嘆。05/20</code>
+            <code class="block">lambda f: (lambda x: x(x))(lambda x: f(lambda y: x(x)(y)))</code>
+            <a href="https://youtu.be/Mm87JgTx2Ao">https://youtu.be/Mm87JgTx2Ao</a>
+            <blockquote>
+                A cutting edge 2D <u>entertainment company.</u><br>
+                Our mission is creating a culture that people around the world love.<br>
+                We will take on various challenges this year as well so that you can be surprised and enjoyed.<br>
+                Look forward.
+            </blockquote>
+        </div>
+    </div>
+</div>
+</body>
+</html>

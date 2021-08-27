@@ -29,12 +29,15 @@ SERVER MEMBERS INTENT
 
 並且要有Manage Roles Permission
 
-2. 修改discord_bot_2_0.py裡面的token
+2. 在環境變數裡設定 `KFP_TOKEN`
 
 3. 使用 start_kfp.sh
 
 4. 邀請bot到聊天室
 
+有些功能需要另外設定參數與自行下載資源才能使用
+
+5. 在 `settings/` 檔案夾底下，依照說明設定，再重新啟動 bot
 
 ## 如何增加新功能？
 
@@ -69,9 +72,13 @@ lib
 ---
 簡單的函式庫集合
 
+settings
+---
+放置以 Python 內建型別記錄的設定值
+
 resource
 ---
-字型與圖片, 以及簡易的json檔
+字型, 圖片, 模板, 以及簡易的json檔
 
 ## 常見問題
 

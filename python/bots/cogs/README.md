@@ -20,6 +20,13 @@
 
 剪刀石頭布
 
+## SuperChat
+
+以 Profile 之金流系統為基礎的 super chat  
+可以在 discord 頻道 sc 其他使用者，寄送留言  
+bot 會產生 super-chat-meme.png  
+並且 bot 能簡易地解讀留言中的 discord markdown 語法
+
 ## Gambling
 
 賭盤系統

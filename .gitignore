@@ -6,3 +6,5 @@
 **/.idea/
 /shelf/
 /workspace.xml
+**/.cache
+**/.temp

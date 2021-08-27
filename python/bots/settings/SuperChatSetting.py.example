@@ -1,0 +1,4 @@
+EMOJI_FONT_FACE_SRC: str = '''URL for the remote emoji font file location in the form `url("Font URL")`,
+                           or the name of a emoji font on the user's computer in the form `local("Font Name"),`
+                           or the path of a local emoji font file.'''
+EMOJI_FONT_FACE_FORMAT: str = '' or 'format("woff")' or 'format("truetype")' or 'format("opentype")' or 'format("embedded-opentype")'

@@ -1,0 +1,1 @@
+ASSETS_DIR: str = 'The directory of emoji image files'

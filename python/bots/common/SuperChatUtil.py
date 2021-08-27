@@ -1,128 +1,417 @@
-import os
-import tempfile
-import unicodedata
-from PIL import Image, ImageDraw, ImageFont
+import asyncio
+from contextlib import contextmanager, asynccontextmanager
+from dataclasses import dataclass
+from enum import Enum, auto
+from pathlib import Path
+import pprint
+from typing import List, Optional
+from xml.etree import ElementTree
+from xml.etree.ElementTree import Element
+
+from jinja2 import Template
+
+from . import (
+    HTMLPainter,
+    SimpleDiscordMarkdown as sdcmd,
+    UnicodeEmoji as uemoji
+)
+from .SimpleDiscordMarkdown import Rules
+from .SimpleDiscordMarkdown.Datatypes import (
+    MentionData, MentionType, TimestampData, EmojiData, CodeData,
+)
+from data.MaterialColor import COLORS
+from settings.SuperChatSetting import EMOJI_FONT_FACE_SRC, EMOJI_FONT_FACE_FORMAT
+
+_RESOURCE_PATHS = [uemoji.ASSETS_DIR]
+if (path := Path(EMOJI_FONT_FACE_SRC)).exists():
+    _RESOURCE_PATHS.append(path.absolute())
+    EMOJI_FONT_FACE_SRC = f'url("{path.as_uri()}")'
+
+_CURRENCY_DISPLAY_NAME = 'Coin.'
+_TEMPLATE: Template
+_TEMPLATEFILE = Path('resource/templates/superchat.html').absolute()
+with _TEMPLATEFILE.open('r', encoding='u8') as f:
+    _TEMPLATE = Template(f.read())
+
+# %% 定義資料
+class Currency(Enum):
+    TWD = auto()
+
+SUPERCHAT_STEP = {
+    Currency.TWD: [15, 30, 75, 150, 300, 750, 1500, 3000, 4500, 6000, 7500],
+}
+
+@dataclass(frozen=True)
+class Style:
+    # 預設紅色
+    color: str = '#fff'
+    name_color: str = 'rgba(255, 255, 255, .7)'
+    header_bgcolor: str = COLORS['red']['800']
+    content_bgcolor: str = COLORS['red']['600']
+    quote_sidebar_color: str = COLORS['red']['200']
+    
+class ColorRank(Enum):
+    # name = lengthlimit
+    ZERO = 0
+    BLUE = 0
+    CYAN = 50
+    TEAL = 150
+    AMBER = 200
+    ORANGE = 225
+    PINK = 250
+    RED = 270
+    RED1 = 290
+    RED2 = 310
+    RED3 = 330
+    RED4 = 350
+    
+    def __new__(cls, lengthlimit):
+        obj = object.__new__(cls)
+        obj._value_ = len(cls)
+        obj.lengthlimit = lengthlimit
+        obj.style = Style()
+        return obj
+    
+    def __bool__(self):
+        return bool(self.value)
+    
+    @classmethod
+    def judge(cls, money, currency=Currency.TWD):
+        step = SUPERCHAT_STEP[currency]
+        l, r = 0, len(step)
+        while l < r:
+            m = l+r >> 1
+            if money > step[m]-1:
+                l = m + 1
+            elif money < step[m]-1:
+                r = m
+            else:
+                break
+        return ColorRank(min(len(cls)-1, l+r >> 1))
+    
+    def lowerbound(self, currency=Currency.TWD):
+        if self == type(self)(0):
+            return
+        step = SUPERCHAT_STEP[currency]
+        return step[self.value-1]
+    
+    def upperbound(self, currency=Currency.TWD):
+        if self == type(self)(len(type(self))-1):
+            return
+        step = SUPERCHAT_STEP[currency]
+        return step[self.value]
+
+for rank, style in {
+    ColorRank.BLUE: Style(
+        '#fff', 'rgba(255, 255, 255, .7)',
+        COLORS['blue']['800'], COLORS['blue']['600'], COLORS['blue']['200'],
+    ),
+    ColorRank.CYAN: Style(
+        '#000', 'rgba(0, 0, 0, .5)',
+        COLORS['cyan']['a700'], COLORS['cyan']['a400'], COLORS['cyan']['200'],
+    ),
+    ColorRank.TEAL: Style(
+        '#000', 'rgba(0, 0, 0, .5)',
+        COLORS['teal']['a700'], COLORS['teal']['a400'], COLORS['teal']['200'],
+    ),
+    ColorRank.AMBER: Style(
+        '#000', 'rgba(0, 0, 0, .5)',
+        COLORS['amber']['600'], COLORS['amber']['400'], COLORS['amber']['100'],
+    ),
+    ColorRank.ORANGE: Style(
+        '#fff', 'rgba(255, 255, 255, .7)',
+        COLORS['orange']['900'], COLORS['orange']['700'], COLORS['orange']['200'],
+    ),
+    ColorRank.PINK: Style(
+        '#fff', 'rgba(255, 255, 255, .7)',
+        COLORS['pink']['700'], COLORS['pink']['500'], COLORS['pink']['200'],
+    ),
+}.items():
+    rank.style = style
+
+# %% 定義轉譯規則
+
+@dataclass
+class WidthFactor:
+    enter: int = 0
+    exit: int = 0
+    append_estimation_enter: Optional[int] = None
+    append_estimation_exit: Optional[int] = None
+
+class SCTranslator(sdcmd.Translator):
+    
+    @staticmethod
+    def str_width_estimate(source):
+        return 8 * len(source.encode())
+    
+    # 這是因為 wkhtmltoimage，css font unicode-range 無法作用而所做的因應
+    # 將 emoji-char 變成 span 元素，<span class="emoji-char">emoji-char</span>
+    # 就可以另外設定字型
+    # p.s. 如果情形在複雜點，應該可以為此建立指定的 Rule Object，獨立解析、轉譯
+    #      另外使用 rules, parser, sdcmd.Translator 這些 package
+    #      或者直接添加當前的 rules，就不用額外 translate_text
+    @staticmethod
+    def translate_text(*texts):
+        '''
+        
+        第一步，yield text
+        第二步與後續，yield elem
+        
+        '''
+        # n: 累計已處理完的 texts 的 length
+        # pos: 假設字串串接下，匹配的開始位置
+        tail = []
+        elem = None
+        n = 0
+        pos = 0
+        for text in texts:
+            while pos-n < len(text):
+                if not (match := uemoji.PATTERN.search(text, pos=max(pos-n, 0))):
+                    tail.append(text[pos-n:])
+                    n += len(text)
+                    break
+                tail.append(text[max(pos-n, 0):match.start()])
+                if elem is None:
+                    yield ''.join(tail)
+                elif pos-n != match.start():
+                    elem.text = ''.join(elem.text)
+                    elem.tail = ''.join(tail)
+                    yield elem
+                else:
+                    elem.text.append(match.group())
+                    pos = match.end() + n
+                    continue
+                elem = Element('span')
+                elem.set('class', 'emoji-char')
+                elem.text = [match.group()]
+                tail.clear()
+                pos = match.end() + n
+            else:
+                continue
+            n += len(text)
+        if elem is None:
+            yield ''.join(tail)
+        else:
+            elem.text = ''.join(elem.text)
+            elem.tail = ''.join(tail)
+            yield elem
+    
+    #TODO 把上面 function 寫得可讀一點，且功能和 yield 完全相同
+    
+    # 上面的寫得不太好
+    # 下面功能和上面一樣，但 yield 有點不一樣，可讀性應該比較好
+    @staticmethod
+    def _unused_translate_text(*texts):
+        texts = ''.join(texts)
+        emojichars = []
+        split_index = [0]
+        for match in uemoji.PATTERN.finditer(texts):
+            emojichars.append(match.group())
+            split_index.append(match.start())
+            split_index.append(match.end())
+        split_index.append(len(texts))
+        start, stop = split_index[0:2]
+        yield texts[start:stop]
+        for i, emojichar in enumerate(emojichars, 1):
+            elem = Element('span')
+            elem.set('class', 'emoji-char')
+            elem.text = emojichar
+            start, stop = split_index[2*i:2*i+2]
+            elem.tail = texts[start:stop]
+            yield elem
+    
+    @staticmethod
+    @contextmanager
+    def estimate(widths_each_line_estimation: List[int], widthfactor=WidthFactor()):
+        
+        widths_each_line_estimation[-1] += widthfactor.enter
+        if (n := widthfactor.append_estimation_enter) is not None:
+            if widths_each_line_estimation[-1]:
+                widths_each_line_estimation.append(n)
+            else:
+                widths_each_line_estimation[-1] += n
+        # 建立元素前，進入點
+        yield
+        # 建立元素後，退出點
+        widths_each_line_estimation[-1] += widthfactor.exit
+        if (n := widthfactor.append_estimation_exit) is not None:
+            if widths_each_line_estimation[-1]:
+                widths_each_line_estimation.append(n)
+            else:
+                widths_each_line_estimation[-1] += n
+    
+    # builder
+    
+    @sdcmd.Translator.builder(Rules.root)
+    def root(self, syntaxnode):
+        elem = Element('div')
+        elem.set('id', 'message')
+        return elem
+    
+    @sdcmd.Translator.builder(Rules.escape)
+    def escape(self, syntaxnode):
+        text = syntaxnode['data']
+        width = self.str_width_estimate(text)
+        return text, WidthFactor(width),
+    
+    @sdcmd.Translator.builder(Rules.newline)
+    def newline(self, syntaxnode):
+        return ' ', WidthFactor(self.str_width_estimate(' '))
+    
+    @sdcmd.Translator.builder(Rules.linebreak)
+    def linebreak(self, syntaxnode):
+        # 注意這個寬度因子
+        return Element('br'), WidthFactor(append_estimation_enter=1),
+    
+    @sdcmd.Translator.builder(Rules.italics)
+    def italics(self, syntaxnode):
+        return Element('em'),
+    
+    @sdcmd.Translator.builder(Rules.bold)
+    def bold(self, syntaxnode):
+        return Element('strong'),
+    
+    @sdcmd.Translator.builder(Rules.underline)
+    def underline(self, syntaxnode):
+        return Element('u'),
+    
+    @sdcmd.Translator.builder(Rules.strikethrough)
+    def strikethrough(self, syntaxnode):
+        return Element('s'),
+    
+    @sdcmd.Translator.builder(Rules.spoiler)
+    def spoiler(self, syntaxnode):
+        elem = Element('span')
+        elem.set('class', 'spoiler')
+        return elem
+    
+    @sdcmd.Translator.builder(Rules.mention)
+    def mention(self, syntaxnode):
+        return None
+    
+    @sdcmd.Translator.builder(Rules.timestamp)
+    def timestamp(self, syntaxnode):
+        return None
+    
+    @sdcmd.Translator.builder(Rules.custom_emoji)
+    def custom_emoji(self, syntaxnode):
+        return None
+    
+    @sdcmd.Translator.builder(Rules.unicode_emoji)
+    def unicode_emoji(self, syntaxnode):
+        return None
+    
+    @sdcmd.Translator.builder(Rules.url)
+    def url(self, syntaxnode):
+        href = syntaxnode['data']
+        elem = Element('a')
+        elem.set('href', href)
+        width = self.str_width_estimate(href)
+        return elem, WidthFactor(width),
+    
+    @sdcmd.Translator.builder(Rules.quote)
+    def quote(self, syntaxnode):
+        return (Element('blockquote'),
+                WidthFactor(append_estimation_enter=0, append_estimation_exit=0))
+    
+    @sdcmd.Translator.builder(Rules.code_block)
+    def code_block(self, syntaxnode):
+        elem = Element('code')
+        elem.set('class', 'block')
+        return elem, WidthFactor(append_estimation_enter=0, append_estimation_exit=0),
+    
+    @sdcmd.Translator.builder(Rules.code_inline)
+    def code_inline(self, syntaxnode):
+        return Element('code')
+    
+    @sdcmd.Translator.builder(Rules.text)
+    def text(self, syntaxnode):
+        text = syntaxnode['data']
+        width = self.str_width_estimate(text)
+        return text, WidthFactor(width)
+    
+    @sdcmd.Translator.builder(Rules.empyt)
+    def empyt(self, syntaxnode):
+        return ''
+    
+    # builder_data
+    
+    @sdcmd.Translator.builder_data(MentionData)
+    def mentiondata(self, data):
+        prefix = '#' if data.type == MentionType.CHANNEL else '@'
+        elem = Element('span')
+        elem.set('class', 'mention')
+        elem.text = prefix + data.display_name
+        width = self.str_width_estimate(elem.text)
+        return elem, WidthFactor(width)
+    
+    @sdcmd.Translator.builder_data(TimestampData)
+    def timestampdata(self, data):
+        elem = Element('span')
+        elem.set('class', 'timestamp')
+        elem.text = data.str
+        width = self.str_width_estimate(elem.text)
+        return elem, WidthFactor(width)
+    
+    @sdcmd.Translator.builder_data(EmojiData)
+    def emojidata(self, data):
+        if not hasattr(data, 'src'):
+            return f':{data.name}:'
+        elem = Element('img')
+        elem.set('class', 'emoji')
+        elem.set('src', data.src)
+        return elem, WidthFactor(28)
+                                            
+    @sdcmd.Translator.builder_data(CodeData)
+    def codedata(self, data):
+        width = self.str_width_estimate(data.text)
+        return data.text, WidthFactor(width)
+    
+_sctranslator = SCTranslator()
+
+# %% 定義渲染
+
+_WIDTH_BASIS = 360
+_MESSAGE_MAX_HIGHT = 100
+_MESSAGE_LINE_CLAMP = 3
+
+def _render(name, avatar, money, rank, message, syntaxnode, data, file=None):
+    if message:
+        widths_each_line_estimation = [0]
+        elemseq = _sctranslator.translate(syntaxnode, data, widths_each_line_estimation)
+        elem = next(elemseq)
+        message = ElementTree.tostring(elem, method='html').decode()
+
+    html = _TEMPLATE.render(
+        style=rank.style,
+        emoji_font_face_src=EMOJI_FONT_FACE_SRC,
+        emoji_font_face_format=EMOJI_FONT_FACE_FORMAT,
+        name=name,
+        avatar=avatar,
+        currency=_CURRENCY_DISPLAY_NAME,
+        money=money,
+        message=message,
+        message_max_hight=_MESSAGE_MAX_HIGHT,
+        message_line_clamp=_MESSAGE_LINE_CLAMP,
+    )
+    if file:
+        with open(file, 'w', encoding='u8') as f:
+            pprint.pprint(syntaxnode, f)
+            f.write(html)
+    return html
+
+@asynccontextmanager
+async def render(name, avatar, money, rank, message, syntaxnode, data, *, zoom=1):
+    # zoom 設太大的話，wkhtmltoimage 會有些東西渲染得太細，e.g. 下劃線、刪除線
+    # 猜測是因為這些東西並不會隨著縮放而跟著變大
+    # 但是 wkhtmltoimage 沒有 dpi 可以設，只能用 zoom 參數妥協 
+    loop = asyncio.get_running_loop()
+    html = await loop.run_in_executor(None, _render,
+                                      name, avatar, money, rank,
+                                      message, syntaxnode, data)
+    async with HTMLPainter.paint(
+        html, allowpaths=_RESOURCE_PATHS, quality=20, width=zoom*_WIDTH_BASIS, zoom=zoom,
+    ) as imgfp:
+        yield imgfp
 
 
-class SuperChatUtil():
-
-    _avatar_size = 165
-
-    _picList = [
-        "BLUE.png",
-        "CYAN.png",
-        "LIGHTBLUE.png",
-        "MAGENTA.png",
-        "ORANGE.png",
-        "RED.png",
-        "YELLOW.png"
-    ]
-
-    _word_color = {
-        "BLUE_name": [185, 209, 236],
-        "BLUE_word": [255, 255, 255],
-        "CYAN_name": [0, 88, 76],
-        "CYAN_word": [0, 0, 0],
-        "LIGHTBLUE_name": [0, 55, 63],
-        "LIGHTBLUE_word": [0, 0, 0],
-        "MAGENTA_name": [237, 186, 206],
-        "MAGENTA_word": [255, 255, 255],
-        "ORANGE_name": [248, 203, 179],
-        "ORANGE_word": [252, 233, 233],
-        "RED_name": [241, 179, 179],
-        "RED_word": [255, 255, 255],
-        "YELLOW_name": [117, 82, 0],
-        "YELLOW_word": [32, 25, 5],
-    }
-
-    _allOffSet = {
-        "avatar": [140, 110],
-        "name": [350, 112],
-        "money": [350, 192],
-        "text": [140, 350],
-    }
-
-    def getSuperChatPath():
-        return os.sep.join((tempfile.gettempdir(), "result.png"))
-
-    def createSC(user_name:str , avatar: Image, sc_money: int, sc_msg: str, sc_color: str):
-        if os.path.exists(SuperChatUtil.getSuperChatPath()):
-            os.remove(SuperChatUtil.getSuperChatPath())
-
-        # background
-        background_path = os.sep.join((os.getcwd(), "resource", "image", "superchatMeme", f"{sc_color}.png"))
-        background = Image.open(background_path)
-
-        # avatar
-        mask = Image.open(SuperChatUtil._getMaskImagePath()).resize((SuperChatUtil._avatar_size, SuperChatUtil._avatar_size))
-        img = avatar.resize((SuperChatUtil._avatar_size, SuperChatUtil._avatar_size))
-        background.paste(img, tuple(SuperChatUtil._allOffSet["avatar"]), mask)
-
-        # see need to add text image or not
-        if sc_color != "BLUE":
-            addPage, newMsg = SuperChatUtil._resizeMsg(offset=1625, msg=sc_msg, img=background)
-            if addPage != 0:
-                text_path = os.sep.join(
-                    (os.getcwd(), "resource", "image", "superchatMeme", f"{sc_color}_text.png"))
-                textground = Image.open(text_path)
-                if addPage == 1:
-                    background.paste(textground, (0, 390))
-                elif addPage == 2:
-                    background.paste(textground, (0, 390))
-                    background.paste(textground, (0, 460))
-        draw = ImageDraw.Draw(background)
-
-        # name
-        key = sc_color + "_name"
-        nameColor = SuperChatUtil._word_color[key]
-        SuperChatUtil._pasteName(SuperChatUtil._allOffSet["name"], user_name, nameColor, draw)
-
-        # money
-        key = sc_color + "_word"
-        nameColor = SuperChatUtil._word_color[key]
-        SuperChatUtil._pasteMoney(SuperChatUtil._allOffSet["money"], str(sc_money), nameColor, draw)
-
-        # msg
-        if sc_color != "BLUE":
-            SuperChatUtil._pasteText(SuperChatUtil._allOffSet["text"], newMsg, nameColor, draw)
-
-        background.save(os.sep.join((tempfile.gettempdir(), "result.png")))
-        return SuperChatUtil.getSuperChatPath()
-
-    def _pasteName(offset, username: str, color: list, draw: ImageDraw):
-        font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "msjh.ttc")), size=60,
-                                  encoding='utf-8')
-        draw.text(offset, username, fill=tuple(color), font=font, stroke_width=1)
-
-    def _pasteMoney(offset, money: str, color: list, draw: ImageDraw):
-        font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "msjh.ttc")), size=60,
-                                  encoding='utf-8')
-        money = money[::-1]
-        result = ','.join([money[i:i+3] for i in range(0, len(money), 3)])
-        result = "Coin. " + result[::-1] + ".00"
-        draw.text(offset, result, fill=tuple(color), font=font, stroke_width=1)
-
-    def _getFont():
-        return ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "ArialUnicodeRegular.ttf")), size=70,encoding='utf-8')
-
-    def _pasteText(offset, msg: str, color: list, draw: ImageDraw):
-        font = SuperChatUtil._getFont()
-        draw.text(offset, msg, fill=tuple(color), font=font)
-
-    def _resizeMsg(offset: int, msg: str, img: Image):
-        font = SuperChatUtil._getFont()
-        addPage = 0
-        newMsg = ""
-        for i in range(len(msg)):
-            newMsg += msg[i]
-            if ImageDraw.Draw(img).textsize(newMsg, font)[0] > offset:
-                newMsg = newMsg[:-1] + "\n" + newMsg[-1]
-                addPage += 1
-                if addPage == 3:
-                    newMsg = newMsg[:-3] + "..."
-                    addPage -= 1
-                    return addPage, newMsg
-        return addPage, newMsg
-
-    def _getMaskImagePath():
-        return os.sep.join((os.getcwd(), "resource", "image", "superchatMeme", "mask.png"))
