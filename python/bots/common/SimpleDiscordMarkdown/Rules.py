@@ -239,7 +239,7 @@ def code_block(match):
     lang = match.group(1)
     return Token(data=CodeData(text, lang))
 
-@_rule(r'`(.*[^`])`(?!`)|``(.*[^`])``(?!`)', re.S)
+@_rule(r'`([^`]+)`(?!`)|``([^`]+)``(?!`)', re.S)
 def code_inline(match):
     return Token(data=match.group(1) or match.group(2))
 
