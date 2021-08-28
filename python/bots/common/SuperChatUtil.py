@@ -158,67 +158,29 @@ class SCTranslator(sdcmd.Translator):
         第二步與後續，yield elem
         
         '''
-        # n: 累計已處理完的 texts 的 length
-        # pos: 假設字串串接下，匹配的開始位置
-        tail = []
-        elem = None
-        n = 0
-        pos = 0
-        for text in texts:
-            while pos-n < len(text):
-                if not (match := uemoji.PATTERN.search(text, pos=max(pos-n, 0))):
-                    tail.append(text[pos-n:])
-                    n += len(text)
-                    break
-                tail.append(text[max(pos-n, 0):match.start()])
-                if elem is None:
-                    yield ''.join(tail)
-                elif pos-n != match.start():
-                    elem.text = ''.join(elem.text)
-                    elem.tail = ''.join(tail)
-                    yield elem
-                else:
-                    elem.text.append(match.group())
-                    pos = match.end() + n
-                    continue
-                elem = Element('span')
-                elem.set('class', 'emoji-char')
-                elem.text = [match.group()]
-                tail.clear()
-                pos = match.end() + n
-            else:
-                continue
-            n += len(text)
-        if elem is None:
-            yield ''.join(tail)
-        else:
-            elem.text = ''.join(elem.text)
-            elem.tail = ''.join(tail)
-            yield elem
-    
-    #TODO 把上面 function 寫得可讀一點，且功能和 yield 完全相同
-    
-    # 上面的寫得不太好
-    # 下面功能和上面一樣，但 yield 有點不一樣，可讀性應該比較好
-    @staticmethod
-    def _unused_translate_text(*texts):
         texts = ''.join(texts)
-        emojichars = []
-        split_index = [0]
-        for match in uemoji.PATTERN.finditer(texts):
-            emojichars.append(match.group())
-            split_index.append(match.start())
-            split_index.append(match.end())
-        split_index.append(len(texts))
-        start, stop = split_index[0:2]
+        rangeseq = SCTranslator._find_nonemojistr_range(texts)
+        start, stop = next(rangeseq)
         yield texts[start:stop]
-        for i, emojichar in enumerate(emojichars, 1):
+        emojistr_start = stop
+        for start, stop in rangeseq:
+            emojistr_stop = start
             elem = Element('span')
             elem.set('class', 'emoji-char')
-            elem.text = emojichar
-            start, stop = split_index[2*i:2*i+2]
+            elem.text = texts[emojistr_start:emojistr_stop]
             elem.tail = texts[start:stop]
             yield elem
+            emojistr_start = stop
+                
+    @staticmethod
+    def _find_nonemojistr_range(source):
+        # 非 emoji 的 start
+        start = -len(source)
+        for match in uemoji.PATTERN.finditer(source):
+            if start != match.start():
+                yield start, match.start()
+            start = match.end()
+        yield start, len(source)
     
     @staticmethod
     @contextmanager
