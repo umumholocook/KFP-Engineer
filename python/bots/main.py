@@ -46,6 +46,7 @@ async def on_ready():
         if channel:
             await bot.get_channel(channel.channel_id).send("更新結束, 現在版本 {}".format(get_version()))
     refreshStatus.start()
+    reviveComaStatus.start()
 
 @bot.event
 async def on_message(message):
@@ -120,6 +121,13 @@ def get_version():
     git_count = check_output(['git', 'rev-list', '--all', '--count'])
     count = int(git_count) - 282
     return f"{VERSION}.{count}"
+
+@tasks.loop(hours=1)
+async def reviveComaStatus():
+    statusUpdates = StatusUtil.reviveComaStatus()
+    update: StatusUpdate
+    for update in statusUpdates:
+        await update.sendMessage(bot)
 
 @tasks.loop(seconds = 60)
 async def refreshStatus():

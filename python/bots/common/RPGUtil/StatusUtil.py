@@ -1,3 +1,5 @@
+from peewee import fn
+
 from common.models.RPGCharacter import RPGCharacter
 from discord.abc import User
 from common.RPGUtil.StatusType import StatusType
@@ -105,6 +107,8 @@ class StatusUtil():
         character = RPGCharacterUtil.getRPGCharacter(status.member_id)
         if status.type == StatusType.REST.value:
             RPGCharacterUtil.changeHp(character, status.buff.buff_value)
+        if status.type == StatusType.COMA.value:
+            RPGCharacterUtil.changeHp(character, status.buff.buff_value)
 
     def isResting(user: User, guild_id: int):
         status = StatusUtil.getStatus(user.id, guild_id, StatusType.REST)
@@ -131,16 +135,33 @@ class StatusUtil():
             for status in query.iterator():
                 status.delete_instance()
 
-    def createComaStatus(guild_id: int, user: User):
-        buff = Buff(BuffType.NONE, 0, -1)
+    def createComaStatus(guild_id: int, user: User, hp_max: int):
+        buff = Buff(BuffType.NONE, hp_max, -1)
         return RPGStatus.create(
             member_id=user.id,
             guild_id=guild_id,
             type=StatusType.COMA.value,
             buff=buff,
-            expire_time=-1
+            expire_time=datetime.datetime.now() + datetime.timedelta(seconds=10)
         )
 
     def isComa(user: User, guild_id: int):
         status = StatusUtil.getStatus(user.id, guild_id, StatusType.COMA)
         return not status == None
+
+    def reviveComaStatus():
+        query = RPGStatus.select().where(
+            RPGStatus.type == StatusType.COMA.value,
+        )
+        result = []
+        if query.exists():
+            count = RPGStatus.select().where(
+                RPGStatus.type == StatusType.COMA.value,
+            ).count()
+            if count >= 10:
+                status: RPGStatus
+                for status in query.iterator():
+                    result.append(StatusUpdate(status.member_id, status.guild_id, status.type))
+                    StatusUtil._cleanUpStatus(status)
+                    status.delete_instance()
+        return result

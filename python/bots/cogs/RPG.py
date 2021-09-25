@@ -186,16 +186,16 @@ class RPG(commands.Cog):
         if StatusUtil.isResting(ctx.author, ctx.guild.id):
             await ctx.send("你正在休息. 偷襲無效.")
             return
-        if StatusUtil.isComa(other, ctx.guild.id):
+        if StatusUtil.isComa(user, ctx.guild.id):
             await ctx.send(f"哎不是! '{name}'都已經昏厥了你還偷襲? 偷襲無效啦!")
             return
         if StatusUtil.isComa(ctx.author, ctx.guild.id):
             await ctx.send(f"你都沒有體力了! 要怎麼偷襲! 偷襲無效.")
             return
         if author.character.member_id == user.id:
-            live = RPGCharacterUtil.changeHp(other, -1 * author.hp_max)
-            if not live:
-                StatusUtil.createComaStatus(ctx.guild.id, other)
+            dead = RPGCharacterUtil.changeHp(other, -1 * author.hp_max)
+            if dead:
+                StatusUtil.createComaStatus(ctx.guild.id, user, other.hp_max)
             await ctx.send(f"{name} 查覺到自己的行為, 但是阻止不了自己偷襲自己. 於是流血過多而昏厥過去. 攻擊成功")
             return
         if StatusUtil.isAlerted(user, ctx.guild.id):
@@ -208,12 +208,12 @@ class RPG(commands.Cog):
         success = random.randint(0, 1) == 0
         if success:
             atk = RPGCharacterUtil.getAttackPoint(author) * 2
-            live = RPGCharacterUtil.changeHp(other, -1 * atk)
-            if not live:
-                StatusUtil.createComaStatus(ctx.guild.id, other)
+            dead = RPGCharacterUtil.changeHp(other, -1 * atk)
+            if dead:
+                StatusUtil.createComaStatus(ctx.guild.id, user, other.hp_max)
             await ctx.send(f"'{name}' 減少了 {atk}點體力. 偷襲成功!")
 
-            if StatusUtil.isComa(other, ctx.guild.id):
+            if StatusUtil.isComa(user, ctx.guild.id):
                 await ctx.send(f"由於你的攻擊, '{name}'生命力歸零昏厥了過去")
             # sent a message let member know is being attack
             msg = f"注意!你被{author_name}偷襲了!"
@@ -243,26 +243,26 @@ class RPG(commands.Cog):
         if StatusUtil.isResting(ctx.author, ctx.guild.id):
             await ctx.send("你正在休息. 攻擊無效.")
             return
-        if StatusUtil.isComa(other, ctx.guild.id):
+        if StatusUtil.isComa(user, ctx.guild.id):
             await ctx.send(f"哎不是! '{name}'都已經昏厥了你還攻擊? 攻擊無效啦!")
             return
         if StatusUtil.isComa(ctx.author, ctx.guild.id):
             await ctx.send(f"你都沒有體力了! 先去休息啦! 攻擊無效.")
             return
         if author.character.member_id == user.id:
-            live = RPGCharacterUtil.changeHp(other, -1 * author.hp_max)
-            if not live:
-                StatusUtil.createComaStatus(ctx.guild.id, other)
+            dead = RPGCharacterUtil.changeHp(other, -1 * author.hp_max)
+            if dead:
+                StatusUtil.createComaStatus(guild_id=ctx.guild.id, user=user, hp_max=other.hp_max)
             await ctx.send(f"{name} 決定朝自己的腹部捅一刀, 因為流血過多而昏厥過去了. 攻擊成功")
             return
         if RPGCharacterUtil.tryToAttack(author, other):
             atk = RPGCharacterUtil.getAttackPoint(author)
-            live = RPGCharacterUtil.changeHp(other, -1 * atk)
-            if not live:
-                StatusUtil.createComaStatus(ctx.guild.id, other)
+            dead = RPGCharacterUtil.changeHp(other, -1 * atk)
+            if dead:
+                StatusUtil.createComaStatus(ctx.guild.id, user, other.hp_max)
             await ctx.send(f"'{name}' 減少了 {atk}點體力. 攻擊成功!")
 
-            if StatusUtil.isComa(other, ctx.guild.id):
+            if StatusUtil.isComa(user, ctx.guild.id):
                 await ctx.send(f"由於你的攻擊, '{name}'生命力歸零昏厥了過去")
             # sent a message let member know is being attack
             msg = f"注意!你被{author_name}攻擊了!"

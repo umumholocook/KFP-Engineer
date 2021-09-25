@@ -15,10 +15,11 @@ class StatusUpdate():
     async def sendMessage(self, bot: commands.Bot):
         guild = bot.get_guild(self.__guild_id)
         member = guild.get_member(self.__member_id)
-
         if member:
             await member.send(self.__getMessage())
 
     def __getMessage(self):
         if self.__type == StatusType.REST:
             return "休息結束, 你的體力已經完全恢復."
+        if self.__type == StatusType.COMA:
+            return "Kiara看到Cali喜極而泣，順便把倒地的你給治好了"
