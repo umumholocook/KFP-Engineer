@@ -20,25 +20,25 @@ class RPGCharacterUtil():
         return None
 
     def hasAdventureStared(member_id: int):
-        character: RPGCharacter = RPGCharacterUtil.getRPGCharacter(member_id) 
+        character: RPGCharacter = RPGCharacterUtil.getRPGCharacter(member_id)
         return character != None and not character.retired
-    
+
     def retireRPGCharacter(member_id: int):
         character: RPGCharacter = RPGCharacterUtil.getRPGCharacter(member_id)
         character.retired = True
         character.save()
-        
+
     def levelUpCharacter(user: User, old_level: int, new_level: int):
         RPGCharacterUtil.levelUpCharacter(user.id, old_level, new_level)
 
     def levelUpCharacter(member_id: int, old_level: int, new_level: int):
         if not RPGCharacterUtil.hasAdventureStared(member_id):
-            return # ignore if user hasn't start Adventure 
+            return  # ignore if user hasn't start Adventure
         rpg: RPGCharacter = RPGCharacterUtil.getRPGCharacter(member_id)
         print(f"old hp: {rpg.hp_max}")
         rpg.hp_max = LevelUtil.generateLevelUpHP(old_level, new_level, rpg.hp_max)
         print(f"new hp: {rpg.hp_max}")
-        rpg.hp_current = rpg.hp_max 
+        rpg.hp_current = rpg.hp_max
         rpg.mp_max = LevelUtil.generateLevelUpMP(old_level, new_level, rpg.mp_max)
         rpg.mp_current = rpg.mp_max
         rpg.attack_basic = LevelUtil.generateLevelUpAttack(old_level, new_level, rpg.attack_basic)
@@ -59,29 +59,30 @@ class RPGCharacterUtil():
         new_attack = LevelUtil.generateAttack(member.rank)
         new_defense = LevelUtil.generateDefense(member.rank)
         return RPGCharacter.create(
-            character = member,
-            hp_current = new_hp,
-            hp_max = new_hp,
-            mp_current = new_mp,
-            mp_max = new_mp,
-            attack_basic = new_attack,
-            defense_basic = new_defense,
-            retired = False
+            character=member,
+            hp_current=new_hp,
+            hp_max=new_hp,
+            mp_current=new_mp,
+            mp_max=new_mp,
+            attack_basic=new_attack,
+            defense_basic=new_defense,
+            retired=False
         )
-    
+
     def changeHp(character: RPGCharacter, hp: int):
         new_hp = character.hp_current + hp
         new_hp = min(character.hp_max, new_hp)
         new_hp = max(0, new_hp)
         character.hp_current = new_hp
         character.save()
+        return new_hp < 1
 
     def getDefensePoint(character: RPGCharacter):
         return character.defense_basic
-    
+
     def getAttackPoint(character: RPGCharacter):
         return character.attack_basic
-        
+
     def _rollAttack(character: RPGCharacter):
         # roll a d20
         total = 0
@@ -90,10 +91,9 @@ class RPGCharacterUtil():
             total += random.randint(1, 20)
 
         return total + character.attack_basic
-    
+
     def tryToAttack(attacker: RPGCharacter, victim: RPGCharacter):
         atkPoint = RPGCharacterUtil._rollAttack(attacker)
         defensePoint = RPGCharacterUtil.getDefensePoint(victim)
         # print(f"{atkPoint} vs {defensePoint}")
         return atkPoint > defensePoint
-    

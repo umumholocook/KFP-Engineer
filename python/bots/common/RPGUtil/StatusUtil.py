@@ -7,18 +7,19 @@ from common.models.RPGStatus import RPGStatus
 from common.RPGUtil.Buff import Buff, BuffType
 import datetime
 
+
 class StatusUtil():
     # create rest status for member
     def createRestStatus(member_id: int, guild_id: int, max_hp: int, expire_seconds: int):
         buff = Buff(BuffType.NONE, max_hp, -1)
         return RPGStatus.create(
-            member_id = member_id,
-            guild_id = guild_id,
-            type = StatusType.REST.value,
-            buff = buff,
-            expire_time = datetime.datetime.now() + datetime.timedelta(seconds=expire_seconds)
+            member_id=member_id,
+            guild_id=guild_id,
+            type=StatusType.REST.value,
+            buff=buff,
+            expire_time=datetime.datetime.now() + datetime.timedelta(seconds=expire_seconds)
         )
-    
+
     # indicate a member has been alerted, either create a new one or modify an existing one.
     def createOrUpdateAlertStatus(member_id: int, guild_id: int, expire_seconds: int):
         buff = Buff(BuffType.NONE, 0, -1)
@@ -34,11 +35,11 @@ class StatusUtil():
             status.save()
         else:
             RPGStatus.create(
-                member_id = member_id,
-                guild_id = guild_id,
-                type = StatusType.ALERTED.value,
-                buff = buff,
-                expire_time = new_time
+                member_id=member_id,
+                guild_id=guild_id,
+                type=StatusType.ALERTED.value,
+                buff=buff,
+                expire_time=new_time
             )
 
     def getStatus(member_id: int, guild_id: int, type: StatusType):
@@ -62,10 +63,12 @@ class StatusUtil():
         return result
 
     # loop through all the expired status and apply them if needed
+    # only for rest
     def applyExpiredStatus():
         now = datetime.datetime.now()
         query = RPGStatus.select().where(
-            RPGStatus.expire_time < now
+            RPGStatus.expire_time < now,
+            RPGStatus.type == StatusType.REST.value
         )
         result = []
         if query.exists():
@@ -85,7 +88,7 @@ class StatusUtil():
             status: RPGStatus
             for status in query.iterator():
                 status.delete_instance()
-    
+
     def removeAlertStatus(member_id: int):
         query = RPGStatus.select().where(
             RPGStatus.member_id == member_id,
@@ -95,7 +98,7 @@ class StatusUtil():
             status: RPGStatus
             for status in query.iterator():
                 status.delete_instance()
-    
+
     def _cleanUpStatus(status: RPGStatus):
         if not RPGCharacterUtil.hasAdventureStared(status.member_id):
             return
@@ -113,5 +116,31 @@ class StatusUtil():
 
     def startResting(user: User, guild_id: int):
         rpg: RPGCharacter = RPGCharacterUtil.getRPGCharacter(user.id)
-        StatusUtil.createRestStatus(user.id, guild_id, rpg.hp_max, 300) # 5分鐘
+        if StatusUtil.getStatus(user.id, guild_id, StatusType.COMA) is not None:
+            StatusUtil._removeComaStatus(user)
+        StatusUtil.createRestStatus(user.id, guild_id, rpg.hp_max, 300)  # 5分鐘
         pass
+
+    def _removeComaStatus(member_id: int):
+        query = RPGStatus.select().where(
+            RPGStatus.member_id == member_id,
+            RPGStatus.type == StatusType.COMA.value
+        )
+        if query.exists():
+            status: RPGStatus
+            for status in query.iterator():
+                status.delete_instance()
+
+    def createComaStatus(guild_id: int, user: User):
+        buff = Buff(BuffType.NONE, 0, -1)
+        return RPGStatus.create(
+            member_id=user.id,
+            guild_id=guild_id,
+            type=StatusType.COMA.value,
+            buff=buff,
+            expire_time=-1
+        )
+
+    def isComa(user: User, guild_id: int):
+        status = StatusUtil.getStatus(user.id, guild_id, StatusType.COMA)
+        return not status == None
