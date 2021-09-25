@@ -131,7 +131,7 @@ class RPG(commands.Cog):
             await ctx.send("你正在休息. 休息的人是不會申請退休的(~~除非你在夢遊~~).")
             return
         author: RPGCharacter = RPGCharacterUtil.getRPGCharacter(ctx.author.id)
-        if author.hp_current < 1:
+        if StatusUtil.isComa(ctx.author, ctx.guild.id):
             await ctx.send(f"你都沒有體力了! 先去休息啦!")
             return
         RPGCharacterUtil.retireRPGCharacter(ctx.author.id)
