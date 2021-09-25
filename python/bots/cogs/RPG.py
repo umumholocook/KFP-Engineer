@@ -5,13 +5,12 @@ from common.RPGUtil.StatusType import StatusType
 from common.Util import Util
 from common.ChannelUtil import ChannelUtil
 from common.RPGUtil.StatusUtil import StatusUtil
-from common.RPGUtil.StatusUpdate import StatusUpdate
 from common.models.RPGCharacter import RPGCharacter
 from common.RPGUtil.RPGCharacterUtil import RPGCharacterUtil
 from discord.ext import commands
 from discord import User
 from common.NicknameUtil import NicknameUtil
-import datetime
+import datetime, random
 
 class RPG(commands.Cog):
 
@@ -148,6 +147,59 @@ class RPG(commands.Cog):
         StatusUtil.startResting(ctx.author, ctx.guild.id)
         name = await NicknameUtil.get_user_name(ctx.guild, ctx.author)
         await ctx.send(f"{name}正在休息中...")
+
+    @rpg_group.command(name="sneak_attack")
+    async def sneak_attack_character(self, ctx:commands.Context, user: User):
+        if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_BATTLE_GROUND):
+            return
+        if not RPGCharacterUtil.hasAdventureStared(ctx.author.id):
+            await ctx.send("看起來你還沒開始你的旅程呢. 請先申請成為冒險者吧")
+            return
+        if not RPGCharacterUtil.hasAdventureStared(user.id):
+            await ctx.send("看起來對方不是冒險者呢. 請不要偷襲平民")
+            return
+        author: RPGCharacter = RPGCharacterUtil.getRPGCharacter(ctx.author.id)
+        other: RPGCharacter = RPGCharacterUtil.getRPGCharacter(user.id)
+        author_name = await NicknameUtil.get_user_name(ctx.guild, ctx.author)
+        name = await NicknameUtil.get_user_name(ctx.guild, user)
+        guild = self.bot.get_guild(ctx.guild.id)
+        member = guild.get_member(user.id)
+
+        if StatusUtil.isResting(ctx.author, ctx.guild.id):
+            await ctx.send("你正在休息. 偷襲無效.")
+            return
+        if other.hp_current < 1:
+            await ctx.send(f"哎不是! '{name}'都已經昏厥了你還偷襲? 偷襲無效啦!")
+            return
+        if author.hp_current < 1:
+            await ctx.send(f"你都沒有體力了! 要怎麼偷襲! 偷襲無效.")
+            return
+        if author.character.member_id == user.id:
+            RPGCharacterUtil.changeHp(other, -1 * author.hp_max)
+            await ctx.send(f"{name} 查覺到自己的行為, 但是阻止不了自己偷襲自己. 於是流血過多而昏厥過去. 攻擊成功")
+            return
+        if StatusUtil.isAlerted(user, ctx.guild.id):
+            await ctx.send(f"由於已經被偷襲過, '{name}'現在非常警戒並擋下了你的攻擊! 攻擊失敗!")
+            msg = f"注意!{author_name}企圖偷襲你但是被你識破了!"
+            await member.send(msg)
+            return
+        
+        # try to sneak attack
+        success = random.randint(0, 1) == 0
+        if success:
+            atk = RPGCharacterUtil.getAttackPoint(author) * 2
+            RPGCharacterUtil.changeHp(other, -1 * atk)
+            await ctx.send(f"'{name}' 減少了 {atk}點體力. 偷襲成功!")
+
+            if other.hp_current < 1:
+                await ctx.send(f"由於你的攻擊, '{name}'生命力歸零昏厥了過去")
+            # sent a message let member know is being attack
+            msg = f"注意!你被{author_name}偷襲了!"
+            await member.send(msg)
+        else:
+            await ctx.send(f"由於你的腳步聲太大, '{name}'注意到並擋下了你的攻擊! 攻擊失敗!")
+        # the other person is now alerted
+        StatusUtil.createOrUpdateAlertStatus(member.id, ctx.guild.id, 86400)
     
     @rpg_group.command(name="attack")
     async def attack_character(self, ctx:commands.Context, user: User):

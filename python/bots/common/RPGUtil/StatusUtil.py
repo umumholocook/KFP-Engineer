@@ -18,6 +18,28 @@ class StatusUtil():
             buff = buff,
             expire_time = datetime.datetime.now() + datetime.timedelta(seconds=expire_seconds)
         )
+    
+    # indicate a member has been alerted, either create a new one or modify an existing one.
+    def createOrUpdateAlertStatus(member_id: int, guild_id: int, expire_seconds: int):
+        buff = Buff(BuffType.NONE, 0, -1)
+        query = RPGStatus.select().where(
+            RPGStatus.member_id == member_id,
+            RPGStatus.guild_id == guild_id,
+            RPGStatus.type == StatusType.ALERTED.value
+        )
+        new_time = datetime.datetime.now() + datetime.timedelta(seconds=expire_seconds)
+        if query.exists():
+            status: RPGStatus = query.get()
+            status.expire_time = new_time
+            status.save()
+        else:
+            RPGStatus.create(
+                member_id = member_id,
+                guild_id = guild_id,
+                type = StatusType.ALERTED.value,
+                buff = buff,
+                expire_time = new_time
+            )
 
     def getStatus(member_id: int, guild_id: int, type: StatusType):
         query = RPGStatus.select().where(
@@ -64,6 +86,16 @@ class StatusUtil():
             for status in query.iterator():
                 status.delete_instance()
     
+    def removeAlertStatus(member_id: int):
+        query = RPGStatus.select().where(
+            RPGStatus.member_id == member_id,
+            RPGStatus.type == StatusType.ALERTED.value
+        )
+        if query.exists():
+            status: RPGStatus
+            for status in query.iterator():
+                status.delete_instance()
+    
     def _cleanUpStatus(status: RPGStatus):
         if not RPGCharacterUtil.hasAdventureStared(status.member_id):
             return
@@ -74,6 +106,10 @@ class StatusUtil():
     def isResting(user: User, guild_id: int):
         status = StatusUtil.getStatus(user.id, guild_id, StatusType.REST)
         return not status == None
+
+    def isAlerted(user: User, guild_id: int):
+        status: RPGStatus = StatusUtil.getStatus(user.id, guild_id, StatusType.ALERTED)
+        return (not status == None) and (status.expire_time > datetime.datetime.now())
 
     def startResting(user: User, guild_id: int):
         rpg: RPGCharacter = RPGCharacterUtil.getRPGCharacter(user.id)
