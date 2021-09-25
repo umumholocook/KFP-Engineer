@@ -165,8 +165,17 @@ class RPG(commands.Cog):
         StatusUtil.startResting(ctx.author, ctx.guild.id)
         name = await NicknameUtil.get_user_name(ctx.guild, ctx.author)
         await ctx.send(f"{name}正在休息中...")
+    
+    @rpg_group.error
+    async def rps_error(self, ctx:commands.Context, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            msg = "禁止洗版, 請等{:.2f}秒".format(error.retry_after)
+            await ctx.send(msg)
+        else:
+            raise error
 
     @rpg_group.command(name="sneak_attack")
+    @commands.cooldown(1, 30, type=commands.BucketType.user)
     async def sneak_attack_character(self, ctx:commands.Context, user: User):
         if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_BATTLE_GROUND):
             return
