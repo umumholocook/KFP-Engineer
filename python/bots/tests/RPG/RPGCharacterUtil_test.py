@@ -75,10 +75,10 @@ class TestRPGCharacterUtil():
         member = self.database.add_member(100)
         rpg: RPGCharacterUtil = RPGCharacterUtil.createNewRPGCharacter(member)
         expected_hp = rpg.hp_current
-        RPGCharacterUtil.changeHp(rpg, -10000)
-        assert rpg.hp_current == 0
+        dead = RPGCharacterUtil.changeHp(rpg, -10000)
+        assert (rpg.hp_current == 0) and (dead is True)
 
-        RPGCharacterUtil.changeHp(rpg, +100)
-        assert rpg.hp_current == expected_hp
+        dead = RPGCharacterUtil.changeHp(rpg, +100)
+        assert (rpg.hp_current == expected_hp) and (dead is not True)
     
         

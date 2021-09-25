@@ -30,13 +30,24 @@ class TestStatusUtil():
 
     def test_createComaStatus_success(self):
         c: RPGCharacter = RPGCharacterUtil.createNewRPGCharacter(1)
-        comaStatus = StatusUtil.createComaStatus(guild_id=1, user=c)
+        comaStatus = StatusUtil.createComaStatus(guild_id=1, user=c, hp_max=c.hp_max)
         status = StatusUtil.getStatus(guild_id=1, member_id=c.id, type=StatusType.COMA)
         assert comaStatus == status
+        statuslist = StatusUtil.reviveComaStatus()
+        assert len(statuslist) == 0
+        ch: RPGCharacter = RPGCharacterUtil.createNewRPGCharacter(2)
+        comaStatus1 = StatusUtil.createComaStatus(guild_id=1, user=ch, hp_max=ch.hp_max)
+        status1 = StatusUtil.getStatus(guild_id=1, member_id=ch.id, type=StatusType.COMA)
+        assert comaStatus1 == status1
+        statuslist = StatusUtil.reviveComaStatus()
+        assert len(statuslist) == 0
+        assert c.hp_max == c.hp_current
+
+
 
     def test_removeComaStatusToRest(self):
         c: RPGCharacter = RPGCharacterUtil.createNewRPGCharacter(1)
-        StatusUtil.createComaStatus(guild_id=1, user=c)
+        StatusUtil.createComaStatus(guild_id=1, user=c, hp_max=c.hp_max)
         StatusUtil.startResting(guild_id=1, user=c)
         status = StatusUtil.getStatus(guild_id=1, member_id=c.id, type=StatusType.COMA)
         assert status is None
