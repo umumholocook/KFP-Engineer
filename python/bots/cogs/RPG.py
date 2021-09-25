@@ -24,6 +24,7 @@ class RPG(commands.Cog):
         msg += "!rpg startAdventure - 開始屬於你的大冒險!!\n"
         msg += "!rpg retire - 回家種田, 不做冒險者了.\n"
         msg += "!rpg attack <@其他冒險者> - 攻擊其他冒險者.\n"
+        msg += "!rpg sneak_attack <@其他冒險者> - 偷襲其他冒險者.一天只有一次機會\n"
         msg += "!rpg status - 查看自己的冒險者數值, 可以添加 \"public\" 對外顯示.\n"
         msg += "!rpg rest - 休息, 休息之後體力會恢復.\n"
         msg += "```\n"
@@ -100,6 +101,23 @@ class RPG(commands.Cog):
             await ctx.send(msg)
             status.delete_instance() 
             await ctx.send(f"'{name}'的休息狀態成功")
+    
+    
+    @rpg_group.command(name="revive")
+    async def revive_rpg_character(self, ctx:commands.Command, user: User):
+        if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.BANK):
+            return
+        if not RPGCharacterUtil.hasAdventureStared(user.id):
+            await ctx.send("看起來對方不是冒險者呢. 無法回血")
+            return
+        other: RPGCharacter = RPGCharacterUtil.getRPGCharacter(user.id)
+        author: RPGCharacter = RPGCharacterUtil.getRPGCharacter(ctx.author.id)
+        name = await NicknameUtil.get_user_name(ctx.guild, user)
+        if author.character.member_id == user.id:
+            await ctx.send(f"此功能不是拿來幫你自己加血的, 請不要濫用職權.")
+            return
+        RPGCharacterUtil.changeHp(other, other.hp_max)
+        await ctx.send(f"{name}生命值回復成功.")
 
     # 從冒險者退休
     @rpg_group.command(name="retire")
