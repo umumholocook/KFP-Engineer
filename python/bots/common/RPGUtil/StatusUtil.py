@@ -1,5 +1,7 @@
 from peewee import fn
 
+from common.ChannelUtil import ChannelUtil
+from common.Util import Util
 from common.models.RPGCharacter import RPGCharacter
 from discord.abc import User
 from common.RPGUtil.StatusType import StatusType
@@ -11,6 +13,8 @@ import datetime
 
 
 class StatusUtil():
+    reviveMemberCount = 10
+
     # create rest status for member
     def createRestStatus(member_id: int, guild_id: int, max_hp: int, expire_seconds: int):
         buff = Buff(BuffType.NONE, max_hp, -1)
@@ -158,10 +162,12 @@ class StatusUtil():
             count = RPGStatus.select().where(
                 RPGStatus.type == StatusType.COMA.value,
             ).count()
-            if count >= 10:
+            if count >= StatusUtil.reviveMemberCount:
                 status: RPGStatus
                 for status in query.iterator():
                     result.append(StatusUpdate(status.member_id, status.guild_id, status.type))
                     StatusUtil._cleanUpStatus(status)
                     status.delete_instance()
         return result
+
+

@@ -1,3 +1,6 @@
+import random
+
+from common.RPGUtil.ReviveUtil import ReviveUtil
 from common.RPGUtil.StatusUpdate import StatusUpdate
 from common.RPGUtil.StatusUtil import StatusUtil
 import discord, os, signal, tempfile
@@ -125,9 +128,17 @@ def get_version():
 @tasks.loop(hours=1)
 async def reviveComaStatus():
     statusUpdates = StatusUtil.reviveComaStatus()
-    update: StatusUpdate
-    for update in statusUpdates:
-        await update.sendMessage(bot)
+    # if have to revive character
+    if statusUpdates != []:
+        channelIdList = ReviveUtil.getReviveMsgChannel(statusUpdates)
+        msg = "某冥界死神跑來跟店長抱怨公會死傷慘重, 害她最近工作變忙"
+        img = ReviveUtil.getPic()
+        for channel_id in channelIdList:
+            await bot.get_channel(channel_id).send(file=img)
+            await bot.get_channel(channel_id).send(msg)
+        update: StatusUpdate
+        for update in statusUpdates:
+            await update.sendMessage(bot)
 
 @tasks.loop(seconds = 60)
 async def refreshStatus():
