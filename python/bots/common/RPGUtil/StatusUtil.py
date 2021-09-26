@@ -13,7 +13,7 @@ import datetime
 
 
 class StatusUtil():
-    reviveMemberCount = 10
+    reviveMemberCount = 5
 
     # create rest status for member
     def createRestStatus(member_id: int, guild_id: int, max_hp: int, expire_seconds: int):
