@@ -18,7 +18,7 @@ class ReviveUtil():
             channel = ChannelUtil.GetChannelWithGuild(status.guild_id, Util.ChannelType.RPG_BATTLE_GROUND)
             for ch in channel:
                 # if is not test channel
-                if not ChannelUtil.hasChannel(status.guild_id, ch, Util.ChannelType.BANK):
+                if not ChannelUtil.hasChannel(status.guild_id, ch.channel_id, Util.ChannelType.BANK):
                     if not (ch.channel_id in result):
                         result.append(ch.channel_id)
         return result
