@@ -125,7 +125,7 @@ class StatusUtil():
     def startResting(user: User, guild_id: int):
         rpg: RPGCharacter = RPGCharacterUtil.getRPGCharacter(user.id)
         if StatusUtil.getStatus(user.id, guild_id, StatusType.COMA) is not None:
-            StatusUtil._removeComaStatus(user)
+            StatusUtil._removeComaStatus(user.id)
         StatusUtil.createRestStatus(user.id, guild_id, rpg.hp_max, 300)  # 5分鐘
         pass
 
