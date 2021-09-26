@@ -207,7 +207,9 @@ class RPG(commands.Cog):
         # try to sneak attack
         success = random.randint(0, 1) == 0
         if success:
-            atk = RPGCharacterUtil.getAttackPoint(author) * 2
+            multiplier = [2, 2, 2, 2, 2, 2, 8, 8, 10, 20]
+            random_index = random.randrange(len(multiplier))
+            atk = RPGCharacterUtil.getAttackPoint(author) * multiplier[random_index]
             dead = RPGCharacterUtil.changeHp(other, -1 * atk)
             if dead:
                 StatusUtil.createComaStatus(ctx.guild.id, user, other.hp_max)
