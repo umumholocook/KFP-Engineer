@@ -1,0 +1,7 @@
+CONFIG: dict = {
+    'wkhtmltoimage': 'Optional wkhtmltoimage location' 
+    'xvfb':  'Optional xvfb location' 
+    'meta_tag_prefix': 'Optional html meta tag prefix'
+}
+
+CACHE_DIR: str = '.cache'

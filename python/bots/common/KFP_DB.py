@@ -117,12 +117,12 @@ class KfpDb():
     # 如果需要升級會員等級便升級
     def __update_rank_if_qualified(self, member_id:int):
         member = Member.get_by_id(member_id)
-        new_rank = member.rank
-        while (member.exp > Util.get_rank_exp(new_rank + 1)):
-            new_rank += 1
-        if new_rank != member.rank:
-            member.rank = new_rank
-            member.save()
+        for new_rank in range(member.rank, 2<<32):
+            if member.exp < Util.get_rank_exp(new_rank + 1):
+                if new_rank != member.rank:
+                    member.rank = new_rank
+                    member.save()
+                break
         return member.rank
 
     def force_update_rank(self, member_id:int, new_rank:int):

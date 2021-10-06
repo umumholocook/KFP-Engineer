@@ -116,9 +116,8 @@ async def cogs_unload(ctx, extention):
 @cogs_group.command(name = 'reload')
 @commands.is_owner()
 async def cogs_reload(ctx, extention):
-    bot.unload_extension(f'cogs.{extention}')
-    bot.load_extension(f'cogs.{extention}')
-    ctx.send('reload cog {}'.format(extention))
+    bot.reload_extension(f'cogs.{extention}')
+    await ctx.send('reload cog {}'.format(extention))
 
 def get_version():
     git_count = check_output(['git', 'rev-list', '--all', '--count'])
