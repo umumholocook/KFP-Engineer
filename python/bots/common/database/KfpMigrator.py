@@ -5,6 +5,7 @@ from peewee import BooleanField, DateTimeField, SqliteDatabase, CharField
 from peewee import BigIntegerField, IntegerField
 from playhouse.migrate import SqliteMigrator
 from playhouse.migrate import migrate
+from datetime import datetime, timedelta
 
 class KfpMigrator():
     def KfpMigrate(database: SqliteDatabase):
@@ -18,7 +19,7 @@ class KfpMigrator():
                     migrator.add_column("rpgcharacter", "retired", retiredField)
                 )
             if not KfpMigrator.hasColumn("last_attack", columns):
-                lastAttackField = DateTimeField()
+                lastAttackField = DateTimeField(default=datetime.now() + timedelta(days=-1))
                 migrate(
                     migrator.add_column("rpgcharacter", "last_attack", lastAttackField)
                 )
