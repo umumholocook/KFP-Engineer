@@ -1,8 +1,10 @@
 from discord.abc import User
+from peewee import DateTimeField
 from common.models.Member import Member
 from common.MemberUtil import MemberUtil
 from common.models.RPGCharacter import RPGCharacter
 from common.LevelUtil import LevelUtil
+from datetime import datetime
 import random
 
 
@@ -66,7 +68,8 @@ class RPGCharacterUtil():
             mp_max=new_mp,
             attack_basic=new_attack,
             defense_basic=new_defense,
-            retired=False
+            retired=False,
+            last_attack=datetime.now().replace(year=2000)
         )
 
     def changeHp(character: RPGCharacter, hp: int):
@@ -97,3 +100,8 @@ class RPGCharacterUtil():
         defensePoint = RPGCharacterUtil.getDefensePoint(victim)
         # print(f"{atkPoint} vs {defensePoint}")
         return atkPoint > defensePoint
+    
+    def attackSuccess(character: RPGCharacter):
+        character.last_attack = datetime.now()
+        character.save()
+        

@@ -1,4 +1,3 @@
-from common.PoliceResponseUtil import PoliceResponseUtil
 from datetime import datetime, timedelta
 from common.models.Police import Police
 

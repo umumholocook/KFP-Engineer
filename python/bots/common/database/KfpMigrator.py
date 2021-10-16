@@ -1,7 +1,7 @@
 from common.RPGUtil.ItemType import ItemType
 from common.customField.BuffField import BuffField
 from common.RPGUtil.Buff import Buff, BuffType
-from peewee import BooleanField, SqliteDatabase, CharField
+from peewee import BooleanField, DateTimeField, SqliteDatabase, CharField
 from peewee import BigIntegerField, IntegerField
 from playhouse.migrate import SqliteMigrator
 from playhouse.migrate import migrate
@@ -16,6 +16,11 @@ class KfpMigrator():
                 retiredField = BooleanField(default=False)
                 migrate(
                     migrator.add_column("rpgcharacter", "retired", retiredField)
+                )
+            if not KfpMigrator.hasColumn("last_attack", columns):
+                lastAttackField = DateTimeField()
+                migrate(
+                    migrator.add_column("rpgcharacter", "last_attack", lastAttackField)
                 )
         if "member" in tables:
             columns = database.get_columns("member")

@@ -10,7 +10,8 @@ from common.RPGUtil.RPGCharacterUtil import RPGCharacterUtil
 from discord.ext import commands
 from discord import User
 from common.NicknameUtil import NicknameUtil
-import datetime, random
+from datetime import datetime, timedelta
+import random
 
 
 class RPG(commands.Cog):
@@ -80,7 +81,7 @@ class RPG(commands.Cog):
             return
         results = StatusUtil.getAllStatus(StatusType.REST)
         rest_over = []
-        now = datetime.datetime.now()
+        now = datetime.now()
         status: RPGStatus
         for status in results:
             if status.expire_time < now:
@@ -133,6 +134,9 @@ class RPG(commands.Cog):
         author: RPGCharacter = RPGCharacterUtil.getRPGCharacter(ctx.author.id)
         if StatusUtil.isComa(ctx.author, ctx.guild.id):
             await ctx.send(f"你都沒有體力了! 先去休息啦!")
+            return
+        if author.last_attack + timedelta(hours=12) > datetime.now():
+            await ctx.send(f"由於你在過去12個小時內攻擊過其他人, 所以不能退休哦")
             return
         RPGCharacterUtil.retireRPGCharacter(ctx.author.id)
         await ctx.send(f"冒險者{ctx.author.display_name}申請退休成功, 辛苦你了!")
@@ -213,6 +217,7 @@ class RPG(commands.Cog):
             dead = RPGCharacterUtil.changeHp(other, -1 * atk)
             if dead:
                 StatusUtil.createComaStatus(ctx.guild.id, user, other.hp_max)
+            RPGCharacterUtil.attackSuccess(author)
             await ctx.send(f"'{name}' 減少了 {atk}點體力. 偷襲成功!")
 
             if StatusUtil.isComa(user, ctx.guild.id):
@@ -262,6 +267,7 @@ class RPG(commands.Cog):
             dead = RPGCharacterUtil.changeHp(other, -1 * atk)
             if dead:
                 StatusUtil.createComaStatus(ctx.guild.id, user, other.hp_max)
+            RPGCharacterUtil.attackSuccess(author)
             await ctx.send(f"'{name}' 減少了 {atk}點體力. 攻擊成功!")
 
             if StatusUtil.isComa(user, ctx.guild.id):

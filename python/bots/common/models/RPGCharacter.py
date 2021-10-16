@@ -16,3 +16,4 @@ class RPGCharacter(BaseModel):
     defense_basic = IntegerField()                              # Basic defense points
 
     retired = BooleanField()                                    # Indicator for if this character retired
+    last_attack = DateTimeField()                               # Indicator for last attack time
