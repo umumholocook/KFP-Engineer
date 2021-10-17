@@ -127,7 +127,7 @@ def get_version():
 
 @tasks.loop(hours=1)
 async def reviveComaStatus():
-    statusUpdates = StatusUtil.reviveComaStatus()
+    statusUpdates = StatusUtil.reviveComaStatus(reviveMemberCount=5)
     # if have to revive character
     if statusUpdates != []:
         channelIdList = ReviveUtil.getReviveMsgChannel(statusUpdates)
