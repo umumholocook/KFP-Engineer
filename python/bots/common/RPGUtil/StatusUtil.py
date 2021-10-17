@@ -13,7 +13,6 @@ import datetime
 
 
 class StatusUtil():
-    reviveMemberCount = 5
 
     # create rest status for member
     def createRestStatus(member_id: int, guild_id: int, max_hp: int, expire_seconds: int):
@@ -153,7 +152,7 @@ class StatusUtil():
         status = StatusUtil.getStatus(user.id, guild_id, StatusType.COMA)
         return not status == None
 
-    def reviveComaStatus():
+    def reviveComaStatus(reviveMemberCount: int=5):
         query = RPGStatus.select().where(
             RPGStatus.type == StatusType.COMA.value,
         )
@@ -162,7 +161,7 @@ class StatusUtil():
             count = RPGStatus.select().where(
                 RPGStatus.type == StatusType.COMA.value,
             ).count()
-            if count >= StatusUtil.reviveMemberCount:
+            if count >= reviveMemberCount:
                 status: RPGStatus
                 for status in query.iterator():
                     result.append(StatusUpdate(status.member_id, status.guild_id, status.type))

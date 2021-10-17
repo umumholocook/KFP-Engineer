@@ -2,6 +2,8 @@ from common.MemberUtil import MemberUtil
 from common.models.Member import Member
 from common.models.RPGStatus import RPGStatus
 from common.RPGUtil.StatusType import StatusType
+from common.RPGUtil.ReviveUtil import ReviveUtil
+from common.RPGUtil.StatusUpdate import StatusUpdate
 from common.Util import Util
 from common.ChannelUtil import ChannelUtil
 from common.RPGUtil.StatusUtil import StatusUtil
@@ -119,6 +121,23 @@ class RPG(commands.Cog):
             return
         RPGCharacterUtil.changeHp(other, other.hp_max)
         await ctx.send(f"{name}生命值回復成功.")
+
+    @rpg_group.command(name="reviveall")
+    async def revive_all(self, ctx: commands.Command):
+        if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.BANK):
+            return
+        statusUpdates = StatusUtil.reviveComaStatus(reviveMemberCount=0)
+        if statusUpdates != []:
+            channelIdList = ReviveUtil.getReviveMsgChannel(statusUpdates)
+            msg = "某冥界死神跑來跟店長抱怨公會死傷慘重, 害她最近工作變忙"
+            img = ReviveUtil.getPic()
+            for channel_id in channelIdList:
+                await self.bot.get_channel(channel_id).send(file=img)
+                await self.bot.get_channel(channel_id).send(msg)
+            update: StatusUpdate
+            for update in statusUpdates:
+                await update.sendMessage(self.bot)
+
 
     # 從冒險者退休
     @rpg_group.command(name="retire")
