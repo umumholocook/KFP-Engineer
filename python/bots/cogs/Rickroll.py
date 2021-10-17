@@ -10,7 +10,10 @@ class Rickroll(commands.Cog):
     @commands.group(name = 'rick', invoke_without_command=True)
     @commands.cooldown(1, 30, type=commands.BucketType.user)
     async def rick_group(self, ctx:commands.Context, user:User):
-        avatar = Util.downloadUserAvatar(user=user)
+        if user.bot:
+            avatar = Util.downloadUserAvatar(user=ctx.message.author)
+        else: 
+            avatar = Util.downloadUserAvatar(user=user)
         imagePath = RickrollGenerator.createGif(avatar)
 
         embedMsg = Embed()
