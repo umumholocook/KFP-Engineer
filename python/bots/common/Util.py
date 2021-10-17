@@ -1,4 +1,11 @@
+import io, requests
 from enum import IntEnum
+from discord import User
+from PIL import Image, ImageDraw
+from lib.ImageTransformer import ImageTransformer
+import numpy as np
+import cv2 as cv2
+import os
 
 # 工具類 methods
 class Util:
@@ -83,5 +90,45 @@ class Util:
                 return emoji
         return emoji_name
 
+    def downloadUserAvatar(user:User):
+        avatar_url = user.avatar_url
+        data = requests.get(avatar_url).content
+        return Image.open(io.BytesIO(data))
+
+    def enlargeImage(image: Image):
+        size = 20
+        width, height = image.size
+        new_width = width + 2*size
+        new_height = height + 2*size
+        result = Image.new(image.mode, (new_width, new_height), (0, 0, 0, 0))
+        result.paste(image, (size, size))
+        return result
+
+    def _getTmpImagePath():
+        return os.sep.join((os.getcwd(), "resource", "image", "rickroll", "mask.png"))
+
+    def createCircle(image: Image, mask_path: str):
+        # crop image 
+        width, height = image.size
+        x = (width - height)//2
+        img_cropped = image.crop((x, 0, x+height, height))
+
+        # create grayscale image with white circle (255) on black background (0)
+        mask = Image.new('L', img_cropped.size)
+        mask_draw = ImageDraw.Draw(mask)
+        width, height = img_cropped.size
+        mask_draw.ellipse((0, 0, width, height), fill=255)
+
+        # add mask as alpha channel
+        img_cropped.putalpha(mask)
+
+        img_cropped.save(Util._getTmpImagePath())
+        return Image.open(Util._getTmpImagePath())
+
+    def rotateImage(image: Image, degree: int):
+        it = ImageTransformer(image)
+        rotated_img = it.rotate_along_axis(phi = degree)
+        im_rgb = cv2.cvtColor(rotated_img, cv2.COLOR_BGRA2RGBA)
+        return Image.fromarray(np.uint8(im_rgb))
 
     
