@@ -1,6 +1,6 @@
 from PIL import Image, ImageSequence
 from resource.data.rick_roll import POSITION
-import os, io
+import os, io, tempfile
 
 from common.Util import Util
 
@@ -14,8 +14,7 @@ class RickrollGenerator():
         return os.sep.join((os.getcwd(), "resource", "image", "rickroll", "mask.png"))
 
     def getRickrollOutPath():
-        # return os.sep.join((tempfile.gettempdir(), "rickrolled.gif"))
-        return "rickrolled.gif"
+        return os.sep.join((tempfile.gettempdir(), "rickrolled.gif"))
 
     def createGif(img: Image):
         avatar = img.resize((RickrollGenerator._avatar_size, RickrollGenerator._avatar_size))
