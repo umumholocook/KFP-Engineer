@@ -10,10 +10,10 @@ from common.RPGUtil.StatusUtil import StatusUtil
 from common.models.RPGCharacter import RPGCharacter
 from common.RPGUtil.RPGCharacterUtil import RPGCharacterUtil
 from discord.ext import commands
-from discord import User
+from discord import User, Embed, File
 from common.NicknameUtil import NicknameUtil
 from datetime import datetime, timedelta
-import random
+import random, os
 
 
 class RPG(commands.Cog):
@@ -188,6 +188,16 @@ class RPG(commands.Cog):
         StatusUtil.startResting(ctx.author, ctx.guild.id)
         name = await NicknameUtil.get_user_name(ctx.guild, ctx.author)
         await ctx.send(f"{name}正在休息中...")
+    
+    @rpg_group.command(name="snake_attack")
+    async def snake_attack(self, ctx: commands.Context):
+
+        embedMsg = Embed()
+        embedMsg.set_image(url='attachment://snake_attack.gif')
+
+        img = File(os.sep.join((os.getcwd(), "resource", "image", "snake_attack.gif")), filename="snake_attack.gif")
+        await ctx.send(file=img, embed=embedMsg)
+        pass
 
     @rpg_group.command(name="sneak_attack")
     async def sneak_attack_character(self, ctx: commands.Context, user: User):
