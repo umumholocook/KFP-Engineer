@@ -36,7 +36,10 @@ class SusMeme(commands.Cog):
     @commands.group(name = 'sus', invoke_without_command=True)
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     async def sus_group(self, ctx:commands.Context, user:User, crewmate_color:str = "random"):
-        await self.startSusVoting(ctx, user, True, crewmate_color.upper())
+        if (ctx.message.author.id == 596719831001071629):
+            await ctx.message.delete()
+        else:
+            await self.startSusVoting(ctx, user, True, crewmate_color.upper())
     
     @sus_group.error
     async def sus_error(self, ctx:commands.Context, error):
