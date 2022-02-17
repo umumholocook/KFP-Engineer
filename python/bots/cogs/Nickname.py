@@ -68,7 +68,7 @@ class Nickname(commands.Cog):
         await ctx.channel.send(result)
 
     @nickname.command(name = "remove")
-    async def remove_nickname(self, ctx:commands.Context, user: User, name: str):
+    async def remove_nickname(self, ctx:commands.Context, user: User, name:str):
         nicknames = NicknameUtil.get_all_nicknames(ctx.guild.id, user.id)
         if len(nicknames) < 1:
             await ctx.channel.send(f"{user.name}沒有任何暱稱.")
@@ -79,7 +79,7 @@ class Nickname(commands.Cog):
         await ctx.channel.send(f"{user.name}的暱稱{name}刪除成功.")
 
     @nickname.command(name = "remove_id")
-    async def remove_nickname(self, ctx:commands.Context, user: User, name_id: int):
+    async def remove_nickname_by_id(self, ctx:commands.Context, user: User, name_id: int):
         nicknames = NicknameUtil.get_all_nicknames(ctx.guild.id, user.id)
         if len(nicknames) < 1:
             await ctx.channel.send(f"{user.name}沒有任何暱稱.")
