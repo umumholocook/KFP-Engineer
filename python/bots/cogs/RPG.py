@@ -182,8 +182,10 @@ class RPG(commands.Cog):
     @rpg_group.command(name="rest")
     async def character_rest(self, ctx: commands.Context):
         if not RPGCharacterUtil.hasAdventureStared(ctx.author.id):
+            await ctx.send(f"非冒險者就回家睡覺啦... 在這邊幹嘛?")
             return
         if StatusUtil.isResting(ctx.author, ctx.guild.id):
+            await ctx.send(f"你正在休息中... 請稍後")
             return
         StatusUtil.startResting(ctx.author, ctx.guild.id)
         name = await NicknameUtil.get_user_name(ctx.guild, ctx.author)
@@ -279,8 +281,11 @@ class RPG(commands.Cog):
         if StatusUtil.isResting(ctx.author, ctx.guild.id):
             await ctx.send("你正在休息. 攻擊無效.")
             return
-        if StatusUtil.isComa(user, ctx.guild.id):
+        if StatusUtil.isComa(user, ctx.guild.id) or StatusUtil.isResting(user.id, ctx.guild.id):
             await ctx.send(f"哎不是! '{name}'都已經昏厥了你還攻擊? 攻擊無效啦!")
+            return
+        if StatusUtil.isResting(user.id, ctx.guild.id):
+            await ctx.send(f"卑鄙源之助! '{name}'正在休息你還攻擊? 攻擊無效啦!")
             return
         if StatusUtil.isComa(ctx.author, ctx.guild.id):
             await ctx.send(f"你都沒有體力了! 先去休息啦! 攻擊無效.")
