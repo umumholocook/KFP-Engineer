@@ -55,7 +55,7 @@ async def on_ready():
 async def on_message(message):
     print('on_message get message from {0.author} : {0.content}'.format(message)) if message.author.id != bot.user.id else None
     ctx = await bot.get_context(message)
-    if message.content == "沒有暈" or message.content == "沒暈":
+    if message.content == "沒有暈" or "沒暈" in message.content:
         await ctx.reply("我聽你放屁")
     if ctx.command != None:
         await bot.process_commands(message)
