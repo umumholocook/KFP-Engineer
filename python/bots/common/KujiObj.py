@@ -49,9 +49,9 @@ class KujiObj():
             return {
                 "凶": random.choice(["bad_01.jpg", "bad_02.jpg", "bad_03.jpg"]),
                 "大吉": "big.jpg",
-                "半吉": random.choice("half.jpg", "half_02.jpg"),
-                "吉": random.choice("normal.jpg", "normal_02.jpg"),
-                "小吉": random.choice("small.jpg", "small_02.jpg"),
+                "半吉": random.choice(["half.jpg", "half_02.jpg"]),
+                "吉": random.choice(["normal.jpg", "normal_02.jpg"]),
+                "小吉": random.choice(["small.jpg", "small_02.jpg"]),
                 "末小吉": "tail_small.jpg",
                 "末吉": "tail.jpg"
             }[self.kuji["status"]]
