@@ -281,10 +281,10 @@ class RPG(commands.Cog):
         if StatusUtil.isResting(ctx.author, ctx.guild.id):
             await ctx.send("你正在休息. 攻擊無效.")
             return
-        if StatusUtil.isComa(user, ctx.guild.id) or StatusUtil.isResting(user.id, ctx.guild.id):
+        if StatusUtil.isComa(user, ctx.guild.id) or StatusUtil.isResting(user, ctx.guild.id):
             await ctx.send(f"哎不是! '{name}'都已經昏厥了你還攻擊? 攻擊無效啦!")
             return
-        if StatusUtil.isResting(user.id, ctx.guild.id):
+        if StatusUtil.isResting(user, ctx.guild.id):
             await ctx.send(f"卑鄙源之助! '{name}'正在休息你還攻擊? 攻擊無效啦!")
             return
         if StatusUtil.isComa(ctx.author, ctx.guild.id):
