@@ -1,5 +1,5 @@
 # Kiji 代表了一個籤
-import os
+import os, random
 from common.Util import Util
 from PIL import Image
 
@@ -47,11 +47,11 @@ class KujiObj():
         if Util.KujiType.OMIKUJI == self.kujitype:
             # get image for OMIKUJI
             return {
-                "凶": "bad.jpg",
+                "凶": random.choice(["bad_01.jpg", "bad_02.jpg", "bad_03.jpg"]),
                 "大吉": "big.jpg",
-                "半吉": "half.jpg",
-                "吉": "normal.jpg",
-                "小吉": "small.jpg",
+                "半吉": random.choice(["half.jpg", "half_02.jpg"]),
+                "吉": random.choice(["normal.jpg", "normal_02.jpg"]),
+                "小吉": random.choice(["small.jpg", "small_02.jpg"]),
                 "末小吉": "tail_small.jpg",
                 "末吉": "tail.jpg"
             }[self.kuji["status"]]
