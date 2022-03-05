@@ -12,7 +12,7 @@ class YagooUtil():
         return os.sep.join((os.getcwd(), "resource", "image", "yagoo_hello.jpg"))
     
     def _getDizzyPath():
-        return os.sep.join((os.getcwd(), "resource", "image", "dizzy", random.choice(["01.jpg", "02.jpg", "03.jpg", "04.jpg"])))
+        return os.sep.join((os.getcwd(), "resource", "image", "dizzy", random.choice(["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg"])))
 
     def _getSubText(text: str, offset: int):
         subText = ""
