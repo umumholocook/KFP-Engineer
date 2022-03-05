@@ -1,4 +1,4 @@
-import os, tempfile, unicodedata
+import os, tempfile, unicodedata, random
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 class YagooUtil():
@@ -10,6 +10,9 @@ class YagooUtil():
 
     def _getMemePath():
         return os.sep.join((os.getcwd(), "resource", "image", "yagoo_hello.jpg"))
+    
+    def _getDizzyPath():
+        return os.sep.join((os.getcwd(), "resource", "image", "dizzy", random.choice(["01.jpg", "02.jpg", "03.jpg", "04.jpg"])))
 
     def _getSubText(text: str, offset: int):
         subText = ""
@@ -24,12 +27,18 @@ class YagooUtil():
                 break
             subText += text[i] 
         return subText
+    
+    def renderDizzyText(text: str):
+        return YagooUtil._renderText(text, YagooUtil._getDizzyPath())
+    
+    def renderYagooText(text: str):
+        return YagooUtil._renderText(text, YagooUtil._getMemePath())
 
-    def renderText(text: str):
+    def _renderText(text: str, imagePath: str):
         offset = 10
         yellow = (252, 241, 79)
         blue = (80, 139, 254)
-        image = Image.open(YagooUtil._getMemePath())
+        image = Image.open(imagePath)
         draw = ImageDraw.Draw(image)
 
         subText_1 = YagooUtil._getSubText(text, 0)
