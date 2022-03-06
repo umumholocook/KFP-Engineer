@@ -1,6 +1,7 @@
 from discord.embeds import Embed
 from discord.file import File
-from common.YagooUtil import YagooUtil
+from common.DizzyUtil import DizzyUtil
+from common.ImageUtil import ImageUtil
 from discord.ext import commands
 
 class DizzyMeme(commands.Cog):
@@ -10,11 +11,14 @@ class DizzyMeme(commands.Cog):
     @commands.group(name = 'dizzy', invoke_without_command=True)
     @commands.cooldown(1, 3, type=commands.BucketType.user)
     async def yagoo_group(self, ctx:commands.Context, text: str = "阿暈你好"):
-        imagePath = YagooUtil.renderDizzyText(text)
+        imageInfo = DizzyUtil.drawDizzy(text)
+
+        tempFileName = imageInfo[0]
+        tempFilePath = imageInfo[1]
 
         embedMsg = Embed()
-        embedMsg.set_image(url='attachment://' + YagooUtil.getTempFileName())
-        image = File(imagePath, filename=YagooUtil.getTempFileName())
+        embedMsg.set_image(url='attachment://' + tempFileName)
+        image = File(tempFilePath, filename=tempFileName)
         await ctx.message.delete()
         await ctx.send(file=image)
 

@@ -10,11 +10,14 @@ class YagooMeme(commands.Cog):
     @commands.group(name = 'yagoo', invoke_without_command=True)
     @commands.cooldown(1, 3, type=commands.BucketType.user)
     async def yagoo_group(self, ctx:commands.Context, text: str = "早安你好"):
-        imagePath = YagooUtil.renderYagooText(text)
+        imageInfo = YagooUtil.drawYagoo(text)
+
+        tempFileName = imageInfo[0]
+        tempFilePath = imageInfo[1]
 
         embedMsg = Embed()
-        embedMsg.set_image(url='attachment://' + YagooUtil.getTempFileName())
-        image = File(imagePath, filename=YagooUtil.getTempFileName())
+        embedMsg.set_image(url='attachment://' + tempFileName)
+        image = File(tempFilePath, filename=tempFileName)
         await ctx.message.delete()
         await ctx.send(file=image)
 
