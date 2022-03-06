@@ -31,33 +31,40 @@ class ImageUtil():
         return subText
 
     def _renderText(text: str, imageInfo: ImageWithTextPosition):
-        yellow = (252, 241, 79)
-        blue = (80, 139, 254)
         image = Image.open(imageInfo.image_path)
         draw = ImageDraw.Draw(image)
 
         subText_1 = ImageUtil._getSubText(text, 0)
+        textRenderedSoFar = 0
         if (len(subText_1) > 0):
-            ImageUtil._drawText(image, draw, subText_1[0], imageInfo.charPositions[0], yellow)
-        if (len(subText_1) > 1):
-            ImageUtil._drawText(image, draw, subText_1[1], imageInfo.charPositions[1], yellow)
+            if (unicodedata.east_asian_width(subText_1[0]) == 'W'):
+                # drawing asian character
+                textRenderedSoFar = ImageUtil._drawText(image, draw, subText_1[0], 0, imageInfo)
+            else:
+                textRenderedSoFar = ImageUtil._drawText(image, draw, subText_1[0::1], 0, imageInfo)
+        if ((len(subText_1) - textRenderedSoFar) > 0):
+            ImageUtil._drawText(image, draw, subText_1[textRenderedSoFar::], 1, imageInfo)
             
         subText_2 = ImageUtil._getSubText(text, len(subText_1))
         if (len(subText_2) > 0):
-            ImageUtil._drawText(image, draw, subText_2[0], imageInfo.charPositions[2], blue)
-        if (len(subText_2) > 1):
-            ImageUtil._drawText(image, draw, subText_2[1], imageInfo.charPositions[3], blue)
+            if (unicodedata.east_asian_width(subText_2[0]) == 'W'):
+                textRenderedSoFar = ImageUtil._drawText(image, draw, subText_2[0], 2, imageInfo)
+            else:
+                textRenderedSoFar = ImageUtil._drawText(image, draw, subText_2[0::1], 2, imageInfo)
+        if ((len(subText_2) - textRenderedSoFar) > 0):
+            ImageUtil._drawText(image, draw, subText_2[textRenderedSoFar::], 3, imageInfo)
         
         image.save(ImageUtil._getStoragePath())
 
         return ImageUtil._getStoragePath()
 
-    def _drawText(image: Image, draw: ImageDraw, text: str, position: Position, color):
-        ImageUtil._renderSubTextShadow(position, text, image)
-        ImageUtil._renderSubText(position, color, text, draw)
+    def _drawText(image: Image, draw: ImageDraw, text: str, position: int, imageInfo: ImageWithTextPosition):
+        ImageUtil._renderSubTextShadow(imageInfo.charPositions[position], text, image, imageInfo.size, imageInfo.angles[position])
+        ImageUtil._renderSubText(imageInfo.charPositions[position], imageInfo.colors[position], text, image, imageInfo.size, imageInfo.angles[position])
+        return len(text)
 
-    def _renderSubTextShadow(offset: Position, subText: str, image: Image):
-        font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "DFKai-SB.ttf")), size=50, encoding='utf-8')
+    def _renderSubTextShadow(offset: Position, subText: str, image: Image, size: int, angle: int):
+        font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "DFKai-SB.ttf")), size=size, encoding='utf-8')
         textSize = ImageDraw.Draw(image).textsize(subText, font)
 
         blurred = Image.new('RGBA', textSize)
@@ -70,10 +77,22 @@ class ImageUtil():
         white = Image.new('RGBA', blurred.size, (255, 255, 255))
         
         # Paste soft text onto background
-        image.paste(white, (offset.x * -1 , offset.y - 4), blurred)
+        image.paste(white, (offset.x, offset.y), blurred.rotate(angle, False))
     
-    def _renderSubText(offset: Position, text_color, subText: str, draw: ImageDraw):
+    # def _renderSubText(offset: Position, text_color, subText: str, draw: ImageDraw, size: int, angle):
+    #     stroke_color = (0, 0, 0)
+    #     font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "DFKai-SB.ttf")), size=size, encoding='utf-8')
+    #     draw.text((offset.x, offset.y), subText, fill=text_color, font=font, stroke_width=2, stroke_fill=stroke_color)
+    #     return draw.textsize(subText, font)
+    def _renderSubText(offset: Position, text_color, subText: str, image: Image, size: int, angle):
         stroke_color = (0, 0, 0)
-        font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "DFKai-SB.ttf")), size=50, encoding='utf-8')
-        draw.text((offset.x, offset.y), subText, fill=text_color, font=font, stroke_width=2, stroke_fill=stroke_color)
-        return draw.textsize(subText, font)
+        font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "DFKai-SB.ttf")), size=size, encoding='utf-8')
+
+        textCanvas = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+        textDraw = ImageDraw.Draw(textCanvas)
+
+        textDraw.text((0, 0), subText, fill=text_color, font=font, stroke_width=2, stroke_fill=stroke_color)
+
+        rotatedText = textCanvas.rotate(angle, resample=Image.BILINEAR, expand=True, fillcolor=(0, 0, 0, 0))
+        
+        image.paste(rotatedText, (offset.x, offset.y), rotatedText)
