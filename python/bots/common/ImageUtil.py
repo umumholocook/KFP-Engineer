@@ -19,40 +19,32 @@ class ImageUtil():
     def _getSubText(text: str, offset: int):
         subText = ""
         length = 0
-        for i in range(offset, min(offset + 4, len(text))):
-            status = unicodedata.east_asian_width(text[i])
+        pointer = 0
+        step = 0
+        
+        while(pointer < len(text) and step <= offset and length < 1):
+            status = unicodedata.east_asian_width(text[pointer])
             if status == 'W':
-                length += 2    
-            else:
                 length += 1
-            if length > 4:
-                break
-            subText += text[i] 
+            else:
+                length += .5
+            if (length <= 1 and step == offset):
+                subText += text[pointer]
+            if (length <= 1):
+                pointer += 1
+            if (length >= 1):
+                step += 1
+                length = 0
         return subText
 
     def _renderText(text: str, imageInfo: ImageWithTextPosition):
         image = Image.open(imageInfo.image_path)
         draw = ImageDraw.Draw(image)
 
-        subText_1 = ImageUtil._getSubText(text, 0)
-        textRenderedSoFar = 0
-        if (len(subText_1) > 0):
-            if (unicodedata.east_asian_width(subText_1[0]) == 'W'):
-                # drawing asian character
-                textRenderedSoFar = ImageUtil._drawText(image, draw, subText_1[0], 0, imageInfo)
-            else:
-                textRenderedSoFar = ImageUtil._drawText(image, draw, subText_1[0::1], 0, imageInfo)
-        if ((len(subText_1) - textRenderedSoFar) > 0):
-            ImageUtil._drawText(image, draw, subText_1[textRenderedSoFar::], 1, imageInfo)
-            
-        subText_2 = ImageUtil._getSubText(text, len(subText_1))
-        if (len(subText_2) > 0):
-            if (unicodedata.east_asian_width(subText_2[0]) == 'W'):
-                textRenderedSoFar = ImageUtil._drawText(image, draw, subText_2[0], 2, imageInfo)
-            else:
-                textRenderedSoFar = ImageUtil._drawText(image, draw, subText_2[0::1], 2, imageInfo)
-        if ((len(subText_2) - textRenderedSoFar) > 0):
-            ImageUtil._drawText(image, draw, subText_2[textRenderedSoFar::], 3, imageInfo)
+        for i in range(0, 4):
+            subText = ImageUtil._getSubText(text, i)
+            if (len(subText) > 0):
+                ImageUtil._drawText(image, draw, subText, i, imageInfo)
         
         image.save(ImageUtil._getStoragePath())
 
@@ -79,11 +71,6 @@ class ImageUtil():
         # Paste soft text onto background
         image.paste(white, (offset.x, offset.y), blurred.rotate(angle, False))
     
-    # def _renderSubText(offset: Position, text_color, subText: str, draw: ImageDraw, size: int, angle):
-    #     stroke_color = (0, 0, 0)
-    #     font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "DFKai-SB.ttf")), size=size, encoding='utf-8')
-    #     draw.text((offset.x, offset.y), subText, fill=text_color, font=font, stroke_width=2, stroke_fill=stroke_color)
-    #     return draw.textsize(subText, font)
     def _renderSubText(offset: Position, text_color, subText: str, image: Image, size: int, angle):
         stroke_color = (0, 0, 0)
         font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "DFKai-SB.ttf")), size=size, encoding='utf-8')
