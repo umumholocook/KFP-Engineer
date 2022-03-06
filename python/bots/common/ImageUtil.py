@@ -42,8 +42,10 @@ class ImageUtil():
                 textRenderedSoFar = ImageUtil._drawText(image, draw, subText_1[0], 0, imageInfo)
             else:
                 textRenderedSoFar = ImageUtil._drawText(image, draw, subText_1[0::1], 0, imageInfo)
+        print(subText_1)
+        print(textRenderedSoFar)
         if ((len(subText_1) - textRenderedSoFar) > 0):
-            ImageUtil._drawText(image, draw, subText_1[textRenderedSoFar::], 1, imageInfo)
+            ImageUtil._drawText(image, draw, subText_1[textRenderedSoFar - 1::], 1, imageInfo)
             
         subText_2 = ImageUtil._getSubText(text, len(subText_1))
         if (len(subText_2) > 0):
