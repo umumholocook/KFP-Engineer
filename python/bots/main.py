@@ -57,6 +57,21 @@ async def on_message(message):
     ctx = await bot.get_context(message)
     if message.content == "沒有暈" or "沒暈" in message.content:
         await ctx.reply("我聽你放屁")
+    if "自殺" in message.content:
+        member = ctx.guild.get_member(message.author.id)
+        await member.send("哈囉, 不好意思打擾了, 剛剛好像出現了一些比較敏感的詞, 下面有些資訊可能可以幫到您.\n\n"
+        "台灣:\n110、119可分別撥打到台灣的警察局及消防局以處理緊急情況。\n\n衛生福利部鼓勵民眾平常多關愛自己、也多關心身邊的人，一句問候、一個微笑，都能溫暖人心。若您或身邊的人有遇到心理困擾，目前各縣市政府衛生局社區心理衛生中心都可以提供或轉介心理諮詢的服務，亦可撥打衛生福利部安心專線(0800-788-995，請幫幫救救我)提供24小時免費心理諮詢服務，或撥打生命線1995及張老師1980，亦可提供適當的心理支持。\n\n" +
+        "香港:\n香港撒瑪利亞防止自殺會：2896 0000.\n生命熱線：24小時熱線: 2382 0000 /長者熱線: 2382 0881 / 青少年專線: 2382 0777.\n向晴熱線: 18288\n\n" +
+        "中國:\n北京自殺研究防治中心專線 800-810-1117 / 010-82951332\n上海生命線 ： 400-821-1215\n青少年法律與心理諮詢熱線：12355\n\n" +
+        "馬來西亞:\n馬來西亞生命線 603-4265 7995. 星期一到五 7pm to 10pm 、星期六 2pm to 5pm\nBefrienders 03-79568144 or 03-79568145.\n\n" +
+        "新加坡:\n新加坡援人協會(Samaritans of Singapore, SOS)：1800-221 4444\n 心理衛生學院(Institute of Mental Health)緊急求助電話服務：6389 2222\n\n" +
+        "紐西蘭:\n1737, need to talk? 全國心理健康和藥物成癮干預服務：1737\nYouthline：0800 376 633或短訊234\n\n")
+    if "suicide" in message.content or "suicidal" in message.content:
+        member = ctx.guild.get_member(message.author.id)
+        await member.send("Hi, sorry to bother you, but since you mentioned it, maybe you might find the following information helpful?\n\n"
+        "USA:\n911 is the national emergency number\nThe National Suicide Prevention Lifeline can be reached at 1-800-273-8255. (24/7)\nThe Crisis Text Line can be reached by texting HOME to 741-741 (24/7)\nThe TrevorLifeline can be reached at 1-866-488-7386 (24/7, for lesbian, gay, bisexual, transgender and questioning youth)\nThe Trans Lifeline can be reached at 1-877-565-8860.\n\n" +
+        "Canada:\n911 is the national emergency number in Canada.\nCanada Suicide Prevention Service can be reached at 1-833-456-4566 or 45645 (Text, 4 p.m. to midnight ET only)\nCrisis Text Line powered by Kids Help Phone  by texting HOME (English) or PARLER (French) to 686868.\nTrans Lifeline can be reached at 1-877-330-6366\n\n" +
+        "UK:\n999 and 112 is the national emergency number in the United Kingdom\nNational Suicide Prevention Helpline UK can be reached on 0800 689 5652.\nSOS Silence of Suicide  is a registered charity supporting children & adults struggling with poor mental health and suicidal ideation. They provide a standard rate phone support service open 8pm until Midnight, Friday to Monday inclusive. You can reach them on 0300 1020 505\n\n")
     if ctx.command != None:
         await bot.process_commands(message)
 
