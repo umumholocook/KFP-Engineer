@@ -110,7 +110,7 @@ class Leaderboard(commands.Cog):
 
         if not emoji:
             LeaderboardUtil.getOrCreateEmoji(leaderboard, emoji_str)
-            await ctx.send(f"增加表符{emoji_str}至排行榜{lb_name}成功!")
+            await ctx.send(f"增加表符{emoji_str}至排行榜'{lb_name}'成功!")
             return
 
         e_lb = LeaderboardUtil.findLeaderboardById(emoji.leaderboard_id)
@@ -129,7 +129,7 @@ class Leaderboard(commands.Cog):
 
             if not emoji:
                 LeaderboardUtil.getOrCreateEmoji(leaderboard, emoji_str)
-                await ctx.send(f"增加表符{emoji_str}至排行榜{lb_name}成功!")
+                await ctx.send(f"增加表符'{emoji_str}'至排行榜'{lb_name}'成功!")
                 continue
             
             e_lb = LeaderboardUtil.findLeaderboardById(emoji.leaderboard_id)
@@ -168,7 +168,7 @@ class Leaderboard(commands.Cog):
             await ctx.send(f"排行榜'{lb_name}'並沒有追蹤任何表符.")
             return
         
-        result = f"排行榜{lb_name}正在追蹤以下表符:\n"
+        result = f"'{lb_name}'排行榜正在追蹤以下表符:\n"
         for emoji in emojis:
             result += f"{emoji.emoji}\n"
             print(emoji.emoji)
@@ -180,10 +180,10 @@ class Leaderboard(commands.Cog):
             return
         ranks = LeaderboardUtil.getRankResult(lb_name)
         if not ranks:
-            await ctx.send(f"排行榜{lb_name}沒有資料, 請稍後重試.")
+            await ctx.send(f"'{lb_name}'排行榜沒有資料, 請稍後重試.")
             return
         
-        result = f"```排行榜{lb_name}順序如下:\n"
+        result = f"```'{lb_name}'排行榜目前順序如下:\n"
         result += Leaderboard.createRankResultString(ctx, ranks, limit, True)
         result += "```"
 
@@ -195,10 +195,10 @@ class Leaderboard(commands.Cog):
             return
         ranks = LeaderboardUtil.getRankResult(lb_name)
         if not ranks:
-            await ctx.send(f"排行榜{lb_name}沒有資料, 請稍後重試.")
+            await ctx.send(f"'{lb_name}'排行榜沒有資料, 請稍後重試.")
             return
         
-        result = f"```排行榜{lb_name}順序如下:\n"
+        result = f"```'{lb_name}'排行榜順序如下:\n"
         result += Leaderboard.createRankResultString(ctx, ranks, limit, False)
         result += "```"
 
