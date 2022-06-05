@@ -117,7 +117,7 @@ class Leaderboard(commands.Cog):
         await ctx.send(f"表符'{emoji_str}'已經被排行榜'{e_lb.name}'追蹤, 你可以使用 list_emoji 來查看追蹤中的列表.")
     
     @leaderboard_group.command(name = 'add_emojis')
-    async def add_emoji(self, ctx: commands.Context, lb_name: str, *emojis):
+    async def add_emojis(self, ctx: commands.Context, lb_name: str, *emojis):
         if ctx.author.bot:
             return
         leaderboard = LeaderboardUtil.findLeaderboard(lb_name)
