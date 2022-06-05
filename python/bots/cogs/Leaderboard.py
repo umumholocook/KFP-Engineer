@@ -30,6 +30,7 @@ class Leaderboard(commands.Cog):
             "\t!lb list_category 顯示目前所有的排行榜名稱\n" +
             "\t!lb clear <排行榜名稱> - 清空排行榜計數 \n" +
             "\t!lb add_emoji <排行榜名稱> <符號> - 新增追蹤的符號至排行榜裡 \n" +
+            "\t!lb add_emojis <排行榜名稱> <符號> <符號> ... - 新增追蹤的符號們至排行榜裡 \n" +
             "\t!lb remove_emoji <排行榜名稱> <符號> - 從排行榜移除追蹤的符號 \n" +
             "\t!lb list_emoji <排行榜名稱> - 顯示目前排行榜追蹤的符號 \n" +
             "\t!lb rank <排行榜名稱> [上限X] - 顯示前X名排行榜, 預設是10 \n" +
@@ -114,6 +115,25 @@ class Leaderboard(commands.Cog):
 
         e_lb = LeaderboardUtil.findLeaderboardById(emoji.leaderboard_id)
         await ctx.send(f"表符'{emoji_str}'已經被排行榜'{e_lb.name}'追蹤, 你可以使用 list_emoji 來查看追蹤中的列表.")
+    
+    @leaderboard_group.command(name = 'add_emojis')
+    async def add_emoji(self, ctx: commands.Context, lb_name: str, *emojis):
+        if ctx.author.bot:
+            return
+        leaderboard = LeaderboardUtil.findLeaderboard(lb_name)
+        if not leaderboard:
+            await ctx.send(f"排行榜'{lb_name}'並不存在, 請使用 add_category 建立新排行榜")
+            return
+        for emoji_str in emojis:
+            emoji = LeaderboardUtil.findEmoji(emoji_str)
+
+            if not emoji:
+                LeaderboardUtil.getOrCreateEmoji(leaderboard, emoji_str)
+                await ctx.send(f"增加表符{emoji_str}至排行榜{lb_name}成功!")
+                continue
+            
+            e_lb = LeaderboardUtil.findLeaderboardById(emoji.leaderboard_id)
+            await ctx.send(f"表符'{emoji_str}'已經被排行榜'{e_lb.name}'追蹤, 你可以使用 list_emoji 來查看追蹤中的列表.")
     
     @leaderboard_group.command(name = 'remove_emoji')
     async def remove_emoji(self, ctx: commands.Context, lb_name: str, emoji_str: str):
