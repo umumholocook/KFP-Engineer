@@ -228,10 +228,7 @@ class RPG(commands.Cog):
             await ctx.send(f"你都沒有體力了! 要怎麼偷襲! 偷襲無效.")
             return
         if author.character.member_id == user.id:
-            dead = RPGCharacterUtil.changeHp(other, -1 * author.hp_max)
-            if dead:
-                StatusUtil.createComaStatus(ctx.guild.id, user, other.hp_max)
-            await ctx.send(f"{name} 查覺到自己的行為, 但是阻止不了自己偷襲自己. 於是流血過多而昏厥過去. 攻擊成功")
+            await ctx.send(f"刀插中了{name}的身體... 等等... 為什麼刀插中了一隻雞腿? ...剛剛是不是有個橘色頭髮的人經過?")
             return
         if StatusUtil.isAlerted(user, ctx.guild.id):
             await ctx.send(f"由於已經被偷襲過, '{name}'現在非常警戒並擋下了你的攻擊! 攻擊失敗!")
@@ -291,10 +288,7 @@ class RPG(commands.Cog):
             await ctx.send(f"你都沒有體力了! 先去休息啦! 攻擊無效.")
             return
         if author.character.member_id == user.id:
-            dead = RPGCharacterUtil.changeHp(other, -1 * author.hp_max)
-            if dead:
-                StatusUtil.createComaStatus(guild_id=ctx.guild.id, user=user, hp_max=other.hp_max)
-            await ctx.send(f"{name} 決定朝自己的腹部捅一刀, 因為流血過多而昏厥過去了. 攻擊成功")
+            await ctx.send(f"當刀柄接近{name}的身體的時候, 旁邊出現了一隻手阻止了你. 雖然不知道是誰, 但依稀有著一頭橘色的頭髮...")
             return
         if RPGCharacterUtil.tryToAttack(author, other):
             atk = RPGCharacterUtil.getAttackPoint(author)

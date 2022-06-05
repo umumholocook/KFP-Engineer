@@ -145,5 +145,13 @@ class SusMeme(commands.Cog):
         data = requests.get(avatar_url).content
         return Image.open(io.BytesIO(data))
 
+    def isGif(self, image: Image):
+        try:
+            image.seek(1)
+        except EOFError:
+            return False
+        else:
+            return True
+
 def setup(client):
     client.add_cog(SusMeme(client))
