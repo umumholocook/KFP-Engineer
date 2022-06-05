@@ -10,10 +10,11 @@ from subprocess import Popen, PIPE, check_output
 from discord.ext import commands, tasks
 from common.KFP_DB import KfpDb
 from common.ChannelUtil import ChannelUtil
-from discord import Role
+from discord import Role, RawReactionActionEvent
 from common.RoleUtil import RoleUtil
+from common.LeaderboardUtil import LeaderboardUtil
 
-VERSION = "0.6"
+VERSION = "0.7"
 TOKEN=os.environ['KFP_TOKEN']
 intents = discord.Intents.default()
 intents.members = True
@@ -76,6 +77,24 @@ async def on_message(message):
         await bot.process_commands(message)
 
 @bot.event
+async def on_raw_reaction_add(payload: RawReactionActionEvent):
+    channel = await bot.fetch_channel(payload.channel_id)
+    message = await channel.fetch_message(payload.message_id)
+    author_id = message.author.id
+    emoji = payload.emoji
+
+    LeaderboardUtil.addReaction(author_id, emoji)
+
+@bot.event
+async def on_raw_reaction_remove(payload: RawReactionActionEvent):
+    channel = await bot.fetch_channel(payload.channel_id)
+    message = await channel.fetch_message(payload.message_id)
+    author_id = message.author.id
+    emoji = payload.emoji
+
+    LeaderboardUtil.removeReaction(author_id, emoji)
+
+@bot.event
 async def on_command_completion(ctx):
     print('on_command_completion Command {0.name} completion'.format(ctx.command))
     #await ctx.message.delete()
@@ -84,10 +103,6 @@ async def on_command_completion(ctx):
 async def on_guild_role_update(before: Role, after: Role):
     RoleUtil.updateRole(before.guild.id, before.id, after.name, after.color)
     print(f"updating role with new name {after.name} and color {after.color}")
-
-# @bot.event
-# async def on_raw_raction_add(payload: RawReactionActionEvent):
-#     ReactionRoleUtil.addReaction(payload)
 
 @bot.command(name = 'invite_link',invoke_without_command = True)
 async def command_invite_link(ctx, *attr):

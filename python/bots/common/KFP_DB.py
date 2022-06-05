@@ -19,12 +19,15 @@ from common.database.KfpMigrator import KfpMigrator
 from common.models.NicknameModel import NicknameModel
 from common.models.Police import Police
 from common.models.InventoryRecord import Item, InventoryRecord, ShopItem
+from common.models.Leaderboard import Leaderboard
+from common.models.Emotion import Emotion
+from common.models.EmojiTracker import EmojiTracker
 
 from discord.guild import Guild, Role
 from peewee import SqliteDatabase
 
-MODULES = [Channel, Forward, GamblingBet, GamblingGame, InventoryRecord, Item,
-KfpRole, KujiRecord, Member, NicknameModel, PermissionRole, Police, RPGCharacter, 
+MODULES = [Channel, EmojiTracker, Emotion, Forward, GamblingBet, GamblingGame, InventoryRecord, Item,
+KfpRole, KujiRecord, Leaderboard, Member, NicknameModel, PermissionRole, Police, RPGCharacter, 
 RPGStatus, ShopItem]
 
 class KfpDb():
