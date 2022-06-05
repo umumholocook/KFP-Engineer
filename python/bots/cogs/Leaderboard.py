@@ -105,16 +105,15 @@ class Leaderboard(commands.Cog):
         if not leaderboard:
             await ctx.send(f"排行榜'{lb_name}'並不存在, 請使用 add_category 建立新排行榜")
             return
-        emoji = LeaderboardUtil.getOrCreateEmoji(leaderboard, emoji_str)
-        e_lb = LeaderboardUtil.findLeaderboardById(emoji.leaderboard_id)
+        emoji = LeaderboardUtil.findEmoji(emoji_str)
 
-        if e_lb.id != leaderboard.id:
-            await ctx.send(f"表符'{emoji_str}'已經被排行榜'{e_lb.name}'追蹤, 你可以使用 list_emoji 來查看追蹤中的列表.")
+        if not emoji:
+            LeaderboardUtil.getOrCreateEmoji(leaderboard, emoji_str)
+            await ctx.send(f"增加表符{emoji_str}至排行榜{lb_name}成功!")
             return
-        
-        LeaderboardUtil.getOrCreateEmoji(leaderboard, emoji_str)
-        
-        await ctx.send(f"增加表符{emoji_str}至排行榜{lb_name}成功!")
+
+        e_lb = LeaderboardUtil.findLeaderboardById(emoji.leaderboard_id)
+        await ctx.send(f"表符'{emoji_str}'已經被排行榜'{e_lb.name}'追蹤, 你可以使用 list_emoji 來查看追蹤中的列表.")
     
     @leaderboard_group.command(name = 'remove_emoji')
     async def remove_emoji(self, ctx: commands.Context, lb_name: str, emoji_str: str):
@@ -149,11 +148,10 @@ class Leaderboard(commands.Cog):
             await ctx.send(f"排行榜'{lb_name}'並沒有追蹤任何表符.")
             return
         
-        result = f"```排行榜{lb_name}正在追蹤以下表符:\n"
+        result = f"排行榜{lb_name}正在追蹤以下表符:\n"
         for emoji in emojis:
             result += f"{emoji.emoji}\n"
             print(emoji.emoji)
-        result += "```"
         await ctx.send(result)
     
     @leaderboard_group.command(name = 'rank')

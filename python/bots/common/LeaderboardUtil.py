@@ -69,6 +69,7 @@ class LeaderboardUtil():
         emojis = LeaderboardUtil.__listEmojisWithLeaderboard(leaderboard)
         if emojis:
             for emoji in emojis:
+                LeaderboardUtil.setRecord(leaderboard.id, emoji.id, 0)
                 emoji.delete_instance()
         leaderboard.delete_instance()
         
@@ -176,7 +177,8 @@ class LeaderboardUtil():
                     result[key] += tracker.count
                     print(f"new count {result[key]}")
                 else:
-                    result.update({key: tracker.count})
+                    if tracker.count > 0:
+                        result.update({key: tracker.count})
             return result
         return None
     
