@@ -80,6 +80,9 @@ async def on_message(message):
 async def on_raw_reaction_add(payload: RawReactionActionEvent):
     channel = await bot.fetch_channel(payload.channel_id)
     message = await channel.fetch_message(payload.message_id)
+    if message.author.bot:
+        return
+        
     author_id = message.author.id
     emoji = payload.emoji
 
@@ -89,6 +92,9 @@ async def on_raw_reaction_add(payload: RawReactionActionEvent):
 async def on_raw_reaction_remove(payload: RawReactionActionEvent):
     channel = await bot.fetch_channel(payload.channel_id)
     message = await channel.fetch_message(payload.message_id)
+    if message.author.bot:
+        return
+
     author_id = message.author.id
     emoji = payload.emoji
 
