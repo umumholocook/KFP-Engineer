@@ -1,7 +1,5 @@
 import random
 
-from matplotlib import image
-
 from common.RPGUtil.ReviveUtil import ReviveUtil
 from common.RPGUtil.StatusUpdate import StatusUpdate
 from common.RPGUtil.StatusUtil import StatusUtil

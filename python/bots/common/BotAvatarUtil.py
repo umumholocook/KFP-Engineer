@@ -1,9 +1,7 @@
 # This bot avatar will lookup Twitter account and use their avatar
 
-import json
 import os
 import tempfile
-from matplotlib import image
 
 import requests
 
