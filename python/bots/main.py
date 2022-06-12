@@ -1,5 +1,7 @@
 import random
 
+from matplotlib import image
+
 from common.RPGUtil.ReviveUtil import ReviveUtil
 from common.RPGUtil.StatusUpdate import StatusUpdate
 from common.RPGUtil.StatusUtil import StatusUtil
@@ -13,6 +15,7 @@ from common.ChannelUtil import ChannelUtil
 from discord import Role, RawReactionActionEvent
 from common.RoleUtil import RoleUtil
 from common.LeaderboardUtil import LeaderboardUtil
+from common.BotAvatarUtil import downloadImage, fetchUserAvatarUrl, getBotAvatarImageFilePath
 
 VERSION = "0.7"
 TOKEN=os.environ['KFP_TOKEN']
@@ -133,6 +136,20 @@ async def command_restart(ctx, *attr):
 async def command_get_version(ctx, *attr):
     await ctx.send(get_version())
 
+@bot.command(name = "refresh_image",invoke_without_command = True)
+async def command_refresh_bot_image(ctx, *attr):
+    if ctx.author.bot:
+        return
+    url: str = fetchUserAvatarUrl()
+    if not url:
+        await ctx.send("機器人頭像不需要更新.")
+        return
+    downloadImage(url)
+    filePointer = open(getBotAvatarImageFilePath(), 'rb')
+    newAvator = filePointer.read()
+    await bot.user.edit(avatar=newAvator)
+    await ctx.send("機器人頭像更新完成.")
+
 @bot.group(name = 'cogs', invoke_without_command = True)
 async def cogs_group(ctx, *attr):
     description = 'cogs:\n'
@@ -184,6 +201,17 @@ async def refreshStatus():
     update: StatusUpdate
     for update in statusUpdates:
         await update.sendMessage(bot)
+
+@tasks.loop(minutes=15)
+async def updateBotAvatar():
+    url: str = fetchUserAvatarUrl()
+    if not url:
+        print("bot avator doesn't need update")
+        return
+    downloadImage(url)
+    filePointer = open(getBotAvatarImageFilePath(), 'rb')
+    newAvator = filePointer.read()
+    await bot.user.edit(avatar=newAvator)
 
 exception_cogs = []
 

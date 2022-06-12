@@ -1,32 +1,103 @@
-import io
-import time
+# This bot avatar will lookup Twitter account and use their avatar
+
+import json
 import os
-from discord.ext import commands
-from enum import Enum
-from PIL import Image
+import tempfile
+from matplotlib import image
 
-class AvatarType(Enum):
-        ORIGINAL = 1
-        CAT_SHARK = 2
+import requests
 
-class BotAvatarUtil():
-    # def getImagePath(type: AvatarType):
-    #     return os.sep.join((os.getcwd(), 'resource', 'avatars', {
-    #         'ORIGINAL': 'pain_peko.jpg',
-    #         'CAT_SHARK': 'cat_shark.jpg'
-    #     }[type.name]))
+twitter_token = os.environ.get("KFP_TWITTER_BEARER_TOKEN")
 
-    # def getImageBytes(type: AvatarType):
-    #     img_path = BotAvatarUtil.getImagePath(type)
-    #     img = Image.open(img_path, mode='r')
-    #     img_resize = img.resize((500, 500))
-    #     img_byte_arr = io.BytesIO()
-    #     img_resize.save(img_byte_arr, format='JPEG')
-    #     return img_byte_arr.getvalue()
+# Update this method if Twitter api changed
+def __parseResultData(dict):
+    image_url = dict["data"][0]["profile_image_url"]
+    return image_url.replace("_normal.", ".")
 
-    # async def sendMessageWithImage(bot: commands.bot, ctx:commands.Context, message: str, avatarType: AvatarType):
-    #     await bot.user.edit(avatar=BotAvatarUtil.getImageBytes(avatarType))
-    #     await ctx.channel.send(message)
-    #     time.sleep(5)
-    #     await bot.user.edit(avatar=BotAvatarUtil.getImageBytes(AvatarType.ORIGINAL))
-        
+def fetchUserAvatarUrl():
+    if not twitter_token:
+        print("Twitter token is not set, ignore avatar setting")
+        return
+
+    url = create_url()
+
+    if not __shouldRedownloadImage(url):
+        print("Image is the same as previous check, ignore")
+        return
+    else:
+        __updateLastImageUrlCache(url)
+
+    result = __parseResultData(connect_to_endpoint(url))
+    if not result:
+        print("Error on loading twitter avatar url, possibly due to change of API.")
+        return
+    return result
+
+def oauth(r):
+    # authentication
+    r.headers["Authorization"] = f"Bearer {twitter_token}"
+    r.headers["User-Agent"] = "v2UserLookupPython"
+    return r
+
+def create_url():
+    usernames = "usernames=takanashikiara"
+    user_fields = "user.fields=profile_image_url"
+    url = "https://api.twitter.com/2/users/by?{}&{}".format(usernames, user_fields)
+    return url
+
+def connect_to_endpoint(url):
+    response = requests.request("GET", url, auth=oauth,)
+    if response.status_code != 200:
+        raise Exception(
+            "Request returned an error: {} {}".format(
+                response.status_code, response.text
+            )
+        )
+    return response.json()
+
+def downloadImage(url: str):
+    if not url.endswith(".jpg"):
+        print("Avator has image that's not jpg, abandon download image for now")
+        return
+    response = requests.request("GET", url)
+    if response.status_code != 200:
+        raise Exception(
+            "Request returned an error: {} {}".format(
+                response.status_code, response.text
+            )
+        )
+
+    imageFilePath = getBotAvatarImageFilePath()
+    if os.path.exists(imageFilePath):
+        # clear old data
+        os.remove(imageFilePath)
+    # save new data
+    with open(imageFilePath, 'wb') as handler:
+        handler.write(response.content)
+
+def getBotAvatarImageFilePath():
+    return os.sep.join((tempfile.gettempdir(), "bot_avatar.jpg"))
+
+def __updateLastImageUrlCache(newUrl: str):
+    cachePath = __getLastImageUrlCacheFilePath()
+
+    if os.path.exists(cachePath):
+        os.remove(cachePath)
+    
+    with open(cachePath, 'w') as handler:
+        handler.write(newUrl)
+
+def __shouldRedownloadImage(url: str):
+    print(__getLastImageUrl())
+    return url != __getLastImageUrl()
+
+def __getLastImageUrl(): 
+    cachePath = __getLastImageUrlCacheFilePath()
+    if not os.path.exists(cachePath):
+        return ""
+    
+    with open(__getLastImageUrlCacheFilePath()) as f:
+        return f.readlines()[0]
+
+def __getLastImageUrlCacheFilePath():
+    return os.sep.join((tempfile.gettempdir(), "bot_avatar_cache.txt"))
