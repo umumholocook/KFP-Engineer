@@ -1,5 +1,6 @@
 from discord.ext import commands
 from common.LeaderboardUtil import LeaderboardUtil
+from common.NicknameUtil import NicknameUtil
 
 class Leaderboard(commands.Cog):
     
@@ -211,8 +212,9 @@ class Leaderboard(commands.Cog):
         for k, v in sortedList:
             if count >= limit: break
             member = ctx.guild.get_member(k)
-            result += f"{member.display_name}: {v}次\n"
-            count += 1
+            if member:
+                result += f"{member.display_name}: {v}次\n"
+                count += 1
         return result
 
 
