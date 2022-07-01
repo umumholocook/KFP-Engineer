@@ -51,7 +51,11 @@ async def on_ready():
         if channel:
             await bot.get_channel(channel.channel_id).send("更新結束, 現在版本 {}".format(get_version()))
     refreshStatus.start()
+    print("refreshStatus started")
     reviveComaStatus.start()
+    print("revive started")
+    updateBotAvatar.start()
+    print("update bot avatart started")
 
 @bot.event
 async def on_message(message):
