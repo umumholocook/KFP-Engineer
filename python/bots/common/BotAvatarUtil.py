@@ -17,18 +17,18 @@ def fetchUserAvatarUrl():
         print("Twitter token is not set, ignore avatar setting")
         return
 
-    url = create_url()
-
-    if not __shouldRedownloadImage(url):
-        print("Image is the same as previous check, ignore")
-        return
-    else:
-        __updateLastImageUrlCache(url)
-
-    result = __parseResultData(connect_to_endpoint(url))
+    result = __parseResultData(connect_to_endpoint(create_url()))
+    
     if not result:
         print("Error on loading twitter avatar url, possibly due to change of API.")
         return
+    
+    if not __shouldRedownloadImage(result):
+        print("Image is the same as previous check, ignore")
+        return
+    else:
+        __updateLastImageUrlCache(result)
+
     return result
 
 def oauth(r):
