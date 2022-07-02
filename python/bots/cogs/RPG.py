@@ -178,6 +178,28 @@ class RPG(commands.Cog):
             await ctx.send(result)
         else:
             await ctx.author.send(result)
+    
+    # 顯示狀態
+    @rpg_group.command(name="status_debug")
+    async def show_character_stats_debug(self, ctx: commands.Context, public=""):
+        if not RPGCharacterUtil.hasAdventureStared(ctx.author.id):
+            await ctx.send("看起來你還沒開始你的旅程呢. 請先申請成為冒險者吧")
+            return
+        name = await NicknameUtil.get_user_name(ctx.guild, ctx.author)
+        rpg: RPGCharacter = RPGCharacterUtil.getRPGCharacter(ctx.author.id)
+        result = f"冒險者: {name}\n"
+        result += f"體力: {rpg.hp_current}/{rpg.hp_max}\n"
+        result += f"魔力: {rpg.mp_current}/{rpg.mp_max}\n"
+        result += f"攻擊力: {rpg.attack_basic}\n"
+        result += f"防禦力: {rpg.defense_basic}\n"
+        result += f"absorbBare: {RPGCharacterUtil.getAbsoreDebug(rpg)}\n"
+        result += f"armorPoint: {RPGCharacterUtil.getArmorPointDebug(rpg)}\n"
+        result += f"armorAbsorb: {RPGCharacterUtil.getArmorAbsoreDebug(RPGCharacterUtil.getArmorPointDebug(rpg), 0)}\n"
+
+        if public == "public":
+            await ctx.send(result)
+        else:
+            await ctx.author.send(result)
 
     @rpg_group.command(name="rest")
     async def character_rest(self, ctx: commands.Context):
@@ -241,7 +263,7 @@ class RPG(commands.Cog):
         if success:
             multiplier = [2, 2, 2, 2, 2, 2, 8, 8, 10, 20]
             random_index = random.randrange(len(multiplier))
-            atk = RPGCharacterUtil.getAttackPoint(author) * multiplier[random_index]
+            atk = RPGCharacterUtil.getAttackPoint(author, other) * multiplier[random_index]
             dead = RPGCharacterUtil.changeHp(other, -1 * atk)
             if dead:
                 StatusUtil.createComaStatus(ctx.guild.id, user, other.hp_max)
@@ -291,7 +313,7 @@ class RPG(commands.Cog):
             await ctx.send(f"當刀柄接近{name}的身體的時候, 旁邊出現了一隻手阻止了你. 雖然不知道是誰, 但依稀有著一頭橘色的頭髮...")
             return
         if RPGCharacterUtil.tryToAttack(author, other):
-            atk = RPGCharacterUtil.getAttackPoint(author)
+            atk = RPGCharacterUtil.getAttackPoint(author, other)
             dead = RPGCharacterUtil.changeHp(other, -1 * atk)
             if dead:
                 StatusUtil.createComaStatus(ctx.guild.id, user, other.hp_max)

@@ -83,8 +83,8 @@ class RPGCharacterUtil():
     def getDefensePoint(character: RPGCharacter):
         return character.defense_basic
 
-    def getAttackPoint(character: RPGCharacter):
-        return character.attack_basic
+    def getAttackPoint(attacker: RPGCharacter, victim: RPGCharacter):
+        return RPGCharacterUtil.__getDamange(attacker, victim)
 
     def _rollAttack(character: RPGCharacter):
         # roll a d20
@@ -100,6 +100,54 @@ class RPGCharacterUtil():
         defensePoint = RPGCharacterUtil.getDefensePoint(victim)
         # print(f"{atkPoint} vs {defensePoint}")
         return atkPoint > defensePoint
+
+    # 計算攻擊力[attackPoint] 對於玩家[victim]造成多少傷害
+    def __getDamange(attacker: RPGCharacter, victim: RPGCharacter):
+        # 防禦方的身體防禦吸收
+        absorbBare = RPGCharacterUtil.__getAbsorb(victim)
+        # 防禦方的防具防禦力
+        armorPoint = RPGCharacterUtil.__getArmorPoint(victim)
+        # 攻擊方的武器穿透力
+        penetration = RPGCharacterUtil.__getWeaponPenetration(attacker)
+        # 防禦方的防具防禦吸收
+        armorAbsorb = RPGCharacterUtil.__getArmorAbsorb(armorPoint, penetration)
+        # 攻擊方的武器攻擊力
+        attackPoint = RPGCharacterUtil.__getWeaponAttack(attacker)
+        # 總傷害
+        damange = round(attackPoint * (1 - (absorbBare + armorAbsorb)))
+
+        return damange
+    
+    def __getWeaponAttack(character: RPGCharacter):
+        # TODO: 讀取武器攻擊力以及其他的加成
+        return character.attack_basic
+
+    def getArmorPointDebug(character: RPGCharacter):
+        return RPGCharacterUtil.__getArmorPoint(character)
+
+    def __getArmorPoint(character: RPGCharacter):
+        # TODO: 讀取防具防禦力以及其他的加成
+        return 0
+    
+    def __getWeaponPenetration(attacker: RPGCharacter):
+        # TODO: 讀取武器穿透力以及其他的加成
+        return 0
+
+    def getAbsoreDebug(character: RPGCharacter):
+        return RPGCharacterUtil.__getAbsorb(character)
+
+    # 防禦吸收, 玩家的等級的1/100, 最多是10%. 此數值只是人物本身數值
+    def __getAbsorb(character: RPGCharacter):
+        return min(character.character.rank * .01, .1)
+
+    def getArmorAbsoreDebug(armorPoint: int, penetration: int):
+        return RPGCharacterUtil.__getArmorAbsorb(armorPoint, penetration)
+    
+    # 防具的防禦吸收, 最多是80%.
+    def __getArmorAbsorb(armorPoint: int, penetration: int):
+        magicNumber = 602
+        attack = max(armorPoint - penetration, 0)
+        return min(attack / (attack + magicNumber), .80)
     
     def attackSuccess(character: RPGCharacter):
         character.last_attack = datetime.now()
