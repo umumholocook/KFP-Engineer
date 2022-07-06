@@ -48,7 +48,6 @@ class ItemUtil():
         ).execute()
 
     def deleteItems(guild_id: int):
-        InventoryUtil.deleteShopItems(guild_id=guild_id)
         Item.delete().where(Item.guild_id == guild_id).execute()
 
     def ListAllItem(guild_id: int):
@@ -60,3 +59,31 @@ class ItemUtil():
             for record in query.iterator():
                 result.append(record)
         return sorted(result, key=lambda x: x.id, reverse=False)
+        
+    def updateItemType(item: Item, new_type: ItemType):
+        item.type = new_type
+        item.save()
+    
+    def updateItemBuffType(item: Item, new_buff_type: BuffType):
+        item.buff.buff_type = new_buff_type
+        item.save()
+    
+    def updateItemBuffValue(item: Item, new_buff_value: int):
+        item.buff.buff_value = new_buff_value
+        item.save()
+    
+    def updateItemBuffRound(item: Item, new_buff_round: int):
+        item.buff.buff_round = new_buff_round
+        item.save()
+    
+    def updateItemLevelLimit(item: Item, new_level_limit: int):
+        item.level_required = new_level_limit
+        item.save()
+    
+    def updateItemPrice(item: Item, new_price: int):
+        item.token_required = new_price
+        item.save()
+    
+    def updateItemDescription(item: Item, new_description: str):
+        item.description = new_description
+        item.save()

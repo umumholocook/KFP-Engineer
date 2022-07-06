@@ -1,4 +1,3 @@
-from operator import le
 from common.models.InventoryRecord import InventoryRecord, ShopItem
 from common.models.InventoryRecord import Item
 from common.MemberUtil import MemberUtil
