@@ -293,6 +293,12 @@ class NewProfile(commands.Cog):
     #         await channelToUse.send('恭喜<@{}> 等級提升至{}。'.format(message.author.id, rank))
             
     #         await self.updateUserKfpRoles(message, rank, channelToUse)
+    
+    # @profile_group.command("force_rpg_level")
+    # @commands.check(isWhiteList)
+    # async def profile_force_set_level(self, ctx:commands.Context, rank=10):
+    #     message = ctx.message
+    #     RPGCharacterUtil.levelUpCharacter(message.author.id, 1, rank)
 
     # @profile_group.command('force_set_exp')
     # async def profile_force_set_exp(self, ctx:commands.Context, exp=-1):

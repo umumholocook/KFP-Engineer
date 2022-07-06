@@ -40,11 +40,11 @@ class InventoryDisplay(commands.Cog):
             # 內嵌方塊: 顯示全部物品
             # 這裡要用set，不然重複的物品會出現在顯示欄位
             for item_index, item_display in enumerate(result[:], start=1):
-                embed_inventory.add_field(name=None, value = f'{item_index}. {item_display.item.name}', inline=False)
+                embed_inventory.add_field(name=None, value = f'{item_index}. {item_display.item.name} x {item_display.amount}', inline=False)
                 
             # 暫時放一張圖代替 (set_thumbnail())
             embed_inventory.set_thumbnail(url="https://s1.zerochan.net/Takanashi.Kiara.600.3145979.jpg")
-            embed_inventory.set_footer(text=f"一共{result_count}個物品")
+            embed_inventory.set_footer(text=f"一共{result_count}種物品")
             await ctx.send(embed = embed_inventory)
 
     @inventory_group.command(name='item')

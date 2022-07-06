@@ -45,7 +45,7 @@ class Bank(commands.Cog):
         message = f"金額 {coins} 付款給 {nick}成功! 雙方餘額為\n"
         message += "```"
         message += f"銀行: {bank.coin}\n"
-        message += f"{nick}: {member.coin}\n"
+        message += f"{nick}: {member.coin + coins}\n"
         message += "```"
 
         await ctx.send(message)

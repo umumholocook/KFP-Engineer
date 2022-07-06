@@ -70,9 +70,10 @@ class Shop(commands.Cog):
         msg += "\n"
         msg += "指令集:\n"
         msg += "!shop add <數量> <商品名稱> 上架<商品名稱>到商店裡，若已存在則會增加供應量\n"
-        msg += "!shop create <商品名稱> <道具類型> <增幅類型> <增幅數值> <增幅持續時間> <等級限制> <價錢> <商品描述> 新增一個Item\n"
+        msg += "!shop create <商品名稱> <道具類型> <增幅類型> <增幅數值> <增幅持續時間> <等級限制> <價格> <商品描述> 新增一個Item\n"
         msg += "道具類型(1~5): 1.一般道具 2.攻擊道具 3.防禦道具 4.回復道具 5.狀態道具\n"
-        msg += "增幅類型(1~4): 1.無 2.攻擊力 3.防禦力 4.魔法力 5.生命力\n"
+        msg += "增幅類型(1~5): 1.無 2.攻擊力 3.防禦力 4.魔法力 5.生命力\n\n"
+        msg += "範例: !shop create 蘋果 1 5 10 0 0 10 一顆蘋果\n\n"
         msg += "!shop change <新的供應數量> <商品名稱> 更改shopitem的供應量\n"
         msg += "!shop hidden <商品名稱> <商品隱藏與否(True為隱藏/False為顯示)>\n"
         msg += "!shop itemStatus <商品名稱> 確認item是否上架(或上架但隱藏)\n"
@@ -80,6 +81,7 @@ class Shop(commands.Cog):
         msg += "!shop deleteItem <商品名稱> 刪除特定item\n"
         msg += "!shop clearAllItems 將目前創建好的所有item刪除(若已上架則會一併清除ShopItem)\n"
         msg += "!shop listHidden 顯示隱藏狀態的商品\n"
+        msg += "!shop update <商品名稱> <商品屬性> <新的數值> 商品屬性為[道具類型,增幅類型,增幅數值,增幅持續時間,等級限制,價格,商品描述]其中之一"
         msg += "\n\n"
         msg += "註1:change指令會直接改動目前供應數量，適用時機為\n"
         msg += "\t1.將無限量供應商品修正為有限供應，或\n"
@@ -135,11 +137,11 @@ class Shop(commands.Cog):
         elif not 0 < itemtype < len(ItemType) + 1:
             await ctx.send(f"道具類型錯誤!請重新輸入!")
         elif not 0 < buff_type < len(BuffType) + 1:
-            await ctx.send(f"增幅類型只有五種!請重新輸入!")
+            await ctx.send(f"增幅類型只有{len(BuffType)}種!請重新輸入!")
         elif buff_round < -1:
             await ctx.send(f"增幅持續時間不可為負數(-1為永遠不毀滅)!請重新輸入!")
         else:
-            result = ItemUtil.createItem(ctx.guild.id, item_name, ItemType.list()[itemtype], BuffType.list()[buff_type], buff_value, buff_round, description
+            result = ItemUtil.createItem(ctx.guild.id, item_name, ItemType.list()[itemtype-1], BuffType.list()[buff_type-1], buff_value, buff_round, description
                                          , level_required, price)
             if result == -1:
                 await ctx.send(item_name + ' 已經存在!')
@@ -223,6 +225,7 @@ class Shop(commands.Cog):
 
     @shop_group.command(name="clearAllItems")
     async def clear_all_items(self, ctx: commands.Command):
+        InventoryUtil.deleteShopItems(ctx.guild.id)
         ItemUtil.deleteItems(ctx.guild.id)
         await ctx.send("本群所有item清理結束")
 
@@ -238,14 +241,102 @@ class Shop(commands.Cog):
             msg += "```"
             await ctx.send(msg)
 
+    @shop_group.command(name="update")
+    async def showupdateItemDetail(self, ctx: commands.Command, item_name: str, item_property: str, new_value):
+        item = ItemUtil.searchItem(guild_id=ctx.guild.id, item_name=item_name)
+        if item is None:
+            await ctx.send("找不到該商品，請確認名稱是否輸入錯誤!")
+            return
+        result = InventoryUtil.findShopItem(ctx.guild.id, item)
+        if result is None:
+            await ctx.send("找不到該商品，請確認名稱是否輸入錯誤!")
+            return
+        # 商品描述
+        if item_property == "道具類型":
+            try:
+                value = int(new_value)
+                if value < 0 or value > 5:
+                    await ctx.send("道具類型只能為數字1-5:\n1.一般道具 2.攻擊道具 3.防禦道具 4.回復道具 5.狀態道具")
+                    return
+                ItemUtil.updateItemType(item, ItemType.list()[value-1])
+                await ctx.send(f"道具'{item.name}'類型已更新為 '{ItemType.list()[value-1]}'")
+                return
+            except ValueError:
+                await ctx.send("道具類型只能為數字1-5:\n1.一般道具 2.攻擊道具 3.防禦道具 4.回復道具 5.狀態道具")
+                return
+        if item_property == "增幅類型":
+            try:
+                value = int(new_value)
+                if value < 0 or value > 5:
+                    await ctx.send("增幅類型只能為數字(1~5):\n1.無 2.攻擊力 3.防禦力 4.魔法力 5.生命力")
+                    return
+                ItemUtil.updateItemBuffType(item, BuffType.list()[value-1])
+                await ctx.send(f"道具'{item.name}'增幅類型已更新為 '{Shop.__getBuffType(BuffType.list()[value-1])}'")
+                return
+            except ValueError:
+                await ctx.send("增幅類型只能為數字(1~5):\n1.無 2.攻擊力 3.防禦力 4.魔法力 5.生命力")
+                return
+        if item_property == "增幅數值":
+            try:
+                value = int(new_value)
+                ItemUtil.updateItemBuffValue(item, value)
+                await ctx.send(f"道具'{item.name}'增幅數值已更新為 '{value}'")
+                return
+            except ValueError:
+                await ctx.send("增幅數值只能為數字.")
+                return
+        if item_property == "增幅持續時間":
+            try:
+                value = int(new_value)
+                if value < 0:
+                    await ctx.send("增幅持續時間只能為正整數.")
+                    return    
+                ItemUtil.updateItemBuffRound(item, value)
+                await ctx.send(f"道具'{item.name}'增幅持續時間已更新為 '{value}'")
+                return
+            except ValueError:
+                await ctx.send("增幅持續時間只能為數字.")
+                return
+        if item_property == "等級限制":
+            try:
+                value = int(new_value)
+                if value < 0:
+                    await ctx.send("等級限制只能為正整數.")
+                    return    
+                ItemUtil.updateItemLevelLimit(item, value)
+                await ctx.send(f"道具'{item.name}'等級限制已更新為 '{value}'")
+                return
+            except ValueError:
+                await ctx.send("等級限制只能為數字.")
+                return
+        if item_property == "價格":
+            try:
+                value = int(new_value)
+                if value < 0:
+                    await ctx.send("價格只能為正整數.")
+                    return    
+                ItemUtil.updateItemPrice(item, value)
+                await ctx.send(f"道具'{item.name}'價格已更新為 '{value}'")
+                return
+            except ValueError:
+                await ctx.send("道具價格只能為數字.")
+                return
+        if item_property == "商品描述":
+            ItemUtil.updateItemDescription(item, new_value)
+            await ctx.send(f"道具'{item.name}'描述已更新完成")
+            return
+
+
     @shop_group.command(name="detail")
     async def showShopitemDetail(self, ctx: commands.Command, item_name: str):
         item = ItemUtil.searchItem(guild_id=ctx.guild.id, item_name=item_name)
         if item is None:
             await ctx.send("找不到該商品，請確認名稱是否輸入錯誤!")
+            return
         result = InventoryUtil.findShopItem(ctx.guild.id, item)
         if result is None:
             await ctx.send("找不到該商品，請確認名稱是否輸入錯誤!")
+            return
         else:
             if result.item.type == ItemType.ATTACK:
                 itemtype = "攻擊道具"
@@ -257,30 +348,33 @@ class Shop(commands.Cog):
                 itemtype = "狀態道具"
             else:
                 itemtype = "一般道具"
-
-            if result.item.buff.buff_type == BuffType.ATTACK:
-                bufftype = "攻擊力"
-            elif result.item.buff.buff_type == BuffType.DEFENCE:
-                bufftype = "防禦力"
-            elif result.item.buff.buff_type == BuffType.MAGIC:
-                bufftype = "魔法力"
-            elif result.item.buff.buff_type == BuffType.HIT_POINT:
-                bufftype = "生命力"
-            else:
-                bufftype = "無屬性"
+            
+            bufftype = Shop.__getBuffType(result.item.buff.buff_type)
 
             msg = "```"
             msg += f"商品名稱: {result.item.name}\n"
             msg += f"商品價錢: {result.item.token_required}\n"
-            msg += f"等級限制: {result.item.level_required}\n"
+            msg += "等級限制: {}\n".format(result.item.level_required if result.item.level_required > 0 else "無限制")
             msg += f"道具種類: {itemtype}\n"
             msg += f"增幅種類: {bufftype}\n"
             msg += f"增幅數值: {result.item.buff.buff_value}\n"
-            msg += "增幅時間: {}\n".format(result.item.buff.buff_round if result.item.buff.buff_round > 0 else "永不毀滅")
+            msg += "增幅時間: {}\n".format(f"{result.item.buff.buff_round}回合" if result.item.buff.buff_round > 0 else "無限制")
             msg += f"商品描述: {result.item.description}\n"
             msg += "```"
             await ctx.send(msg)
 
+    def __getBuffType(type: str):
+        buffType = BuffType[type]
+        if buffType == BuffType.ATTACK:
+            return "攻擊力"
+        elif buffType == BuffType.DEFENCE:
+            return "防禦力"
+        elif buffType == BuffType.MAGIC:
+            return "魔法力"
+        elif buffType == BuffType.HIT_POINT:
+            return "生命力"
+        else:
+            return "無屬性"
 
 def setup(client):
     client.add_cog(Shop(client))
