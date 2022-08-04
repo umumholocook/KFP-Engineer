@@ -1,3 +1,4 @@
+import random, os, discord
 from common.MemberUtil import MemberUtil
 from common.models.Member import Member
 from common.models.RPGStatus import RPGStatus
@@ -13,16 +14,20 @@ from discord.ext import commands
 from discord import User, Embed, File
 from common.NicknameUtil import NicknameUtil
 from datetime import datetime, timedelta
-import random, os
+
 
 
 class RPG(commands.Cog):
 
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @commands.group(name='rpg', invoke_without_command=True)
-    async def rpg_group(self, ctx: commands.Context, *attr):
+    @commands.hybrid_group(name='rpg')
+    async def rpg_group(self, ctx: commands.Context, *attr) -> None:
+        pass
+    
+    @rpg_group.command(name="help", description="KFP大冒險指令說明")
+    async def help(self, ctx: commands.Context):
         msg = "KFP大冒險指令\n"
         msg += "```\n"
         msg += "!rpg startAdventure - 開始屬於你的大冒險!!\n"
@@ -34,7 +39,8 @@ class RPG(commands.Cog):
         msg += "```\n"
         await ctx.send(msg)
 
-    @rpg_group.command(name="draft")
+    @rpg_group.command(name="z_recurte")
+    @commands.has_permissions(manage_roles=True)
     async def draft_character(self, ctx: commands.Context, user: User):
         if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_GUILD):
             return
@@ -48,7 +54,7 @@ class RPG(commands.Cog):
         await ctx.send(f"看起來招募中心已滿, 詳情請洽冒險者公會員工.")
 
     # 開始大冒險 
-    @rpg_group.command(name="startAdventure")
+    @rpg_group.command(name="start_advanture", description="如果你想要我的財寶, 那就成為冒險者吧!")
     async def init_rpg_character(self, ctx: commands.Context):
         if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_GUILD):
             return
@@ -77,7 +83,8 @@ class RPG(commands.Cog):
 
         await ctx.send(f"看起來你的行李好像還沒準備好, 詳情請洽冒險者公會員工.")
 
-    @rpg_group.command(name="force_update")
+    @rpg_group.command(name="z_force_update")
+    @commands.has_permissions(manage_roles=True)
     async def force_update(self, ctx: commands.Context):
         if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_GUILD):
             return
@@ -106,7 +113,8 @@ class RPG(commands.Cog):
             status.delete_instance()
             await ctx.send(f"'{name}'的休息狀態成功")
 
-    @rpg_group.command(name="revive")
+    @rpg_group.command(name="z_revive")
+    @commands.has_permissions(manage_roles=True)
     async def revive_rpg_character(self, ctx: commands.Command, user: User):
         if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.BANK):
             return
@@ -122,7 +130,8 @@ class RPG(commands.Cog):
         RPGCharacterUtil.changeHp(other, other.hp_max)
         await ctx.send(f"{name}生命值回復成功.")
 
-    @rpg_group.command(name="reviveall")
+    @rpg_group.command(name="z_reviveall")
+    @commands.has_permissions(manage_roles=True)
     async def revive_all(self, ctx: commands.Command):
         if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.BANK):
             return
@@ -140,7 +149,7 @@ class RPG(commands.Cog):
 
 
     # 從冒險者退休
-    @rpg_group.command(name="retire")
+    @rpg_group.command(name="retire", description="從冒險者退休")
     async def retire_rpg_character(self, ctx: commands.Context):
         if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_GUILD):
             return
@@ -161,7 +170,7 @@ class RPG(commands.Cog):
         await ctx.send(f"冒險者{ctx.author.display_name}申請退休成功, 辛苦你了!")
 
     # 顯示狀態
-    @rpg_group.command(name="status")
+    @rpg_group.command(name="status", description="自己的狀態查詢")
     async def show_character_stats(self, ctx: commands.Context, public=""):
         if not RPGCharacterUtil.hasAdventureStared(ctx.author.id):
             await ctx.send("看起來你還沒開始你的旅程呢. 請先申請成為冒險者吧")
@@ -180,7 +189,8 @@ class RPG(commands.Cog):
             await ctx.author.send(result)
     
     # 顯示狀態
-    @rpg_group.command(name="status_debug")
+    @rpg_group.command(name="z_status_debug")
+    @commands.has_permissions(manage_roles=True)
     async def show_character_stats_debug(self, ctx: commands.Context, public=""):
         if not RPGCharacterUtil.hasAdventureStared(ctx.author.id):
             await ctx.send("看起來你還沒開始你的旅程呢. 請先申請成為冒險者吧")
@@ -201,7 +211,7 @@ class RPG(commands.Cog):
         else:
             await ctx.author.send(result)
 
-    @rpg_group.command(name="rest")
+    @rpg_group.command(name="rest", description="休息療傷")
     async def character_rest(self, ctx: commands.Context):
         if not RPGCharacterUtil.hasAdventureStared(ctx.author.id):
             await ctx.send(f"非冒險者就回家睡覺啦... 在這邊幹嘛?")
@@ -213,17 +223,7 @@ class RPG(commands.Cog):
         name = await NicknameUtil.get_user_name(ctx.guild, ctx.author)
         await ctx.send(f"{name}正在休息中...")
     
-    @rpg_group.command(name="snake_attack")
-    async def snake_attack(self, ctx: commands.Context):
-
-        embedMsg = Embed()
-        embedMsg.set_image(url='attachment://snake_attack.gif')
-
-        img = File(os.sep.join((os.getcwd(), "resource", "image", "snake_attack.gif")), filename="snake_attack.gif")
-        await ctx.send(file=img, embed=embedMsg)
-        pass
-
-    @rpg_group.command(name="sneak_attack")
+    @rpg_group.command(name="sneak_attack", description="偷襲")
     async def sneak_attack_character(self, ctx: commands.Context, user: User):
         if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_BATTLE_GROUND):
             return
@@ -280,7 +280,7 @@ class RPG(commands.Cog):
         # the other person is now alerted
         StatusUtil.createOrUpdateAlertStatus(member.id, ctx.guild.id, 86400)
 
-    @rpg_group.command(name="attack")
+    @rpg_group.command(name="attack", description="攻擊某位玩家")
     async def attack_character(self, ctx: commands.Context, user: User):
         if not ChannelUtil.hasChannel(ctx.guild.id, ctx.channel.id, Util.ChannelType.RPG_BATTLE_GROUND):
             return
