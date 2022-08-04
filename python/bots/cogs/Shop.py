@@ -376,5 +376,5 @@ class Shop(commands.Cog):
         else:
             return "無屬性"
 
-def setup(client):
-    client.add_cog(Shop(client))
+async def setup(client):
+    await client.add_cog(Shop(client))

@@ -218,5 +218,5 @@ class Leaderboard(commands.Cog):
         return result
 
 
-def setup(client):
-    client.add_cog(Leaderboard(client))
+async def setup(client):
+    await client.add_cog(Leaderboard(client))

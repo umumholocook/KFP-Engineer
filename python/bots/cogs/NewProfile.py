@@ -425,5 +425,5 @@ class NewProfile(commands.Cog):
             return True
         return channel_id in self.__channels
             
-def setup(client, isTest=False):
-    client.add_cog(NewProfile(client, Util.DEFAULT_DB_PATH, isTest))
+async def setup(client, isTest=False):
+    await client.add_cog(NewProfile(client, Util.DEFAULT_DB_PATH, isTest))

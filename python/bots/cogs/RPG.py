@@ -329,5 +329,5 @@ class RPG(commands.Cog):
             await ctx.send(f"'{name}'成功的擋下了你的攻擊! 攻擊失敗!")
 
 
-def setup(client):
-    client.add_cog(RPG(client))
+async def setup(client):
+    await client.add_cog(RPG(client))

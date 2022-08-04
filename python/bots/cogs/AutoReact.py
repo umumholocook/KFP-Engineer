@@ -27,5 +27,5 @@ class AutoReact(commands.Cog):
             return True
         return False
 
-def setup(bot):
-    bot.add_cog(AutoReact(bot))
+async def setup(bot):
+    await bot.add_cog(AutoReact(bot))

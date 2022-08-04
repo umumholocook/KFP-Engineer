@@ -516,5 +516,5 @@ class Gambling(commands.Cog):
     async def reset_everyone_command(self, ctx:commands.Context, *argv):
         self.database.reset_everyone_token()
 
-def setup(client):
-    client.add_cog(Gambling(client))
+async def setup(client):
+    await client.add_cog(Gambling(client))

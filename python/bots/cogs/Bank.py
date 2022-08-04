@@ -73,5 +73,5 @@ class Bank(commands.Cog):
 
         await ctx.send(message)
 
-def setup(client):
-    client.add_cog(Bank(client))
+async def setup(client):
+    await client.add_cog(Bank(client))

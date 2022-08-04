@@ -112,5 +112,5 @@ class InventoryDisplay(commands.Cog):
         InventoryUtil.removeUserItems_TEST(ctx.guild.id, ctx.author.id)
 #####################################################################################
 
-def setup(bot):
-    bot.add_cog(InventoryDisplay(bot))
+async def setup(bot):
+    await bot.add_cog(InventoryDisplay(bot))

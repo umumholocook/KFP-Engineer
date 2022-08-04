@@ -123,5 +123,5 @@ class SuperChatMeme(commands.Cog):
         return sc_color
 
 
-def setup(client):
-    client.add_cog(SuperChatMeme(client))
+async def setup(client):
+    await client.add_cog(SuperChatMeme(client))

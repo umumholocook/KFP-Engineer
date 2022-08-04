@@ -111,5 +111,5 @@ class Nickname(commands.Cog):
                 return self.bot.get_user(member.id)
         return None
 
-def setup(bot):
-    bot.add_cog(Nickname(bot))
+async def setup(bot):
+    await bot.add_cog(Nickname(bot))

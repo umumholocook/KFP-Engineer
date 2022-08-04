@@ -93,5 +93,5 @@ class ForwardRule(commands.Cog):
         ForwardUtil.delete(forward_id)
         await ctx.channel.send(f"成功移除復誦規則`{forward_id}`")
     
-def setup(bot):
-    bot.add_cog(ForwardRule(bot))
+async def setup(bot):
+    await bot.add_cog(ForwardRule(bot))

@@ -68,5 +68,5 @@ class CommandControl(commands.Cog):
             result += f"\t{command}\n"
         await ctx.send(result)
 
-def setup(client):
-    client.add_cog(CommandControl(client))
+async def setup(client):
+    await client.add_cog(CommandControl(client))
