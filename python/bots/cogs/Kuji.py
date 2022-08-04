@@ -118,5 +118,5 @@ class Kuji(commands.Cog):
         await ctx.reply(f"抽籤遊戲花費 {self.__RATE}隻雞腿, 你還剩下 {member.token}隻.")
         return True
 
-def setup(client):
-    client.add_cog(Kuji(client))
+async def setup(client):
+    await client.add_cog(Kuji(client))

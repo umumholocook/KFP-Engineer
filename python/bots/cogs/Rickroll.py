@@ -31,5 +31,5 @@ class Rickroll(commands.Cog):
         else:
             raise error
 
-def setup(client):
-    client.add_cog(Rickroll(client))
+async def setup(client):
+    await client.add_cog(Rickroll(client))

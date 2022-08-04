@@ -153,5 +153,5 @@ class SusMeme(commands.Cog):
         else:
             return True
 
-def setup(client):
-    client.add_cog(SusMeme(client))
+async def setup(client):
+    await client.add_cog(SusMeme(client))

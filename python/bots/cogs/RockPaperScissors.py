@@ -91,6 +91,6 @@ class RockPaperScissors(commands.Cog):
                 return 1
         return 0
 
-def setup(bot):
-    bot.add_cog(RockPaperScissors(bot))
+async def setup(bot):
+    await bot.add_cog(RockPaperScissors(bot))
     

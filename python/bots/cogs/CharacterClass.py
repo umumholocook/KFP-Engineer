@@ -33,5 +33,5 @@ class CharacterClass(commands.Cog):
     async def quit_job(self, ctx: commands.Command):
         await ctx.send("轉職所準備中...")
 
-def setup(client):
-    client.add_cog(CharacterClass(client))
+async def setup(client):
+    await client.add_cog(CharacterClass(client))

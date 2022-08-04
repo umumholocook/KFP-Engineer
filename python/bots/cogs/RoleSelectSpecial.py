@@ -101,5 +101,5 @@ class RoleSelectSpecial(commands.Cog):
     #Note: for inas roles, can upload some voice cut for user       
 
 
-def setup(client):
-    client.add_cog(RoleSelectSpecial(client))
+async def setup(client):
+    await client.add_cog(RoleSelectSpecial(client))

@@ -29,5 +29,5 @@ class YagooMeme(commands.Cog):
         else:
             raise error
 
-def setup(client):
-    client.add_cog(YagooMeme(client))
+async def setup(client):
+    await client.add_cog(YagooMeme(client))
