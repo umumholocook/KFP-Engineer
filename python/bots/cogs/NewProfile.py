@@ -238,11 +238,11 @@ class NewProfile(commands.Cog):
         iconData = None
         bgData = None
         avatar_url = ctx.author.avatar
-        if avatar_url._url != None:
+        if avatar_url != None and avatar_url._url != None:
             iconData = await avatar_url.read()
         banner_url = ctx.guild.banner
-        # if banner_url._url != None:
-        #     bgData = await banner_url.read()
+        if banner_url != None and banner_url._url != None:
+            bgData = await banner_url.read()
         with ProfileImage() as pf: 
             if iconData:
                 pf.setIcon(iconData)
