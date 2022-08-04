@@ -237,12 +237,12 @@ class NewProfile(commands.Cog):
         profileByte = None
         iconData = None
         bgData = None
-        avatar_url = ctx.author.avatar_url_as(format='jpg', size=1024)
+        avatar_url = ctx.author.avatar
         if avatar_url._url != None:
             iconData = await avatar_url.read()
-        banner_url = ctx.guild.banner_url
-        if banner_url._url != None:
-            bgData = await banner_url.read()
+        banner_url = ctx.guild.banner
+        # if banner_url._url != None:
+        #     bgData = await banner_url.read()
         with ProfileImage() as pf: 
             if iconData:
                 pf.setIcon(iconData)
