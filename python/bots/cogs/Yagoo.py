@@ -1,15 +1,19 @@
+from pydoc import describe
+import discord
+
 from discord.embeds import Embed
 from discord.file import File
 from common.YagooUtil import YagooUtil
 from discord.ext import commands
+from discord import app_commands
 
 class YagooMeme(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @commands.group(name = 'yagoo', invoke_without_command=True)
+    @app_commands.command(name = 'yagoo', description="Best Girl 跟你打招呼, 最多四個字")
     @commands.cooldown(1, 3, type=commands.BucketType.user)
-    async def yagoo_group(self, ctx:commands.Context, text: str = "早安你好"):
+    async def yagoo_group(self, interaction: discord.Interaction, text: str = "早安你好"):
         imageInfo = YagooUtil.drawYagoo(text)
 
         tempFileName = imageInfo[0]
@@ -18,8 +22,8 @@ class YagooMeme(commands.Cog):
         embedMsg = Embed()
         embedMsg.set_image(url='attachment://' + tempFileName)
         image = File(tempFilePath, filename=tempFileName)
-        await ctx.message.delete()
-        await ctx.send(file=image)
+        await interaction.response.defer()
+        await interaction.followup.send(file=image)
 
     @yagoo_group.error
     async def rps_error(self, ctx:commands.Context, error):
