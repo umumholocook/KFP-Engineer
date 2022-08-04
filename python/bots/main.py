@@ -15,7 +15,7 @@ from common.RoleUtil import RoleUtil
 from common.LeaderboardUtil import LeaderboardUtil
 from common.BotAvatarUtil import downloadImage, fetchUserAvatarUrl, getBotAvatarImageFilePath
 
-VERSION = "0.7"
+VERSION = "0.8"
 TOKEN=os.environ['KFP_TOKEN']
 intents = discord.Intents.default()
 intents.members = True
@@ -26,6 +26,8 @@ def getTempFile():
 
 @bot.event
 async def on_ready():
+    await bot.wait_until_ready()
+    
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)
@@ -50,6 +52,8 @@ async def on_ready():
         channel: Channel = ChannelUtil.getRebootMessageChannel(guild_id)
         if channel:
             await bot.get_channel(channel.channel_id).send("更新結束, 現在版本 {}".format(get_version()))
+    else:
+        db = KfpDb()
     refreshStatus.start()
     print("refreshStatus started")
     reviveComaStatus.start()
