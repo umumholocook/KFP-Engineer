@@ -130,6 +130,7 @@ class Steward(commands.Bot):
 # Setup bot
 intents = discord.Intents.default()
 intents.members = True
+intents.message_content = True
 bot = Steward(intents)
 tree = bot.tree
 
