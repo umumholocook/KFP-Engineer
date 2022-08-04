@@ -1,7 +1,5 @@
 from peewee import fn
 
-from common.ChannelUtil import ChannelUtil
-from common.Util import Util
 from common.models.RPGCharacter import RPGCharacter
 from discord.abc import User
 from common.RPGUtil.StatusType import StatusType
