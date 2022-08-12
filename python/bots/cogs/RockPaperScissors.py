@@ -12,7 +12,7 @@ class RockPaperScissors(commands.Cog):
         self.bot = bot
 
     rps = ['剪刀', '石頭', '布']
-    correct_value = ["random", '剪刀', '石頭', '布', 'r', 'p', 's', 'rock', 'paper', 'scissor']
+    correct_value = ["random", '剪刀', '石頭', '布', 'r', 'p', 's', 'rock', 'paper', 'scissor', ""]
     
     @app_commands.command(name = 'rps', description="快樂地來一場猜拳吧")
     @app_commands.describe(type = "拳型")
@@ -23,7 +23,7 @@ class RockPaperScissors(commands.Cog):
         Choice(name = "隨便", value = "random"),
     ])
     @commands.cooldown(1, 5, type=commands.BucketType.user)
-    async def start_game(self, interaction: discord.Interaction, type: str):
+    async def start_game(self, interaction: discord.Interaction, type: str = ""):
         await self._rpsGame(interaction, type)
 
     @start_game.error
@@ -38,9 +38,10 @@ class RockPaperScissors(commands.Cog):
     async def print_help(self, ctx:commands.Command):
         helptext = "```"
         helptext+="KFP猜拳bot, 你可以使用下面的指令\n"
-        helptext+="!rps r - 我出石頭\n"
-        helptext+="!rps paper - 我出布\n"
-        helptext+="!rps 剪刀 - 我出剪刀\n"
+        helptext+="/rps r - 我出石頭\n"
+        helptext+="/rps paper - 我出布\n"
+        helptext+="/rps 剪刀 - 我出剪刀\n"
+        helptext+="/rps - 幫我出拳\n"
         helptext+="```"
         await ctx.send(helptext)
 
@@ -49,7 +50,7 @@ class RockPaperScissors(commands.Cog):
         user_choice_chinese: str
         if not user_choice in self.correct_value:
             await interaction.response.send_message(f"輸入的指令 \"{user_choice}\" 不正確, 請重新輸入")
-        if user_choice == "random":
+        if user_choice == "random" or user_choice == "":
             user_choice_chinese = choice(self.rps)
             await interaction.response.send_message(f"用戶沒有提供猜拳類型, 隨機選擇:{user_choice_chinese}")
         else:
