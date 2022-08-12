@@ -35,7 +35,7 @@ class RockPaperScissors(commands.Cog):
             raise error
 
     @app_commands.command(name = 'rps_help', description="KFP猜拳bot指令說明")
-    async def print_help(self, ctx:commands.Command):
+    async def print_help(self, interaction: discord.Interaction):
         helptext = "```"
         helptext+="KFP猜拳bot, 你可以使用下面的指令\n"
         helptext+="/rps r - 我出石頭\n"
@@ -43,7 +43,7 @@ class RockPaperScissors(commands.Cog):
         helptext+="/rps 剪刀 - 我出剪刀\n"
         helptext+="/rps - 幫我出拳\n"
         helptext+="```"
-        await ctx.send(helptext)
+        await interaction.response.send_message(helptext)
 
     async def _rpsGame(self, interaction: discord.Interaction, user_choice:str=None):
         bot_choice = choice(self.rps)
