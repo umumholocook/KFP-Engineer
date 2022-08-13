@@ -48,6 +48,11 @@ class MemberUtil():
         if member == None: return
         member.coin -= abs(amount)
         member.save()
+        
+    def add_token_to_member(member: Member, amount: int):
+        if member == None: return
+        member.token += amount
+        member.save()
 
     def get_member(member_id:int):
         query = Member.select().where(Member.member_id == member_id)
