@@ -1,4 +1,4 @@
-import random, os, discord
+import random
 from common.MemberUtil import MemberUtil
 from common.models.Member import Member
 from common.models.RPGStatus import RPGStatus
@@ -11,7 +11,7 @@ from common.RPGUtil.StatusUtil import StatusUtil
 from common.models.RPGCharacter import RPGCharacter
 from common.RPGUtil.RPGCharacterUtil import RPGCharacterUtil
 from discord.ext import commands
-from discord import User, Embed, File
+from discord import User
 from common.NicknameUtil import NicknameUtil
 from datetime import datetime, timedelta
 
