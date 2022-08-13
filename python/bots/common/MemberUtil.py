@@ -1,3 +1,4 @@
+import math
 from common.models.Member import Member
 from peewee import *
 
@@ -41,6 +42,11 @@ class MemberUtil():
         else:
             member = MemberUtil.add_member(member_id)
         member.coin += amount
+        member.save()
+        
+    def subtract_coin(member: Member, amount: int):
+        if member == None: return
+        member.coin -= abs(amount)
         member.save()
 
     def get_member(member_id:int):

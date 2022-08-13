@@ -99,9 +99,9 @@ class Shop(commands.Cog):
             coinspertoken = GamblingUtil.get_token_rate()
             spend = need_token * coinspertoken
             if member.coin > spend:
-                MemberUtil.add_coin(member_id=member.id, amount=-spend)
+                MemberUtil.subtract_coin(member, spend)
                 MemberUtil.add_token(member_id=member.id, amount=need_token)
-                await ctx.send(f"成功兌換{need_token}個雞腿，目前剩下{member.coin}個硬幣")
+                await ctx.send(f"成功以匯率一隻雞腿{coinspertoken}個硬幣兌換{need_token}個雞腿，目前剩下{member.coin}個硬幣")
             else:
                 msg = f"兌換失敗!不足{spend - member.coin}個硬幣\n"
                 msg += f"目前匯率為 一隻雞腿{coinspertoken}個硬幣"
