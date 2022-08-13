@@ -1,5 +1,5 @@
 from common.NicknameUtil import NicknameUtil
-from discord.abc import User
+from discord import User
 from discord.ext import commands
 from common.Util import Util
 from common.MemberUtil import MemberUtil
