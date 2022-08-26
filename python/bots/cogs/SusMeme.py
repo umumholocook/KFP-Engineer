@@ -141,7 +141,7 @@ class SusMeme(commands.Cog):
         await msg.delete()
 
     def downloadUserAvatar(self, user: User):
-        avatar_url = user.avatar_url
+        avatar_url = user.avatar.url
         data = requests.get(avatar_url).content
         return Image.open(io.BytesIO(data))
 
