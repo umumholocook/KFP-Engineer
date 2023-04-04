@@ -160,6 +160,18 @@ class LeaderboardUtil():
         tracker.count = max(count, 0)
         tracker.save()
 
+    def clearRankRecords(lb_name: str):
+        lb = LeaderboardUtil.findLeaderboard(lb_name)
+        if not lb:
+            return None
+        query = EmojiTracker.select().where(
+            EmojiTracker.leaderboard_id == lb.id
+        )
+        if query.exists():
+            trackers = query.iterator()
+            for tracker in trackers:
+                tracker.delete_instance()
+
     def getRankResult(lb_name: str):
         lb = LeaderboardUtil.findLeaderboard(lb_name)
         if not lb:

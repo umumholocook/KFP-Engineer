@@ -91,8 +91,7 @@ class Util:
         return emoji_name
 
     def downloadUserAvatar(user:User):
-        avatar_url = user.avatar_url
-        data = requests.get(avatar_url).content
+        data = requests.get(user.display_avatar).content
         return Image.open(io.BytesIO(data))
 
     def enlargeImage(image: Image):

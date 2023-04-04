@@ -10,7 +10,7 @@ from common.RPGUtil.StatusUpdate import StatusUpdate
 from common.RPGUtil.StatusUtil import StatusUtil
 from common.models.Channel import Channel
 from discord.ext import commands, tasks
-from discord import app_commands, RawReactionActionEvent, Role
+from discord import app_commands, Embed, File, RawReactionActionEvent, Role
 from pathlib import Path
 from subprocess import check_output, Popen
 
@@ -60,11 +60,19 @@ class Steward(commands.Bot):
         updateBotAvatar.start()
         print("update bot avatart started")
     
+    def _get_futa_path(self):
+        return os.sep.join((os.getcwd(), "resource", "image", "no_futa.webp"))
+
     async def on_message(self, message: discord.Message):
         print(f"on_message get message from {message.author} : {message.content}") if message.author.id != bot.user.id else None
         ctx = await self.get_context(message)
         if message.content == "沒有暈" or "沒暈" in message.content:
             await ctx.reply("我聽你放屁")
+        if "扶他" in message.content and "不要扶他" not in message.content:
+            embedMsg = Embed()
+            embedMsg.set_image(url='attachment://rickrolled.gif')
+            img = File(self._get_futa_path(), filename="rickrolled.gif")
+            await ctx.reply(file=img, embed=embedMsg)
         if "自殺" in message.content:
             member = ctx.guild.get_member(message.author.id)
             await member.send("哈囉, 不好意思打擾了, 剛剛好像出現了一些比較敏感的詞, 下面有些資訊可能可以幫到您.\n\n"
