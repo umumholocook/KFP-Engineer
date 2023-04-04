@@ -13,6 +13,7 @@ class Leaderboard(commands.Cog):
             "排行榜使用方法:\n" +
             "\t!lb list_category 顯示目前所有的排行榜名稱\n" +
             "\t!lb clear <排行榜名稱> - 清空排行榜計數 \n" +
+            "\t!lb clear_emojis <排行榜名稱> - 清空排行榜追蹤的符號 \n" +
             "\t!lb add_emoji <排行榜名稱> <符號> - 新增追蹤的符號至排行榜裡 \n" +
             "\t!lb remove_emoji <排行榜名稱> <符號> - 從排行榜移除追蹤的符號 \n" +
             "\t!lb list_emoji <排行榜名稱> - 顯示目前排行榜追蹤的符號 \n" +
@@ -30,6 +31,7 @@ class Leaderboard(commands.Cog):
             "\t!lb remove_category <排行榜名稱> 移除排行榜 並解除追蹤符號\n" +
             "\t!lb list_category 顯示目前所有的排行榜名稱\n" +
             "\t!lb clear <排行榜名稱> - 清空排行榜計數 \n" +
+            "\t!lb clear_emojis <排行榜名稱> - 清空排行榜計數 \n" +
             "\t!lb add_emoji <排行榜名稱> <符號> - 新增追蹤的符號至排行榜裡 \n" +
             "\t!lb add_emojis <排行榜名稱> <符號> <符號> ... - 新增追蹤的符號們至排行榜裡 \n" +
             "\t!lb remove_emoji <排行榜名稱> <符號> - 從排行榜移除追蹤的符號 \n" +
@@ -84,7 +86,19 @@ class Leaderboard(commands.Cog):
 
     # 清空排行榜計數
     @leaderboard_group.command(name = 'clear')
-    async def clear_leaderboard(self, ctx: commands.Context, lb_name: str):
+    async def clear_records(self, ctx: commands.Context, lb_name: str):
+        if ctx.author.bot:
+            return
+        leaderboard = LeaderboardUtil.findLeaderboard(lb_name)
+        if not leaderboard :
+            await ctx.send(f"排行榜'{lb_name}'不存在, 請輸入正確排行榜名稱")
+            return
+        LeaderboardUtil.clearRankRecords(leaderboard.name)
+        await ctx.send(f"排行榜'{lb_name}'紀錄清除完畢.")
+        
+    # 移除排行榜所有追蹤表符
+    @leaderboard_group.command(name = 'clear_emojis')
+    async def clear_emojis(self, ctx: commands.Context, lb_name: str):
         if ctx.author.bot:
             return
         leaderboard = LeaderboardUtil.findLeaderboard(lb_name)
@@ -168,7 +182,6 @@ class Leaderboard(commands.Cog):
         if not emojis:
             await ctx.send(f"排行榜'{lb_name}'並沒有追蹤任何表符.")
             return
-        
         result = f"'{lb_name}'排行榜正在追蹤以下表符:\n"
         for emoji in emojis:
             result += f"{emoji.emoji}\n"
