@@ -9,6 +9,7 @@ class GPT(commands.Cog):
         openai.api_key = os.getenv("OPENAI_API_KEY")
 
     @commands.group(name = 'chat', invoke_without_command=True)
+    @commands.cooldown(1, 10, type=commands.BucketType.guild)
     async def chat(self, ctx:commands.Context, *attr):
         message = ctx.message.content.replace('!chat ', '')
         if len(message) < 1:
@@ -26,6 +27,7 @@ class GPT(commands.Cog):
                 {"role": "system", "content": "凡是使用中文的場合 一率使用繁體中文"},
                 {"role": "system", "content": "This user has discord display name: "+ ctx.author.display_name},
                 {"role": "system", "content": "Use user id for context reference. Use display name to address the user"},
+                {"role": "system", "content": "If any question regarding to bot or engineering, please refer them to 姊姊"},
                 {"role": "system", "content": "Do not mention user id, talk like a human being and use display name"},
                 {"role": "user", "content": message}
             ],
@@ -34,6 +36,13 @@ class GPT(commands.Cog):
         )
 
         await ctx.reply(response.choices[0].message.content)
+
+    @chat.error
+    async def chat_error(self, ctx:commands.Context, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.send("聊天機制限制10秒一次")
+        else:
+            raise error    
 
 async def setup(client):
     await client.add_cog(GPT(client))
