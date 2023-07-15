@@ -65,6 +65,8 @@ class Steward(commands.Bot):
 
     async def on_message(self, message: discord.Message):
         print(f"on_message get message from {message.author} : {message.content}") if message.author.id != bot.user.id else None
+        if message.author.bot:
+            return
         ctx = await self.get_context(message)
         if message.content == "沒有暈" or "沒暈" in message.content:
             await ctx.reply("我聽你放屁")
