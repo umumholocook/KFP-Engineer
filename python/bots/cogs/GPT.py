@@ -12,6 +12,7 @@ class GPT(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.guild)
     async def chat(self, ctx:commands.Context, *attr):
         message = ctx.message.content.replace('!chat ', '')
+        message = ctx.message.content.replace('!chat', '')
         if len(message) < 1:
             await ctx.channel.send("請輸入你想要聊的話題")
             return
