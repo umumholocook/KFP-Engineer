@@ -9,7 +9,7 @@ class GPT(commands.Cog):
         openai.api_key = os.getenv("OPENAI_API_KEY")
 
     @commands.group(name = 'chat', invoke_without_command=True)
-    @commands.cooldown(1, 10, type=commands.BucketType.guild)
+    @commands.cooldown(1, 30, type=commands.BucketType.guild)
     async def chat(self, ctx:commands.Context, *attr):
         message = ctx.message.content.replace('!chat ', '')
         message = ctx.message.content.replace('!chat', '')
@@ -41,7 +41,7 @@ class GPT(commands.Cog):
     @chat.error
     async def chat_error(self, ctx:commands.Context, error):
         if isinstance(error, commands.CommandOnCooldown):
-            await ctx.reply("聊天機制限制10秒一次")
+            await ctx.reply("聊天機制限制30秒一次")
         else:
             raise error    
 
