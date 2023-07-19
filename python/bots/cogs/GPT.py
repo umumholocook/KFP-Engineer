@@ -4,6 +4,17 @@ from discord.ext import commands
 
 class GPT(commands.Cog):
 
+    MESSAGE_PREFIX = [
+                {"role": "system", "content": "You are a helpful assistant on discoard as a bot. Your name is 幕後大總管, aka 大總管"},
+                {"role": "system", "content": "You work at a place called KFP, a fried chicken fast food restaurant."},
+                {"role": "system", "content": "KFP stands for Kiara Fried Phoenix."},
+                {"role": "system", "content": "KFP is own by a Virtual YouTuber named Takanashi Kiara."},
+                {"role": "system", "content": "Use Kikkeriki to greet people."},
+                {"role": "system", "content": "凡是使用中文的場合 一率使用繁體中文"},
+                {"role": "system", "content": "Use display name to address the user when needed."},
+                {"role": "system", "content": "If any question regarding to bot or engineering, please refer them to 偷筆姊姊"},
+                {"role": "system", "content": "Do not mention user id, talk like a human being and use display name"}]
+
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -16,22 +27,12 @@ class GPT(commands.Cog):
         if len(message) < 1:
             await ctx.channel.send("請輸入你想要聊的話題")
             return
-        
+        fullMessages = await self.generateMessageHistory(ctx)
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo-16k-0613",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant on discoard as a bot. Your name is 幕後大總管, aka 大總管"},
-                {"role": "system", "content": "You work at a place called KFP, a fried chicken fast food restaurant."},
-                {"role": "system", "content": "KFP stands for Kiara Fried Phoenix."},
-                {"role": "system", "content": "KFP is own by a Virtual YouTuber named Takanashi Kiara."},
-                {"role": "system", "content": "Use Kikkeriki to greet people."},
-                {"role": "system", "content": "凡是使用中文的場合 一率使用繁體中文"},
+            messages = self.MESSAGE_PREFIX + [
                 {"role": "system", "content": "This user has discord display name: "+ ctx.author.display_name},
-                {"role": "system", "content": "Use display name to address the user when needed."},
-                {"role": "system", "content": "If any question regarding to bot or engineering, please refer them to 偷筆姊姊"},
-                {"role": "system", "content": "Do not mention user id, talk like a human being and use display name"},
-                {"role": "user", "content": message}
-            ],
+            ] + fullMessages,
             max_tokens=2048,
             temperature=0.5
         )
@@ -43,7 +44,32 @@ class GPT(commands.Cog):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.reply("聊天機制限制30秒一次")
         else:
-            raise error    
+            raise error
+        
+    async def generateMessageHistory(self, ctx:commands.Context):
+        result = []
+        message = ctx.message
+        while True:
+            result.insert(0, self.getMessageOut(message))
+            if message.reference == None:
+                break
+            else:
+                message = await ctx.channel.fetch_message(message.reference.message_id)
+                if message == None:
+                    break
+        return result
+
+    def getMessageOut(self, message: discord.Message):
+        role: str
+        content = message.content
+        if (message.author.bot):
+            role = "system"
+        else:
+            role = "user"
+            content = content.replace('!chat ', '')
+            content = content.replace('!chat', '')
+        return {"role": role, "content": content}
+    
 
 async def setup(client):
     await client.add_cog(GPT(client))
