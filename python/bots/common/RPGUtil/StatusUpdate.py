@@ -15,9 +15,7 @@ class StatusUpdate():
     async def sendMessage(self, bot: commands.Bot):
         guild = bot.get_guild(self.guild_id)
         member = guild.get_member(self.member_id)
-        if member.id == bot.id:
-            return
-        if member:
+        if self.member_id != bot.application_id:
             await member.send(self.__getMessage())
 
     def __getMessage(self):

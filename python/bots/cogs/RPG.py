@@ -145,7 +145,8 @@ class RPG(commands.Cog):
                 await self.bot.get_channel(channel_id).send(msg)
             update: StatusUpdate
             for update in statusUpdates:
-                await update.sendMessage(self.bot)
+                if update.member_id != self.bot.application_id:
+                    await update.sendMessage(self.bot)
 
 
     # 從冒險者退休
@@ -255,7 +256,8 @@ class RPG(commands.Cog):
         if StatusUtil.isAlerted(user, ctx.guild.id):
             await ctx.send(f"由於已經被偷襲過, '{name}'現在非常警戒並擋下了你的攻擊! 攻擊失敗!")
             msg = f"注意!{author_name}企圖偷襲你但是被你識破了!"
-            await member.send(msg)
+            if user.id != self.bot.application_id:
+                await member.send(msg)
             return
 
         # try to sneak attack
@@ -274,7 +276,8 @@ class RPG(commands.Cog):
                 await ctx.send(f"由於你的攻擊, '{name}'生命力歸零昏厥了過去")
             # sent a message let member know is being attack
             msg = f"注意!你被{author_name}偷襲了!"
-            await member.send(msg)
+            if user.id != self.bot.application_id:
+                await member.send(msg)
         else:
             await ctx.send(f"由於你的腳步聲太大, '{name}'注意到並擋下了你的攻擊! 攻擊失敗!")
         # the other person is now alerted
