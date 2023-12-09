@@ -58,8 +58,8 @@ class Steward(commands.Bot):
         print("refreshStatus started")
         reviveComaStatus.start()
         print("revive started")
-        updateBotAvatar.start()
-        print("update bot avatart started")
+        # updateBotAvatar.start()
+        # print("update bot avatart started")
     
     def _get_futa_path(self):
         return os.sep.join((os.getcwd(), "resource", "image", "no_futa.webp"))
