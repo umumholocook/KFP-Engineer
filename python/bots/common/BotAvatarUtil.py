@@ -40,7 +40,7 @@ def oauth(r):
 def create_url():
     usernames = "usernames=takanashikiara"
     user_fields = "user.fields=profile_image_url"
-    url = "https://api.twitter.com/2/users/by?{}&{}".format(usernames, user_fields)
+    url = "https://api.twitter.com/2/users/by?{}&{}&scope=users.read".format(usernames, user_fields)
     return url
 
 def connect_to_endpoint(url):
