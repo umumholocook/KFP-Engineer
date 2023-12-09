@@ -1,6 +1,7 @@
 import discord, os, signal, tempfile
 
-from common.BotAvatarUtil import downloadImage, fetchUserAvatarUrl, getBotAvatarImageFilePath
+# disalbed due to Twitter API change
+# from common.BotAvatarUtil import downloadImage, fetchUserAvatarUrl, getBotAvatarImageFilePath
 from common.ChannelUtil import ChannelUtil
 from common.KFP_DB import KfpDb
 from common.LeaderboardUtil import LeaderboardUtil
@@ -178,16 +179,17 @@ async def refreshStatus():
     for update in statusUpdates:
         await update.sendMessage(bot)
 
-@tasks.loop(minutes=15)
-async def updateBotAvatar():
-    url: str = fetchUserAvatarUrl()
-    if not url:
-        print("bot avator doesn't need update")
-        return
-    downloadImage(url)
-    filePointer = open(getBotAvatarImageFilePath(), 'rb')
-    newAvator = filePointer.read()
-    await bot.user.edit(avatar=newAvator)
+# Due to Twitter API change, this feature is disabled (or if someone wnat to upgrade twitter to $100/month)
+# @tasks.loop(minutes=15)
+# async def updateBotAvatar():
+#     url: str = fetchUserAvatarUrl()
+#     if not url:
+#         print("bot avator doesn't need update")
+#         return
+#     downloadImage(url)
+#     filePointer = open(getBotAvatarImageFilePath(), 'rb')
+#     newAvator = filePointer.read()
+#     await bot.user.edit(avatar=newAvator)
     
 # setup slash commands
 
@@ -223,20 +225,21 @@ async def self(interaction: discord.Interaction):
 async def self(interaction: discord.Interaction):
     await interaction.response.send_message(get_version())
 
-@tree.command(name = "refresh_image", description = "立刻更新大總管頭貼")
-@commands.has_permissions(manage_roles=True)
-async def command_refresh_bot_image(interaction: discord.Interaction):
-    if interaction.user.bot:
-        return
-    url: str = fetchUserAvatarUrl()
-    if not url:
-        await interaction.response.send_message("大總管頭像不需要更新.")
-        return
-    downloadImage(url)
-    filePointer = open(getBotAvatarImageFilePath(), 'rb')
-    newAvator = filePointer.read()
-    await bot.user.edit(avatar=newAvator)
-    await interaction.response.send_message("大總管頭像更新完成.")
+# Disabled due to Twitter API change
+# @tree.command(name = "refresh_image", description = "立刻更新大總管頭貼")
+# @commands.has_permissions(manage_roles=True)
+# async def command_refresh_bot_image(interaction: discord.Interaction):
+#     if interaction.user.bot:
+#         return
+#     url: str = fetchUserAvatarUrl()
+#     if not url:
+#         await interaction.response.send_message("大總管頭像不需要更新.")
+#         return
+#     downloadImage(url)
+#     filePointer = open(getBotAvatarImageFilePath(), 'rb')
+#     newAvator = filePointer.read()
+#     await bot.user.edit(avatar=newAvator)
+#     await interaction.response.send_message("大總管頭像更新完成.")
 
 @tree.error
 async def permission_error(error: app_commands.AppCommandError, interaction: discord.Integration):
