@@ -72,6 +72,13 @@ class GPT(commands.Cog):
             await ctx.reply("聊天機制限制30秒一次")
         else:
             raise error
+
+    @draw.error
+    async def draw_error(self, ctx:commands.Context, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.reply("AI繪圖只能每30秒一次哦")
+        else:
+            raise error    
         
     async def generateMessageHistory(self, ctx:commands.Context):
         result = []
