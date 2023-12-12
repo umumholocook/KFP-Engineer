@@ -45,7 +45,7 @@ class GPT(commands.Cog):
         await ctx.reply(response.choices[0].message.content)
 
     @commands.group(name = 'draw', invoke_without_command=True)
-    @commands.cooldown(1, 30, type=commands.BucketType.guild)
+    @commands.cooldown(1, 300, type=commands.BucketType.guild)
     async def draw(self, ctx:commands.Context):
         message = ctx.message.content.replace('!draw ', '')
         message = ctx.message.content.replace('!draw', '')
@@ -76,7 +76,7 @@ class GPT(commands.Cog):
     @draw.error
     async def draw_error(self, ctx:commands.Context, error):
         if isinstance(error, commands.CommandOnCooldown):
-            await ctx.reply("AI繪圖只能每30秒一次哦")
+            await ctx.reply("AI繪圖只能每5分鐘一張哦")
         else:
             raise error    
         
