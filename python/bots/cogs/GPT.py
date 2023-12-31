@@ -1,4 +1,4 @@
-import discord, os
+import discord, os, openai
 from discord.embeds import Embed
 from discord.ext import commands
 from openai import OpenAI
@@ -70,13 +70,18 @@ class GPT(commands.Cog):
     async def chat_error(self, ctx:commands.Context, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.reply("聊天機制限制30秒一次")
+        elif isinstance(error.original, openai.RateLimitError):
+            await ctx.reply("非常抱歉,本月的ChatGPT預算已用盡,歡迎您下個月再次使用.")
         else:
+            print(error)
             raise error
 
     @draw.error
     async def draw_error(self, ctx:commands.Context, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.reply("AI繪圖只能每5分鐘一張哦")
+        elif isinstance(error.original, openai.RateLimitError):
+            await ctx.reply("非常抱歉,本月的ChatGPT預算已用盡,歡迎您下個月再次使用.")
         else:
             raise error    
         
