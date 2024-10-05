@@ -1,4 +1,5 @@
 #!/bin/bash -e
+
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # check if python 3 exist
     if [[ "$(python3 -V)" =~ "Python 3" ]]; then
