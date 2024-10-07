@@ -15,6 +15,7 @@ from discord.ext import commands
 from random import randint
 from common.KFP_DB import KfpDb 
 from common.Util import Util
+from common.ImageUtil import ImageUtil
 from common.ChannelUtil import ChannelUtil
 
 class ProfileImage(object):
@@ -100,45 +101,63 @@ class ProfileImage(object):
     
     def _pasteIcon(self) -> None:
         self.image.paste(self.icon.resize((142,142)), (60, 70))
+
+    def _get_text_size(self, draw: ImageDraw.ImageDraw, text: str, font: ImageFont.ImageFont) -> tuple:
+        """
+        Returns the width and height of the given text using the provided draw object and font.
+        This method uses the newer textbbox method as a replacement for the deprecated textsize.
+        """
+        text_bbox = draw.textbbox((0, 0), text, font=font)
+        width = text_bbox[2] - text_bbox[0]
+        height = text_bbox[3] - text_bbox[1]
+        return width, height    
         
     def _drawMemberText(self) -> None:
         draw = ImageDraw.Draw(self.image)
         memberTextFont = ImageFont.truetype(font=self.fontPath, size=46,encoding='utf-8')
         userTextFont = ImageFont.truetype(font=self.fontPath, size=27,encoding='utf-8')
-        displayNameSize = draw.textsize(self.displayName, font=memberTextFont)
-        userNameSize = draw.textsize(self.userName, font=userTextFont)
-        draw.text((250,110), self.displayName, font=memberTextFont)
-        draw.text((250+displayNameSize[0]+20, 110+displayNameSize[1]-userNameSize[1]), '('+self.userName+')', font=userTextFont, fill='#ADADAD')
+        displayNameWidth, displayNameHeight = ImageUtil.get_text_size(draw, self.displayName, memberTextFont)
+        _, userNameHeight = ImageUtil.get_text_size(draw, self.userName, userTextFont)
+
+        draw.text((250, 110), self.displayName, font=memberTextFont)
+        draw.text((250 + displayNameWidth + 20, 110 + displayNameHeight - userNameHeight),
+                '(' + self.userName + ')', font=userTextFont, fill='#ADADAD')
 
     def _drawRankText(self) -> None:
         draw = ImageDraw.Draw(self.image)
+        
+        # Text and font for level
         level_1_text = '等級'
-        level_1_size =  26
-        level_1_font = ImageFont.truetype(font = self.fontPath, size=level_1_size,encoding='utf-8')
-
+        level_1_size = 26
+        level_1_font = ImageFont.truetype(font=self.fontPath, size=level_1_size, encoding='utf-8')
+        
         level_2_text = str(self.levelNumber)
         level_2_size = 48
-        level_2_font = ImageFont.truetype(font=self.fontPath, size=level_2_size,encoding='utf-8')
-
+        level_2_font = ImageFont.truetype(font=self.fontPath, size=level_2_size, encoding='utf-8')
+        
+        # Text and font for rank
         rank_1_text = '排名'
         rank_1_size = 26
-        rank_1_font = ImageFont.truetype(font=self.fontPath, size=rank_1_size,encoding='utf-8')
-
-        rank_2_text = '#'+str(self.rankNumber)
+        rank_1_font = ImageFont.truetype(font=self.fontPath, size=rank_1_size, encoding='utf-8')
+        
+        rank_2_text = '#' + str(self.rankNumber)
         rank_2_size = 48
-        rank_2_font = ImageFont.truetype(font=self.fontPath, size=rank_2_size,encoding='utf-8')
-
+        rank_2_font = ImageFont.truetype(font=self.fontPath, size=rank_2_size, encoding='utf-8')
+        
+        # Calculate positions and draw the text
         x_base = 934 - 60
-        x_base -= draw.textsize(level_2_text, font=level_2_font)[0]
-        draw.text((x_base, 48), level_2_text, font=level_2_font ,fill='#FF0000')
-        x_base -= (draw.textsize(level_1_text, font=level_1_font)[0] + 5)
-        draw.text((x_base, 70), level_1_text, font=level_1_font ,fill='#FF0000')
-        x_base -= (draw.textsize(rank_2_text, font=rank_2_font)[0]+15)
-        draw.text((x_base, 48), rank_2_text, font=rank_2_font )
-        x_base -= (draw.textsize(rank_1_text, font=rank_1_font)[0]+10)
-        draw.text((x_base, 70), rank_1_text, font=rank_1_font )
+        x_base -= ImageUtil.get_text_size(draw, level_2_text, font=level_2_font)[0]
+        draw.text((x_base, 48), level_2_text, font=level_2_font, fill='#FF0000')
+        
+        x_base -= (ImageUtil.get_text_size(draw, level_1_text, font=level_1_font)[0] + 5)
+        draw.text((x_base, 70), level_1_text, font=level_1_font, fill='#FF0000')
+        
+        x_base -= (ImageUtil.get_text_size(draw, rank_2_text, font=rank_2_font)[0] + 15)
+        draw.text((x_base, 48), rank_2_text, font=rank_2_font)
+        
+        x_base -= (ImageUtil.get_text_size(draw, rank_1_text, font=rank_1_font)[0] + 10)
+        draw.text((x_base, 70), rank_1_text, font=rank_1_font)
 
-    
     def _drawXpAndCoin(self) -> None:
         draw = ImageDraw.Draw(self.image)
         common_size = 27
@@ -150,15 +169,21 @@ class ProfileImage(object):
         text_list_fill_2 = ('#FFFFFF', '#ADADAD', '#ADADAD', '#ADADAD')[::-1]
 
         x_base = 934 - 60 - 30
-        y = 171+15
-        for i,t in enumerate(text_list_2[::-1]):
-            offset = draw.textsize(t, font=common_font)
-            x_base -= (offset[0]+5)
+        y = 171 + 15
+
+        # Drawing text_list_2
+        for i, t in enumerate(text_list_2[::-1]):
+            offset = ImageUtil.get_text_size(draw, t, font=common_font)
+            x_base -= (offset[0] + 5)
             draw.text((x_base, y), t, fill=text_list_fill_2[i], font=common_font)
+
+        # Adding some space
         x_base -= 15
-        for i,t in enumerate(text_list_1[::-1]):
-            offset = draw.textsize(t, font=common_font)
-            x_base -= (offset[0]+5)
+
+        # Drawing text_list_1
+        for i, t in enumerate(text_list_1[::-1]):
+            offset = ImageUtil.get_text_size(draw, t, font=common_font)
+            x_base -= (offset[0] + 5)
             draw.text((x_base, y), t, fill=text_list_fill_1[i], font=common_font)
     
     def _closeAllImage(self) -> None:

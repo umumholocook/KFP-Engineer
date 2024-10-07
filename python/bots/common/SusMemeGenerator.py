@@ -2,7 +2,6 @@ from PIL import Image, ImageDraw, ImageFont
 from numpy import asarray
 import os, tempfile, random, imageio
 
-
 class SusMemeGenerator():
 
     _avatar_size = 97
@@ -95,7 +94,6 @@ class SusMemeGenerator():
         draw = ImageDraw.Draw(image)
         font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "NotoSansCJKtc-Regular.otf")), size=70, encoding='utf-8')
         sky_w, sky_h = image.size
-        # text_w, text_h = draw.textsize(text_to_render, font)
         bbox = draw.textbbox((0, 0), text_to_render, font=font)
         text_w, text_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
         draw.text(((sky_w - text_w) // 2, (sky_h - text_h) // 2), text_to_render, (255, 255, 255), font=font)
