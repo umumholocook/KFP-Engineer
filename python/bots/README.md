@@ -17,7 +17,13 @@ pip install -r requirements.txt
 NOTE: 如果要更新 requirements.txt, 可以跑下面的指令
 
 ```
-pip freeze > requirements.txt
+pipreq . --force
+```
+
+NOTE: 如果要使用.python_version 裡的版本, 可以跑下面的指令
+
+```
+eval $(pyenv init --path)"
 ```
 
 1. 機器人需要開啟下面兩個權限
