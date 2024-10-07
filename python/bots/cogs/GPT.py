@@ -14,8 +14,7 @@ class GPT(commands.Cog):
                 {"role": "system", "content": "凡是使用中文的場合 一率使用繁體中文"},
                 {"role": "system", "content": "Use display name to address the user when needed."},
                 {"role": "system", "content": "If any question regarding to bot or engineering, please refer them to 偷筆姊姊"},
-                {"role": "system", "content": "Do not mention user id, talk like a human being and use display name"},
-                {"role": "system", "content": "We are currently doing a special April fool's day event, with all answer you have, please response with 呱 or croak depends on the input language"}]
+                {"role": "system", "content": "Do not mention user id, talk like a human being and use display name"}]
 
     client = OpenAI(
         api_key=os.getenv("OPENAI_API_KEY")
