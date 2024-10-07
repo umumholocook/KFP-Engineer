@@ -38,7 +38,7 @@ class ProfileImage(object):
         assert x > 0, 'argument x need to more than 0, x : '.format(x)
         assert y > 0, 'argument y need to more than 0, y : {}'.format(y)
         
-        reSizedImage = image.resize((x, int(x*image.size[1]/image.size[0])), Image.ANTIALIAS)
+        reSizedImage = image.resize((x, int(x*image.size[1]/image.size[0])), Image.Resampling.LANCZOS)
         t_pos = (reSizedImage.size[1]-y)/2 if (reSizedImage.size[1]-y)/2 > 0 else (y-reSizedImage.size[1])/2
         reSizedImage = reSizedImage.crop((0, t_pos, reSizedImage.size[0], reSizedImage.size[1]))
         return reSizedImage

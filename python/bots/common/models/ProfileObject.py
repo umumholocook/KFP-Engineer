@@ -26,7 +26,7 @@ class ProfileObject():
     
     def set_background(self, data):
         image_bk =  Image.open(io.BytesIO(data))
-        re_bk = image_bk.resize((934, int(934*image_bk.size[1]/image_bk.size[0])), Image.ANTIALIAS)
+        re_bk = image_bk.resize((934, int(934*image_bk.size[1]/image_bk.size[0])), Image.Resampling.LANCZOS)
         t_pos = (re_bk.size[1]-282)/2 if (re_bk.size[1]-282)/2 > 0 else (282-re_bk.size[1])/2
         re_bk = re_bk.crop((0, t_pos, re_bk.size[0], re_bk.size[1]))
         image_bk.close()
