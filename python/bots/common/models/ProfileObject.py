@@ -1,6 +1,7 @@
 import io
 from common.LevelUtil import LevelUtil
 from PIL import Image, ImageEnhance, ImageFont, ImageDraw
+from common.ImageUtil import ImageUtil
 
 class ProfileObject():
     def __init__(
@@ -25,7 +26,7 @@ class ProfileObject():
     
     def set_background(self, data):
         image_bk =  Image.open(io.BytesIO(data))
-        re_bk = image_bk.resize((934, int(934*image_bk.size[1]/image_bk.size[0])), Image.ANTIALIAS)
+        re_bk = image_bk.resize((934, int(934*image_bk.size[1]/image_bk.size[0])), Image.Resampling.LANCZOS)
         t_pos = (re_bk.size[1]-282)/2 if (re_bk.size[1]-282)/2 > 0 else (282-re_bk.size[1])/2
         re_bk = re_bk.crop((0, t_pos, re_bk.size[0], re_bk.size[1]))
         image_bk.close()
@@ -50,59 +51,78 @@ class ProfileObject():
         image_icon.close()
     
     def set_member_text(self):
-        member_name_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=46,encoding='utf-8')
-        user_name_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=27,encoding='utf-8')
+        member_name_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=46, encoding='utf-8')
+        user_name_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=27, encoding='utf-8')
         draw = ImageDraw.Draw(self.image)
-        draw.text((250,110), self.display_name, font=member_name_font)
-        draw.text((250+draw.textsize(self.display_name, font=member_name_font)[0]+20, 110+24), '('+self.user_name+')', font=user_name_font, fill='#ADADAD')
-    
+        
+        # Draw the display name
+        draw.text((250, 110), self.display_name, font=member_name_font)
+        
+        # Use ImageUtil to get the width of the display name text
+        display_name_width = ImageUtil.get_text_size(draw, self.display_name, font=member_name_font)[0]
+        
+        # Draw the user name
+        draw.text((250 + display_name_width + 20, 110 + 24), '(' + self.user_name + ')', font=user_name_font, fill='#ADADAD')
     
     def set_rank_text(self):
         draw = ImageDraw.Draw(self.image)
+        
+        # Define the text and fonts
         level_1_text = '等級'
-        level_1_size =  26
-        level_1_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=level_1_size,encoding='utf-8')
+        level_1_size = 26
+        level_1_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=level_1_size, encoding='utf-8')
 
         level_2_text = str(self.rank_)
         level_2_size = 48
-        level_2_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=level_2_size,encoding='utf-8')
+        level_2_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=level_2_size, encoding='utf-8')
 
         rank_1_text = '排名'
         rank_1_size = 26
-        rank_1_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=rank_1_size,encoding='utf-8')
+        rank_1_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=rank_1_size, encoding='utf-8')
 
-        rank_2_text = '#'+str(self.rank_num)
+        rank_2_text = '#' + str(self.rank_num)
         rank_2_size = 48
-        rank_2_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=rank_2_size,encoding='utf-8')
+        rank_2_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=rank_2_size, encoding='utf-8')
 
+        # Calculate and adjust x_base based on text widths
         x_base = 934 - 60
-        x_base -= draw.textsize(level_2_text, font=level_2_font)[0]
-        draw.text((x_base, 48), level_2_text, font=level_2_font ,fill='#FF0000')
-        x_base -= (draw.textsize(level_1_text, font=level_1_font)[0] + 5)
-        draw.text((x_base, 70), level_1_text, font=level_1_font ,fill='#FF0000')
-        x_base -= (draw.textsize(rank_2_text, font=rank_2_font)[0]+15)
-        draw.text((x_base, 48), rank_2_text, font=rank_2_font )
-        x_base -= (draw.textsize(rank_1_text, font=rank_1_font)[0]+10)
-        draw.text((x_base, 70), rank_1_text, font=rank_1_font )
+        x_base -= ImageUtil.get_text_size(draw, level_2_text, font=level_2_font)[0]
+        draw.text((x_base, 48), level_2_text, font=level_2_font, fill='#FF0000')
+
+        x_base -= (ImageUtil.get_text_size(draw, level_1_text, font=level_1_font)[0] + 5)
+        draw.text((x_base, 70), level_1_text, font=level_1_font, fill='#FF0000')
+
+        x_base -= (ImageUtil.get_text_size(draw, rank_2_text, font=rank_2_font)[0] + 15)
+        draw.text((x_base, 48), rank_2_text, font=rank_2_font)
+
+        x_base -= (ImageUtil.get_text_size(draw, rank_1_text, font=rank_1_font)[0] + 10)
+        draw.text((x_base, 70), rank_1_text, font=rank_1_font)
 
     def set_xp_progress_and_coin_num(self):
         draw = ImageDraw.Draw(self.image)
         common_size = 27
         common_font = ImageFont.truetype(font=r'./resource/ttf/NotoSansCJKtc-Regular.otf', size=common_size, encoding='utf-8')
         
+        # Define the text and fill colors
         text_list_1 = ('硬幣:', str(self.coin_num))
         text_list_fill_1 = ('#E1E100', '#F9F900')[::-1]
-        text_list_2 = (str(self.xp_num), '/', str(LevelUtil.calculateXPRequiredForLevel(desire_level=(self.rank_+ 1))), 'XP')
+        text_list_2 = (str(self.xp_num), '/', str(LevelUtil.calculateXPRequiredForLevel(desire_level=(self.rank_ + 1))), 'XP')
         text_list_fill_2 = ('#FFFFFF', '#ADADAD', '#ADADAD', '#ADADAD')[::-1]
 
         x_base = 934 - 60 - 30
-        y = 171+15
-        for i,t in enumerate(text_list_2[::-1]):
-            offset = draw.textsize(t, font=common_font)
-            x_base -= (offset[0]+5)
+        y = 171 + 15
+
+        # Drawing text_list_2
+        for i, t in enumerate(text_list_2[::-1]):
+            offset = ImageUtil.get_text_size(draw, t, font=common_font)
+            x_base -= (offset[0] + 5)
             draw.text((x_base, y), t, fill=text_list_fill_2[i], font=common_font)
+
+        # Adding some space before text_list_1
         x_base -= 15
-        for i,t in enumerate(text_list_1[::-1]):
-            offset = draw.textsize(t, font=common_font)
-            x_base -= (offset[0]+5)
+
+        # Drawing text_list_1
+        for i, t in enumerate(text_list_1[::-1]):
+            offset = ImageUtil.get_text_size(draw, t, font=common_font)
+            x_base -= (offset[0] + 5)
             draw.text((x_base, y), t, fill=text_list_fill_1[i], font=common_font)

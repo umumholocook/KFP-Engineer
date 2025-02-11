@@ -15,8 +15,17 @@ class StatusUpdate():
     async def sendMessage(self, bot: commands.Bot):
         guild = bot.get_guild(self.guild_id)
         member = guild.get_member(self.member_id)
-        if self.member_id != bot.application_id:
-            await member.send(self.__getMessage())
+        if member.id == bot.id:
+            return
+        if member:
+            try:
+                await member.send(self.__getMessage())
+            except discord.Forbidden:
+                # Handle the forbidden error gracefully
+                print(f"Cannot send message to {member.name}#{member.discriminator}: 403 Forbidden.")
+            except Exception as e:
+                # Handle any other exceptions gracefully
+                print(f"An error occurred while sending a message: {str(e)}")
 
     def __getMessage(self):
         if self.type == StatusType.REST:

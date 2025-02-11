@@ -1,6 +1,6 @@
 import os
 import tempfile
-import unicodedata
+from common.ImageUtil import ImageUtil
 from PIL import Image, ImageDraw, ImageFont
 
 
@@ -113,9 +113,11 @@ class SuperChatUtil():
         font = SuperChatUtil._getFont()
         addPage = 0
         newMsg = ""
+        draw = ImageDraw.Draw(img)
+
         for i in range(len(msg)):
             newMsg += msg[i]
-            if ImageDraw.Draw(img).textsize(newMsg, font)[0] > offset:
+            if ImageUtil.get_text_size(draw, newMsg, font)[0] > offset:
                 newMsg = newMsg[:-1] + "\n" + newMsg[-1]
                 addPage += 1
                 if addPage == 3:

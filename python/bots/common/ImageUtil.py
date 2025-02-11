@@ -55,9 +55,21 @@ class ImageUtil():
         ImageUtil._renderSubText(imageInfo.charPositions[position], imageInfo.colors[position], text, image, imageInfo.size, imageInfo.angles[position])
         return len(text)
 
+    @staticmethod
+    def get_text_size(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.ImageFont) -> tuple:
+        """
+        Returns the width and height of the given text using the provided draw object and font.
+        This method uses the newer textbbox method as a replacement for the deprecated textsize.
+        """
+        text_bbox = draw.textbbox((0, 0), text, font=font)
+        width = text_bbox[2] - text_bbox[0]
+        height = text_bbox[3] - text_bbox[1]
+        return width, height
+
     def _renderSubTextShadow(offset: Position, subText: str, image: Image, size: int, angle: int):
         font = ImageFont.truetype(os.sep.join((os.getcwd(), "resource", "ttf", "DFKai-SB.ttf")), size=size, encoding='utf-8')
-        textSize = ImageDraw.Draw(image).textsize(subText, font)
+        draw = ImageDraw.Draw(image)
+        textSize = ImageUtil.get_text_size(draw, subText, font)
 
         blurred = Image.new('RGBA', textSize)
         draw = ImageDraw.Draw(blurred)
