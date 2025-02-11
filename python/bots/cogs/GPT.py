@@ -34,7 +34,7 @@ class GPT(commands.Cog):
         async with ctx.typing():
             fullMessages = await self.generateMessageHistory(ctx)
             response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo-1106",
+                model="o3-mini-2025-01-31",
                 messages = self.MESSAGE_PREFIX + [
                     {"role": "system", "content": "This user has discord display name: "+ ctx.author.display_name},
                 ] + fullMessages,
