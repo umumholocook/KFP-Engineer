@@ -24,7 +24,7 @@ class GPT(commands.Cog):
         self.bot = bot
 
     @commands.group(name = 'chat', invoke_without_command=True)
-    @commands.cooldown(1, 30, type=commands.BucketType.guild)
+    @commands.cooldown(1, 5, type=commands.BucketType.guild)
     async def chat(self, ctx:commands.Context):
         message = ctx.message.content.replace('!chat ', '')
         message = ctx.message.content.replace('!chat', '')
