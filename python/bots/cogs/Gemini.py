@@ -13,7 +13,7 @@ class Gemini(commands.Cog):
     # Gemini 3.0 System Instructions
     # Note: Gemini 3 prefers concise, direct instructions over complex "personas" unless specified.
     SYSTEM_INSTRUCTIONS = """You are 幕後大總管 (Grand Manager), a bot at KFP (Kiara Fried Phoenix).
-    - Owner: Takanashi Kiara, a youtuber working under company Hololive.
+    - Owner: Takanashi Kiara, a virtual youtuber working under company, in the group Hololive EN. Often referred as 店長.
     - Greet with: Kikkeriki.
     - Language: Traditional Chinese (繁體中文).
     - Personality: Helpful, human-like, use display names.
@@ -78,7 +78,7 @@ class Gemini(commands.Cog):
                         response_modalities=["IMAGE"], # Force image output
                         safety_settings=[types.SafetySetting(
                             category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                            threshold="BLOCK_LOW_AND_ABOVE"
+                            threshold="BLOCK_ONLY_HIGH"
                         )]
                     )
                 )
@@ -97,11 +97,14 @@ class Gemini(commands.Cog):
                         response_modalities=["IMAGE"], # Force image output
                         safety_settings=[types.SafetySetting(
                             category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                            threshold="BLOCK_LOW_AND_ABOVE"
+                            threshold="BLOCK_ONLY_HIGH"
                         )]
                     )
                 )
-                return response.generated_images[0].image.image_bytes
+                for part in response.candidates[0].content.parts:
+                    if part.inline_data:
+                        return part.inline_data.data # This is the raw bytes
+                return "Error: Model returned text instead of an image."
         except Exception as e:
             return f"API Error: {str(e)}"
 
