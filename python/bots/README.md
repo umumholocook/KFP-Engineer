@@ -6,6 +6,8 @@ Main | Staging | Release
 
 這裡放置的都是基於 discord.py 所編寫的 Discord 專用 bot
 
+目前Python版本 3.12.7
+
 ## 如何使用
 
 0. 安裝所需的library
