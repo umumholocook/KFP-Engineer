@@ -129,7 +129,7 @@ class Steward(commands.Bot):
         
         temp = 'load cogs:\n'
         for file in os.listdir(r'./cogs'):
-            if not file.startswith("__init__") and not file in exception_cogs and file.endswith('.py'):
+            if not file.startswith("__init__") and not file.startswith("GPT") and not file in exception_cogs and file.endswith('.py'):
                 temp += '  |- {}\n'.format(file[:-3])
                 
                 await self.load_extension(name='cogs.{}'.format(file[:-3]))
