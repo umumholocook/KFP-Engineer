@@ -140,12 +140,36 @@ class Gemini(commands.Cog):
                     if not attached_file_bytes and attachment.content_type and attachment.content_type.startswith('image/'):
                         attached_file_bytes = file_data
                     
-                    # Add to prompt context
-                    # Gemini supports images (image/png, image/jpeg, etc.) and PDFs (application/pdf)
-                    # We pass the mime_type directly from Discord
-                    part = types.Part.from_bytes(data=file_data, mime_type=attachment.content_type)
-                    user_parts.append(part)
-                    print(f"📎 Attached file: {attachment.filename} ({attachment.content_type})")
+                    # Determine how to handle the file based on MIME type and extension
+                    mime_type = attachment.content_type.split(';')[0].strip() if attachment.content_type else ""
+                    filename_lower = attachment.filename.lower()
+                    
+                    # 1. Supported Media Types (Images, Audio, Video, PDF)
+                    # Note: Gemini supports application/pdf directly.
+                    if mime_type.startswith(('image/', 'audio/', 'video/')) or mime_type == 'application/pdf':
+                        part = types.Part.from_bytes(data=file_data, mime_type=mime_type)
+                        user_parts.append(part)
+                        print(f"📎 Attached media/pdf: {attachment.filename} ({mime_type})")
+                    
+                    # 2. Text/Code Files (Fallback to text content)
+                    # If it's explicitly text/* OR acts like a code file
+                    else:
+                        is_likely_text = mime_type.startswith('text/') or filename_lower.endswith(
+                            ('.py', '.js', '.html', '.css', '.json', '.md', '.txt', '.sh', '.c', '.cpp', '.h', '.java', '.go', '.rb', '.ts', '.yml', '.yaml', '.xml', '.ini', '.env')
+                        )
+                        
+                        if is_likely_text:
+                            try:
+                                text_content = file_data.decode('utf-8')
+                                # Format it clearly for the model
+                                prompt_text = f"\n[Attached File: {attachment.filename}]\n```\n{text_content}\n```\n"
+                                user_parts.append(types.Part.from_text(text=prompt_text))
+                                print(f"📎 Attached text file: {attachment.filename} (converted to text)")
+                            except UnicodeDecodeError:
+                                print(f"⚠️ Could not decode {attachment.filename} as UTF-8 text.")
+                        else:
+                            print(f"⚠️ Skipping unsupported file type: {attachment.filename} ({mime_type})")
+
                 except Exception as e:
                     print(f"Failed to read attachment {attachment.filename}: {e}")
 
