@@ -2,7 +2,7 @@ aiohttp==3.13.2
 discord.py==2.4.0
 imageio==2.35.1
 numpy==2.1.1
-openai==1.51.0
+openai==2.8.1
 opencv_python==4.10.0.84
 peewee==3.17.6
 Pillow==10.4.0
