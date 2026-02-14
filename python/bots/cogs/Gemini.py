@@ -63,48 +63,47 @@ class Gemini(commands.Cog):
     async def _tool_generate_image(self, prompt: str, image_bytes: bytes = None):
         print(f"🎨 Tool Triggered: {prompt}")
         try:
+            # Prepare contents
+            contents = [prompt]
             if image_bytes:
-                # 1. Create the Image Part object
+                # Create the Image Part object
                 input_image = types.Part.from_bytes(
                     data=image_bytes,
                     mime_type="image/png" # Discord avatars are usually png/webp
                 )
-                
-                # 2. Call Gemini 3 Pro Image (Multimodal)
-                response = await self.client.aio.models.generate_content(
-                    model='gemini-2.5-flash-image', 
-                    contents=[prompt, input_image],
-                    config=types.GenerateContentConfig(
-                        response_modalities=["IMAGE"], # Force image output
-                        safety_settings=[types.SafetySetting(
-                            category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                            threshold="BLOCK_ONLY_HIGH"
-                        )]
-                    )
+                contents.append(input_image)
+            
+            # Call Gemini 3 Pro Image (Multimodal)
+            response = await self.client.aio.models.generate_content(
+                model='gemini-2.5-flash-image', 
+                contents=contents,
+                config=types.GenerateContentConfig(
+                    response_modalities=["IMAGE"], # Force image output
+                    safety_settings=[types.SafetySetting(
+                        category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                        threshold="BLOCK_ONLY_HIGH"
+                    )]
                 )
-                
-                # 3. Extract Inline Image Data
-                # generate_content returns 'candidates', not 'generated_images'
-                for part in response.candidates[0].content.parts:
-                    if part.inline_data:
-                        return part.inline_data.data # This is the raw bytes
-                return "Error: Model returned text instead of an image."
-            else:
-                response = await self.client.aio.models.generate_content(
-                    model='gemini-2.5-flash-image', 
-                    contents=[prompt],
-                    config=types.GenerateContentConfig(
-                        response_modalities=["IMAGE"], # Force image output
-                        safety_settings=[types.SafetySetting(
-                            category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                            threshold="BLOCK_ONLY_HIGH"
-                        )]
-                    )
-                )
-                for part in response.candidates[0].content.parts:
-                    if part.inline_data:
-                        return part.inline_data.data # This is the raw bytes
-                return "Error: Model returned text instead of an image."
+            )
+            
+            # 3. Extract Inline Image Data safely
+            if not response.candidates:
+                return "Error: No candidates returned. The prompt might have triggered a safety filter."
+            
+            first_candidate = response.candidates[0]
+            if not first_candidate.content or not first_candidate.content.parts:
+                # Check for finish_reason if available for debugging info
+                reason = "Unknown"
+                if hasattr(first_candidate, 'finish_reason'):
+                     reason = str(first_candidate.finish_reason)
+                return f"Error: No content generated. Finish Reason: {reason}"
+
+            for part in first_candidate.content.parts:
+                if part.inline_data:
+                    return part.inline_data.data # This is the raw bytes
+            
+            return "Error: Model returned content but no image data found."
+
         except Exception as e:
             return f"API Error: {str(e)}"
 
@@ -123,20 +122,72 @@ class Gemini(commands.Cog):
         status_msg = await ctx.reply("🤔 大總管思考中...")
         
         # 2. Prepare History
+        # --- Handle Attachments ---
+        user_parts = [{"text": f"User ({ctx.author.display_name}): {user_text}"}]
+        attached_file_bytes = None # To store for potential drawing reference
+        
+        if ctx.message.attachments:
+            for attachment in ctx.message.attachments:
+                # Limit size to 10MB to avoid API errors (Gemini has limits, Discord has limits) - roughly
+                if attachment.size > 10 * 1024 * 1024:
+                    continue
+                    
+                try:
+                    # Download content
+                    file_data = await attachment.read()
+                    
+                    # Store the FIRST image found as potential reference for drawing
+                    if not attached_file_bytes and attachment.content_type and attachment.content_type.startswith('image/'):
+                        attached_file_bytes = file_data
+                    
+                    # Determine how to handle the file based on MIME type and extension
+                    mime_type = attachment.content_type.split(';')[0].strip() if attachment.content_type else ""
+                    filename_lower = attachment.filename.lower()
+                    
+                    # 1. Supported Media Types (Images, Audio, Video, PDF)
+                    # Note: Gemini supports application/pdf directly.
+                    if mime_type.startswith(('image/', 'audio/', 'video/')) or mime_type == 'application/pdf':
+                        part = types.Part.from_bytes(data=file_data, mime_type=mime_type)
+                        user_parts.append(part)
+                        print(f"📎 Attached media/pdf: {attachment.filename} ({mime_type})")
+                    
+                    # 2. Text/Code Files (Fallback to text content)
+                    # If it's explicitly text/* OR acts like a code file
+                    else:
+                        is_likely_text = mime_type.startswith('text/') or filename_lower.endswith(
+                            ('.py', '.js', '.html', '.css', '.json', '.md', '.txt', '.sh', '.c', '.cpp', '.h', '.java', '.go', '.rb', '.ts', '.yml', '.yaml', '.xml', '.ini', '.env')
+                        )
+                        
+                        if is_likely_text:
+                            try:
+                                text_content = file_data.decode('utf-8')
+                                # Format it clearly for the model
+                                prompt_text = f"\n[Attached File: {attachment.filename}]\n```\n{text_content}\n```\n"
+                                user_parts.append(types.Part.from_text(text=prompt_text))
+                                print(f"📎 Attached text file: {attachment.filename} (converted to text)")
+                            except UnicodeDecodeError:
+                                print(f"⚠️ Could not decode {attachment.filename} as UTF-8 text.")
+                        else:
+                            print(f"⚠️ Skipping unsupported file type: {attachment.filename} ({mime_type})")
+
+                except Exception as e:
+                    print(f"Failed to read attachment {attachment.filename}: {e}")
+
         history = self.get_recent_history(user_id)
-        history.append({"role": "user", "parts": [{"text": f"User ({ctx.author.display_name}): {user_text}"}]})
+        history.append({"role": "user", "parts": user_parts})
 
         # 3. Define Tools
         draw_tool = types.Tool(
             function_declarations=[
                 types.FunctionDeclaration(
                     name="generate_image",
-                    description="Generates an image. If the user wants to be in the picture, set use_profile_image to true.",
+                    description="Generates an image. If the user wants to be in the picture, set use_profile_image to true. If the user provided an image attachment to use as reference, set use_attached_image to true.",
                     parameters=types.Schema(
                         type="OBJECT",
                         properties={
                             "prompt": types.Schema(type="STRING", description="Visual description."),
-                            "use_profile_image": types.Schema(type="BOOLEAN", description="Set true if drawing the user/avatar.")
+                            "use_profile_image": types.Schema(type="BOOLEAN", description="Set true if drawing the user/avatar."),
+                            "use_attached_image": types.Schema(type="BOOLEAN", description="Set true if drawing based on the attached image.")
                         },
                         required=["prompt"]
                     )
@@ -194,13 +245,18 @@ class Gemini(commands.Cog):
                             if fn.name == "generate_image":
                                 await status_msg.edit(content=f"🎨 大總管正在繪製: {fn.args['prompt']}...")
                                 
-                                # Logic: Did the model ask for the profile image?
-                                avatar_bytes = None
-                                if fn.args.get('use_profile_image', False):
-                                    avatar_bytes = await self.get_user_avatar_bytes(ctx.author)
+                                # Logic: Determine which image to use as reference
+                                reference_image_bytes = None
+                                
+                                # A. Check attached image request first
+                                if fn.args.get('use_attached_image', False) and attached_file_bytes:
+                                     reference_image_bytes = attached_file_bytes
+                                # B. Check profile image request second (only if no attachment used, or override logic)
+                                elif fn.args.get('use_profile_image', False):
+                                    reference_image_bytes = await self.get_user_avatar_bytes(ctx.author)
                                 
                                 # Call the tool
-                                image_data = await self._tool_generate_image(fn.args['prompt'], avatar_bytes)
+                                image_data = await self._tool_generate_image(fn.args['prompt'], reference_image_bytes)
                                 
                                 if isinstance(image_data, bytes):
                                     file = discord.File(io.BytesIO(image_data), "kfp_art.png")
