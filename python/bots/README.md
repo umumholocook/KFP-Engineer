@@ -37,11 +37,19 @@ SERVER MEMBERS INTENT
 
 並且要有Manage Roles Permission
 
-2. 修改discord_bot_2_0.py裡面的token
+2. 設定環境變數 `KFP_TOKEN`（Discord bot token）
 
-3. 使用 start_kfp.sh
+3. 啟動 bot
 
-4. 邀請bot到聊天室
+```bash
+cd python/bots
+export KFP_TOKEN='your-token'
+./start_kfp.sh          # foreground（預設）
+./start_kfp.sh --check  # 只檢查環境，不啟動
+./start_kfp.sh --background  # 背景執行，log 寫入 kfp_bot.log
+```
+
+4. 邀請 bot 到聊天室（可用 `/邀請連結`）
 
 
 ## 如何增加新功能？
