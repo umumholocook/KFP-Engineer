@@ -90,9 +90,9 @@ class Util:
                 return emoji
         return emoji_name
 
-    def downloadUserAvatar(user:User):
-        data = requests.get(user.display_avatar).content
-        return Image.open(io.BytesIO(data))
+    async def download_user_avatar(user: User) -> Image.Image:
+        from common.DiscordUtil import DiscordUtil
+        return await DiscordUtil.read_avatar_image(user)
 
     def enlargeImage(image: Image):
         size = 20

@@ -2,6 +2,8 @@
 **/*rank_role.json
 **/.vscode/**
 **/*.db
+python/bots/.kfp_bot.pid
+python/bots/kfp_bot.log
 !python/bots/tests/Database/*.db
 **/.idea/
 /shelf/

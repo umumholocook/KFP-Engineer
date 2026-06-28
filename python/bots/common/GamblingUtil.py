@@ -10,12 +10,13 @@ class GamblingUtil():
 
     DEFAULT_RATE = 5
 
-    async def create_loop(bot, embed, main_message, ctx, value_type, main_name, embed_index):
+    @staticmethod
+    async def create_loop(bot, embed, main_message, author, channel, value_type, main_name, embed_index):
         def check(m):
-            return m.channel == ctx.channel and m.author == ctx.author
+            return m.channel == channel and m.author == author
         def reaction_check(reaction, user):
-            if user == ctx.author and reaction.message == main_message:
-                return str(reaction.emoji) == '⭕' or '❌'
+            if user == author and reaction.message == main_message:
+                return str(reaction.emoji) == '⭕' or str(reaction.emoji) == '❌'
             else:
                 return False
         flag = True
