@@ -70,7 +70,7 @@ class Gemini(commands.Cog):
                 contents.append(input_image)
 
             response = await self.client.aio.models.generate_content(
-                model='gemini-2.5-flash-image',
+                model='gemini-3-pro-image',
                 contents=contents,
                 config=types.GenerateContentConfig(
                     response_modalities=["IMAGE"],
@@ -196,7 +196,7 @@ class Gemini(commands.Cog):
 
         try:
             response_stream = await self.client.aio.models.generate_content_stream(
-                model='gemini-3-pro-preview',
+                model='gemini-3.5-flash',
                 contents=history,
                 config=types.GenerateContentConfig(
                     system_instruction=self.SYSTEM_INSTRUCTIONS,
