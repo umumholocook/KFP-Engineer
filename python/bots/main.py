@@ -3,6 +3,7 @@ import discord, os, signal, tempfile
 # disalbed due to Twitter API change
 # from common.BotAvatarUtil import downloadImage, fetchUserAvatarUrl, getBotAvatarImageFilePath
 from common.ChannelUtil import ChannelUtil
+from common.DiscordUtil import DiscordUtil
 from common.KFP_DB import KfpDb
 from common.LeaderboardUtil import LeaderboardUtil
 from common.RoleUtil import RoleUtil
@@ -18,11 +19,18 @@ from subprocess import check_output, Popen
 VERSION = "0.8"
 TOKEN=os.environ['KFP_TOKEN']
 
-class Steward(commands.Bot):    
+
+async def _disabled_prefix(_bot: commands.Bot, _message: discord.Message):
+    """Slash-only bot: return no prefix so legacy ! commands are never matched."""
+    return []
+
+
+class Steward(commands.Bot):
     def __init__(self, intents: discord.Intents):
         super().__init__(
-            command_prefix="!",
-            intents = intents
+            command_prefix=_disabled_prefix,
+            intents=intents,
+            help_command=None,
         )
         
     async def on_ready(self):
@@ -51,7 +59,9 @@ class Steward(commands.Bot):
             db = KfpDb()
             channel: Channel = ChannelUtil.getRebootMessageChannel(guild_id)
             if channel:
-                await self.get_channel(channel.channel_id).send("更新結束, 現在版本 {}".format(get_version()))
+                reboot_channel = await DiscordUtil.fetch_text_channel(self, channel.channel_id)
+                if reboot_channel:
+                    await reboot_channel.send("更新結束, 現在版本 {}".format(get_version()))
         else:
             db = KfpDb()
         refreshStatus.start()
@@ -65,20 +75,20 @@ class Steward(commands.Bot):
         return os.sep.join((os.getcwd(), "resource", "image", "no_futa.webp"))
 
     async def on_message(self, message: discord.Message):
-        print(f"on_message get message from {message.author} : {message.content}") if message.author.id != bot.user.id else None
         if message.author.bot:
             return
-        ctx = await self.get_context(message)
+        if message.guild is None:
+            return
+
         if message.content == "沒有暈" or "沒暈" in message.content:
-            await ctx.reply("我聽你放屁")
+            await message.reply("我聽你放屁")
         if "扶他" in message.content and "不要扶他" not in message.content:
             embedMsg = Embed()
             embedMsg.set_image(url='attachment://rickrolled.gif')
             img = File(self._get_futa_path(), filename="rickrolled.gif")
-            await ctx.reply(file=img, embed=embedMsg)
+            await message.reply(file=img, embed=embedMsg)
         if "自殺" in message.content:
-            member = ctx.guild.get_member(message.author.id)
-            await member.send("哈囉, 不好意思打擾了, 剛剛好像出現了一些比較敏感的詞, 下面有些資訊可能可以幫到您.\n\n"
+            await DiscordUtil.send_user_dm(message.author, "哈囉, 不好意思打擾了, 剛剛好像出現了一些比較敏感的詞, 下面有些資訊可能可以幫到您.\n\n"
             "台灣:\n110、119可分別撥打到台灣的警察局及消防局以處理緊急情況。\n\n衛生福利部鼓勵民眾平常多關愛自己、也多關心身邊的人，一句問候、一個微笑，都能溫暖人心。若您或身邊的人有遇到心理困擾，目前各縣市政府衛生局社區心理衛生中心都可以提供或轉介心理諮詢的服務，亦可撥打衛生福利部安心專線(0800-788-995，請幫幫救救我)提供24小時免費心理諮詢服務，或撥打生命線1995及張老師1980，亦可提供適當的心理支持。\n\n" +
             "香港:\n香港撒瑪利亞防止自殺會：2896 0000.\n生命熱線：24小時熱線: 2382 0000 /長者熱線: 2382 0881 / 青少年專線: 2382 0777.\n向晴熱線: 18288\n\n" +
             "中國:\n北京自殺研究防治中心專線 800-810-1117 / 010-82951332\n上海生命線 ： 400-821-1215\n青少年法律與心理諮詢熱線：12355\n\n" +
@@ -86,13 +96,11 @@ class Steward(commands.Bot):
             "新加坡:\n新加坡援人協會(Samaritans of Singapore, SOS)：1800-221 4444\n 心理衛生學院(Institute of Mental Health)緊急求助電話服務：6389 2222\n\n" +
             "紐西蘭:\n1737, need to talk? 全國心理健康和藥物成癮干預服務：1737\nYouthline：0800 376 633或短訊234\n\n")
         if "suicide" in message.content or "suicidal" in message.content:
-            member = ctx.guild.get_member(message.author.id)
-            await member.send("Hi, sorry to bother you, but since you mentioned it, maybe you might find the following information helpful?\n\n"
+            await DiscordUtil.send_user_dm(message.author, "Hi, sorry to bother you, but since you mentioned it, maybe you might find the following information helpful?\n\n"
             "USA:\n911 is the national emergency number\nThe National Suicide Prevention Lifeline can be reached at 1-800-273-8255. (24/7)\nThe Crisis Text Line can be reached by texting HOME to 741-741 (24/7)\nThe TrevorLifeline can be reached at 1-866-488-7386 (24/7, for lesbian, gay, bisexual, transgender and questioning youth)\nThe Trans Lifeline can be reached at 1-877-565-8860.\n\n" +
             "Canada:\n911 is the national emergency number in Canada.\nCanada Suicide Prevention Service can be reached at 1-833-456-4566 or 45645 (Text, 4 p.m. to midnight ET only)\nCrisis Text Line powered by Kids Help Phone  by texting HOME (English) or PARLER (French) to 686868.\nTrans Lifeline can be reached at 1-877-330-6366\n\n" +
             "UK:\n999 and 112 is the national emergency number in the United Kingdom\nNational Suicide Prevention Helpline UK can be reached on 0800 689 5652.\nSOS Silence of Suicide  is a registered charity supporting children & adults struggling with poor mental health and suicidal ideation. They provide a standard rate phone support service open 8pm until Midnight, Friday to Monday inclusive. You can reach them on 0300 1020 505\n\n")
-        if ctx.command != None:
-            await self.process_commands(message)
+
     
     async def on_raw_reaction_add(self, payload: RawReactionActionEvent):
         channel = await self.fetch_channel(payload.channel_id)
@@ -116,10 +124,7 @@ class Steward(commands.Bot):
 
         LeaderboardUtil.removeReaction(author_id, emoji)
     
-    async def on_command_completion(self, ctx: commands.Context):
-        print('on_command_completion Command {0.name} completion'.format(ctx.command))
-                
-    async def on_guild_rolw_update(self, before: Role, after: Role):
+    async def on_guild_role_update(self, before: Role, after: Role):
         RoleUtil.updateRole(before.guild.id, before.id, after.name, after.color)
         print(f"updating role with new name {after.name} and color {after.color}")
     
@@ -129,7 +134,7 @@ class Steward(commands.Bot):
         
         temp = 'load cogs:\n'
         for file in os.listdir(r'./cogs'):
-            if not file.startswith("__init__") and not file.startswith("GPT") and not file in exception_cogs and file.endswith('.py'):
+            if not file.startswith("__init__") and file not in exception_cogs and file.endswith('.py'):
                 temp += '  |- {}\n'.format(file[:-3])
                 
                 await self.load_extension(name='cogs.{}'.format(file[:-3]))
@@ -166,8 +171,10 @@ async def reviveComaStatus():
         msg = "某冥界死神跑來跟店長抱怨公會死傷慘重, 害她最近工作變忙"
         img = ReviveUtil.getPic()
         for channel_id in channelIdList:
-            await bot.get_channel(channel_id).send(file=img)
-            await bot.get_channel(channel_id).send(msg)
+            channel = await DiscordUtil.fetch_text_channel(bot, channel_id)
+            if channel:
+                await channel.send(file=img)
+                await channel.send(msg)
         update: StatusUpdate
         for update in statusUpdates:
             await update.sendMessage(bot)
@@ -193,14 +200,14 @@ async def refreshStatus():
     
 # setup slash commands
 
-@tree.command(name = "invite_link", description = "邀請大總管連結")
-@commands.has_permissions(manage_roles=True)
+@tree.command(name="邀請連結", description="邀請大總管連結")
+@app_commands.checks.has_permissions(manage_roles=True)
 async def command_invite_link(interaction: discord.Interaction):
-    link = "https://discordapp.com/oauth2/authorize?&client_id={}&scope=bot&permissions={}".format(bot.user.id, 1543892049)
+    link = DiscordUtil.invite_url(bot.user.id)
     await interaction.response.send_message(link)
 
-@tree.command(name = "update", description = "檢查並更新大總管")
-@commands.has_permissions(manage_roles=True)
+@tree.command(name="更新", description="檢查並更新大總管")
+@app_commands.checks.has_permissions(manage_roles=True)
 async def command_update(interaction: discord.Interaction):
     discord.Permissions
     db = KfpDb()
@@ -215,14 +222,9 @@ async def command_update(interaction: discord.Interaction):
 
     Popen([os.sep.join((os.getcwd(), "update_and_restart.sh"))], shell=True)
     
-@tree.command(name = "version", description = "檢查大總管版本")
-@commands.has_permissions(manage_roles=True)
-async def self(interaction: discord.Interaction):
-    await interaction.response.send_message(get_version())
-    
-@tree.command(name = "檢查版本", description = "檢查大總管版本")
-@commands.has_permissions(manage_roles=True)
-async def self(interaction: discord.Interaction):
+@tree.command(name="版本", description="檢查大總管版本")
+@app_commands.checks.has_permissions(manage_roles=True)
+async def command_version(interaction: discord.Interaction):
     await interaction.response.send_message(get_version())
 
 # Disabled due to Twitter API change
@@ -242,10 +244,14 @@ async def self(interaction: discord.Interaction):
 #     await interaction.response.send_message("大總管頭像更新完成.")
 
 @tree.error
-async def permission_error(error: app_commands.AppCommandError, interaction: discord.Integration):
+async def on_tree_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     if isinstance(error, app_commands.MissingPermissions):
-        await interaction.response.send_message(f"出現錯誤: {error}\n 你沒有足夠的權限使用這個功能", ephemeral = True)
-    else: raise error
+        if interaction.response.is_done():
+            await interaction.followup.send(f"出現錯誤: {error}\n你沒有足夠的權限使用這個功能", ephemeral=True)
+        else:
+            await interaction.response.send_message(f"出現錯誤: {error}\n你沒有足夠的權限使用這個功能", ephemeral=True)
+    else:
+        raise error
     
 
 bot.run(TOKEN)

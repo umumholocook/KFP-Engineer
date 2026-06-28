@@ -1,34 +1,36 @@
-from discord.embeds import Embed
-from discord.file import File
+import discord
+from discord import File
+from discord import app_commands
 from common.DizzyUtil import DizzyUtil
-from common.ImageUtil import ImageUtil
 from discord.ext import commands
 
+
 class DizzyMeme(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
-    
-    @commands.group(name = 'dizzy', invoke_without_command=True)
-    @commands.cooldown(1, 3, type=commands.BucketType.user)
-    async def yagoo_group(self, ctx:commands.Context, text: str = "阿暈你好"):
-        imageInfo = DizzyUtil.drawDizzy(text)
 
-        tempFileName = imageInfo[0]
-        tempFilePath = imageInfo[1]
+    @app_commands.command(name="阿暈", description="產生阿暈迷因圖片")
+    @app_commands.describe(text="要顯示的文字")
+    @app_commands.checks.cooldown(1, 3.0)
+    async def dizzy(self, interaction: discord.Interaction, text: str = "阿暈你好"):
+        image_info = DizzyUtil.drawDizzy(text)
+        temp_file_name = image_info[0]
+        temp_file_path = image_info[1]
+        image = File(temp_file_path, filename=temp_file_name)
+        await interaction.response.send_message(file=image)
 
-        embedMsg = Embed()
-        embedMsg.set_image(url='attachment://' + tempFileName)
-        image = File(tempFilePath, filename=tempFileName)
-        await ctx.message.delete()
-        await ctx.send(file=image)
-
-    @yagoo_group.error
-    async def rps_error(self, ctx:commands.Context, error):
-        if isinstance(error, commands.CommandOnCooldown):
+    async def cog_app_command_error(
+        self, interaction: discord.Interaction, error: app_commands.AppCommandError
+    ):
+        if isinstance(error, app_commands.CommandOnCooldown):
             msg = "指令太快, 請等{:.2f}秒".format(error.retry_after)
-            await ctx.send(msg)
+            if interaction.response.is_done():
+                await interaction.followup.send(msg, ephemeral=True)
+            else:
+                await interaction.response.send_message(msg, ephemeral=True)
         else:
             raise error
 
-async def setup(client):
-    await client.add_cog(DizzyMeme(client))
+
+async def setup(bot):
+    await bot.add_cog(DizzyMeme(bot))

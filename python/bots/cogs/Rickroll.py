@@ -1,37 +1,40 @@
+import discord
 from discord.ext import commands
-from discord import Embed, File, User
+from discord import Embed, File, User, app_commands
 from common.Util import Util
 from common.RickrollGenerator import RickrollGenerator
 
+
 class Rickroll(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
-    
-    @commands.group(name = 'rick', invoke_without_command=True)
-    @commands.cooldown(1, 30, type=commands.BucketType.user)
-    async def rick_group(self, ctx:commands.Context, user:User):
-        if user.bot:
-            target = ctx.message.author
-        else: 
-            target = user
-        targetUser = await self.bot.fetch_user(target.id)
-        avatar = Util.downloadUserAvatar(user=targetUser)
-        imagePath = RickrollGenerator.createGif(avatar)
 
-        embedMsg = Embed()
-        embedMsg.set_image(url='attachment://rickrolled.gif')
+    @app_commands.command(name="瑞克搖", description="產生瑞克搖 GIF")
+    @app_commands.describe(user="要瑞克搖的使用者")
+    @app_commands.checks.cooldown(1, 30.0)
+    async def rickroll(self, interaction: discord.Interaction, user: User):
+        target = interaction.user if user.bot else user
+        avatar = await Util.download_user_avatar(target)
+        image_path = RickrollGenerator.createGif(avatar)
 
-        img = File(imagePath, filename="rickrolled.gif")
-        await ctx.send(file=img, embed=embedMsg)
-        
+        embed_msg = Embed()
+        embed_msg.set_image(url="attachment://rickrolled.gif")
 
-    @rick_group.error
-    async def rick_error(self, ctx:commands.Context, error):
-        if isinstance(error, commands.CommandOnCooldown):
+        img = File(image_path, filename="rickrolled.gif")
+        await interaction.response.send_message(file=img, embed=embed_msg)
+
+    async def cog_app_command_error(
+        self, interaction: discord.Interaction, error: app_commands.AppCommandError
+    ):
+        if isinstance(error, app_commands.CommandOnCooldown):
             msg = "請勿過於頻繁使用本指令"
-            await ctx.reply(msg)
+            if interaction.response.is_done():
+                await interaction.followup.send(msg, ephemeral=True)
+            else:
+                await interaction.response.send_message(msg, ephemeral=True)
         else:
             raise error
 
-async def setup(client):
-    await client.add_cog(Rickroll(client))
+
+async def setup(bot):
+    await bot.add_cog(Rickroll(bot))
