@@ -110,7 +110,7 @@ echo "Working directory: $SCRIPT_DIR"
 import importlib.util
 import sys
 
-required = ("discord", "peewee", "PIL", "aiohttp")
+required = ("discord", "peewee", "PIL", "aiohttp", "zhconv")
 missing = [name for name in required if importlib.util.find_spec(name) is None]
 if missing:
     print("Error: missing packages:", ", ".join(missing), file=sys.stderr)
