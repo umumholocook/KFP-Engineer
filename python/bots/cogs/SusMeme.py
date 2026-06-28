@@ -1,17 +1,19 @@
-import io, asyncio, requests
-from typing import List
+import asyncio
+
+import discord
+from discord import Embed, File, app_commands
+from discord.ext import commands
+
+from common.DiscordUtil import DiscordUtil
 from common.NicknameUtil import NicknameUtil
 from common.SusMemeGenerator import SusMemeGenerator
 from common.Util import Util
-from PIL import Image
-from discord.ext import commands
-from discord import User, File, Embed
 
-class SusMeme(commands.Cog):
+
+@app_commands.guild_only()
+class SusMeme(commands.GroupCog, group_name="流放", group_description="Among Us 流放投票迷因"):
     YAH = "kiara_correct"
     NAY = "kiara_false"
-    # YAH = "👀"
-    # NAY = "💯"
 
     COLOR = [
         "BLACK",
@@ -30,82 +32,128 @@ class SusMeme(commands.Cog):
         "RANDOM",
     ]
 
+    COLOR_CHOICES = [app_commands.Choice(name=color, value=color) for color in COLOR]
+
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(name = 'sus', invoke_without_command=True)
-    @commands.cooldown(1, 10, type=commands.BucketType.user)
-    async def sus_group(self, ctx:commands.Context, user:User, crewmate_color:str = "random"):
-        if (ctx.message.author.id == 596719831001071629):
-            await ctx.message.delete()
-        else:
-            await self.startSusVoting(ctx, user, True, crewmate_color.upper())
-    
-    @sus_group.error
-    async def sus_error(self, ctx:commands.Context, error):
-        if isinstance(error, commands.CommandOnCooldown):
+    @app_commands.command(name="投票", description="投票流放指定使用者")
+    @app_commands.describe(
+        user="要流放的使用者",
+        crewmate_color="船員顏色",
+    )
+    @app_commands.choices(crewmate_color=COLOR_CHOICES)
+    @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
+    async def sus(
+        self,
+        interaction: discord.Interaction,
+        user: discord.Member,
+        crewmate_color: str = "RANDOM",
+    ) -> None:
+        await interaction.response.defer()
+        await self.startSusVoting(interaction, user, True, crewmate_color.upper())
+
+    @app_commands.command(name="無頭像", description="投票流放指定使用者（不使用頭像）")
+    @app_commands.describe(
+        user="要流放的使用者",
+        crewmate_color="船員顏色",
+    )
+    @app_commands.choices(crewmate_color=COLOR_CHOICES)
+    async def eject(
+        self,
+        interaction: discord.Interaction,
+        user: discord.Member,
+        crewmate_color: str = "RANDOM",
+    ) -> None:
+        await interaction.response.defer()
+        await self.startSusVoting(interaction, user, False, crewmate_color.upper())
+
+    @app_commands.command(name="說明", description="流放指令說明")
+    async def show_help_message(self, interaction: discord.Interaction) -> None:
+        msg = "如何使用流放\n"
+        msg += "/流放 投票 <@用戶名> 生成一個用戶名或著用戶暱稱的被票圖\n"
+        msg += "/流放 無頭像 <@用戶名> 生成一個不使用頭像的被票圖\n"
+        await interaction.response.send_message(msg)
+
+    async def cog_app_command_error(
+        self, interaction: discord.Interaction, error: app_commands.AppCommandError
+    ):
+        if isinstance(error, app_commands.CommandOnCooldown):
             msg = "等一下, 我還在忙..."
-            await ctx.reply(msg)
+            if interaction.response.is_done():
+                await interaction.followup.send(msg, ephemeral=True)
+            else:
+                await interaction.response.send_message(msg, ephemeral=True)
         else:
             raise error
-    
-    @sus_group.command(name = "no_icon")
-    async def eject(self, ctx:commands.Command, user:User, crewmate_color:str = "random"):
-        await self.startSusVoting(ctx, user, False, crewmate_color.upper())
-    
-    @sus_group.command(name = "help")
-    async def show_help_message(self, ctx:commands.Command):
-        msg = "如何使用sus\n"
-        msg+= "!sus <@用戶名> 生成一個用戶名或著用戶暱稱的被票圖\n"
-        msg+= "!sus no_icon <@用戶名> 生成一個不使用頭像的被票圖\n"
 
-        await ctx.send(msg)
+    async def startSusVoting(
+        self,
+        interaction: discord.Interaction,
+        user: discord.Member,
+        with_avatar: bool,
+        crewmate_color: str,
+    ) -> None:
+        channel = interaction.channel
 
-    async def startSusVoting(self, ctx:commands.Context, user: User, withAvatar: bool, crewmate_color: str):
-        if not crewmate_color in SusMeme.COLOR:
+        if crewmate_color not in SusMeme.COLOR:
             msg = f"顏色{crewmate_color}錯誤, 請重新輸入\n"
-            msg+= "顏色種類:\n"
-            msg+= "BLACK\n"
-            msg+= "BLUE\n"
-            msg+= "BROWN\n"
-            msg+= "CYAN\n"
-            msg+= "GRAY\n"
-            msg+= "GREEN\n"
-            msg+= "LIME\n"
-            msg+= "ORANGE\n"
-            msg+= "PINK\n"
-            msg+= "PURPLE\n"
-            msg+= "RED\n"
-            msg+= "WHITE\n"
-            msg+= "YELLOW\n"
-            await ctx.send(msg)
+            msg += "顏色種類:\n"
+            msg += "BLACK\n"
+            msg += "BLUE\n"
+            msg += "BROWN\n"
+            msg += "CYAN\n"
+            msg += "GRAY\n"
+            msg += "GREEN\n"
+            msg += "LIME\n"
+            msg += "ORANGE\n"
+            msg += "PINK\n"
+            msg += "PURPLE\n"
+            msg += "RED\n"
+            msg += "WHITE\n"
+            msg += "YELLOW\n"
+            await interaction.followup.send(msg)
             return
 
         if user.bot:
-            user_name = await NicknameUtil.get_user_nickname_or_default(ctx.guild, ctx.message.author)
-            bot_name = await NicknameUtil.get_user_nickname_or_default(ctx.guild, user)
-            await self.createSusMeme(ctx, user_name, ctx.message.author, True)
-            await ctx.send(f"由於{user_name}意圖流放{bot_name}, 現已被流放")
+            user_name = await NicknameUtil.get_user_nickname_or_default(
+                interaction.guild, interaction.user
+            )
+            bot_name = await NicknameUtil.get_user_nickname_or_default(
+                interaction.guild, user
+            )
+            await self.createSusMeme(
+                channel, user_name, interaction.user, True, crewmate_color
+            )
+            await interaction.followup.send(
+                f"由於{user_name}意圖流放{bot_name}, 現已被流放"
+            )
             return
 
-        user_name = await NicknameUtil.get_user_nickname_or_default(ctx.guild, user)
+        user_name = await NicknameUtil.get_user_nickname_or_default(
+            interaction.guild, user
+        )
 
-        newMsg = await ctx.send(f"要把{user_name}扔到宇宙裡嗎?")
-        yEmoji = await Util.find_emoji_with_name(self.bot, ctx.guild.id, SusMeme.YAH)
-        nEmoji = await Util.find_emoji_with_name(self.bot, ctx.guild.id, SusMeme.NAY)
-        await newMsg.add_reaction(yEmoji)
-        await newMsg.add_reaction(nEmoji)
+        new_msg = await channel.send(f"要把{user_name}扔到宇宙裡嗎?")
+        y_emoji = await Util.find_emoji_with_name(
+            self.bot, interaction.guild.id, SusMeme.YAH
+        )
+        n_emoji = await Util.find_emoji_with_name(
+            self.bot, interaction.guild.id, SusMeme.NAY
+        )
+        await new_msg.add_reaction(y_emoji)
+        await new_msg.add_reaction(n_emoji)
 
-        for countDown in range(0, 10):
-            count = 10 - countDown
-            await newMsg.edit(content=str(f"要把{user_name}扔到宇宙裡嗎?({count})"))
+        for count_down in range(0, 10):
+            count = 10 - count_down
+            await new_msg.edit(content=str(f"要把{user_name}扔到宇宙裡嗎?({count})"))
             await asyncio.sleep(1)
-        await newMsg.edit(content=str(f"要把{user_name}扔到宇宙裡嗎?"))
-        newMsg = await ctx.fetch_message(newMsg.id)
-        
+        await new_msg.edit(content=str(f"要把{user_name}扔到宇宙裡嗎?"))
+        new_msg = await channel.fetch_message(new_msg.id)
+
         yah_count = 0
         nay_count = 0
-        for reaction in newMsg.reactions:
+        for reaction in new_msg.reactions:
             if isinstance(reaction.emoji, str):
                 if SusMeme.YAH == reaction.emoji:
                     yah_count = reaction.count
@@ -118,40 +166,37 @@ class SusMeme(commands.Cog):
                     nay_count = reaction.count
 
         if yah_count > nay_count:
-            await ctx.send(f"投票結果, 流放{user_name}")
-            await self.createSusMeme(ctx, user_name, user, withAvatar, crewmate_color)
+            await channel.send(f"投票結果, 流放{user_name}")
+            await self.createSusMeme(
+                channel, user_name, user, with_avatar, crewmate_color
+            )
         else:
-            await ctx.send(f"投票結果, 不流放{user_name}")
+            await channel.send(f"投票結果, 不流放{user_name}")
 
-    
-    async def createSusMeme(self, ctx:commands.Context, user_name: str, user:User, withAvatar: bool, crewmate_color: str = "RANDOM"):
-        msg = await ctx.send("流放中...")
+    async def createSusMeme(
+        self,
+        channel: discord.abc.Messageable,
+        user_name: str,
+        user: discord.User,
+        with_avatar: bool,
+        crewmate_color: str = "RANDOM",
+    ) -> None:
+        msg = await channel.send("流放中...")
 
-        if withAvatar:
-            avatar = self.downloadUserAvatar(user)
-            imagePath = SusMemeGenerator.createGif(user_name, avatar, crewmate_color)
+        if with_avatar:
+            avatar = await DiscordUtil.read_avatar_image(user)
+            image_path = SusMemeGenerator.createGif(user_name, avatar, crewmate_color)
         else:
-            imagePath = SusMemeGenerator.createGifWithoutAvatar(user_name, crewmate_color)
-        
-        embedMsg = Embed()
-        embedMsg.set_image(url='attachment://sus.gif')
+            image_path = SusMemeGenerator.createGifWithoutAvatar(
+                user_name, crewmate_color
+            )
 
-        img = File(imagePath, filename="sus.gif")
-        await ctx.send(file=img, embed=embedMsg)
+        embed_msg = Embed()
+        embed_msg.set_image(url="attachment://sus.gif")
+
+        img = File(image_path, filename="sus.gif")
+        await channel.send(file=img, embed=embed_msg)
         await msg.delete()
-
-    def downloadUserAvatar(self, user: User):
-        avatar_url = user.avatar.url
-        data = requests.get(avatar_url).content
-        return Image.open(io.BytesIO(data))
-
-    def isGif(self, image: Image):
-        try:
-            image.seek(1)
-        except EOFError:
-            return False
-        else:
-            return True
 
 async def setup(client):
     await client.add_cog(SusMeme(client))

@@ -18,14 +18,14 @@ class GamblingEmbed():
         embed.title = game.name
         _description = ''
         if game.status == Util.GamblingStatus.ready:
-            _description += '請各位輸入`!bet 下注數 下注編號 {}` 開始下注!。\n'.format(game.id)
+            _description += '請各位輸入`/下注` 開始下注!（賭局 ID: {}）。\n'.format(game.id)
         if game.status == Util.GamblingStatus.wait:
             _description += '停止下注!'
         _description += '#目前所有選項的期望賠率都是一樣的，有人有想法可以聯絡<@326752816238428164>\n'
         if game.status == Util.GamblingStatus.ready:
-            _description += '<@{}>可以輸入`!betting lock {}`來停止下注。'.format(game.creater_id, game.id)
+            _description += '<@{}>可以輸入`/賭盤 鎖定`（賭局 ID: {}）來停止下注。'.format(game.creater_id, game.id)
         if game.status == Util.GamblingStatus.wait:
-            _description += '<@{}>可以輸入`!betting end 勝利編號 {}`來結算賭盤。'.format(game.creater_id, game.id)
+            _description += '<@{}>可以輸入`/賭盤 結束`（賭局 ID: {}）來結算賭盤。'.format(game.creater_id, game.id)
         embed.description = _description
         
         betting_items = json.loads(game.item_list)
